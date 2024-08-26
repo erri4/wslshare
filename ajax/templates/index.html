@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+
+
+    <h2>first name:</h2>
+    <input type="text" id="firstname">
+    <h2>last name:</h2>
+    <input type="text" id="lastname">
+    <button id="button" name="button">submit</button>
+
+    <div id="output"></div>
+
+    <script src="static/ajax.js"></script>
+    <script>
+        document.querySelector("#button").addEventListener('click', () => {
+            firstname = document.querySelector("#firstname").value
+            lastname = document.querySelector("#lastname").value
+            send_http_req({lastname: lastname, firstname: firstname}, undefined, undefined, '#output', (r) => {
+                obj_resp = JSON.parse(r)
+                if (obj_resp.output === undefined){
+                    document.querySelector("#output").innerHTML = obj_resp.error
+                }
+                else{
+                    document.querySelector("#output").innerHTML = obj_resp.output
+                }
+            })
+        })
+    </script>
+
+</body>
+</html>
