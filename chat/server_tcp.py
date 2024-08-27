@@ -33,7 +33,7 @@ def main():
                     clients_name.append([rdable, msg.decode()])
                     for client in clients:
                         if client != conn and client != server:
-                            pro_wr_msg(client, json.dumps(f'\033[96m *{msg.decode()} has joined the room* \033[00m').encode())
+                            pro_wr_msg(client, json.dumps(f'\033[96m *{msg.decode()} have joined the room* \033[00m').encode())
                     print(f'new client: {msg.decode()}')
                 else:
                     if msg == b'' or msg == b'exit':
@@ -48,7 +48,7 @@ def main():
                                 clients_name.remove(client)
                         for client in clients:
                             if client != rdable and client != server:
-                                pro_wr_msg(client, json.dumps(f'\033[96m *{cl} has left the room* \033[00m').encode())
+                                pro_wr_msg(client, json.dumps(f'\033[96m *{cl} have left the room* \033[00m').encode())
                         if cl == 'admin':
                             finished = True
                     if cl_addr == 'admin':

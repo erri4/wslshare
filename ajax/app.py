@@ -1,17 +1,3 @@
-'''import asyncio
-import websockets
-async def handler(websocket, path):
-    print(path)
-    data = await websocket.recv()
-    print(f'msg: {data}, src: {path}')
-    reply = f"Data recieved as:  {data}!"
-    await websocket.send(reply)
-
-start_server = websockets.serve(handler, "127.0.0.1", 5001)
-
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()'''
-###################################################
 from flask import Flask, jsonify, render_template, request, redirect, url_for
 
 app = Flask(__name__)
