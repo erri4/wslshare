@@ -1,4 +1,5 @@
 import subprocess
+import time
 from scapy.all import *
 from collections import namedtuple
 
@@ -23,13 +24,13 @@ def get_gw():
 
     for f in r1:
         start = f + len(substr)
-        end = start + 11
+        end = start + 15
         r2.append(ipconfig[start:end])
 
     for d in r2:
         ls = d.split('.')
-        if len(ls) >= 3:
-            rls = [ls[0], ls[1], ls[2]]
+        if len(ls) >= 4:
+            rls = [ls[0], ls[1], ls[2], ls[3]]
             return '.'.join(rls)
 
 
@@ -70,20 +71,23 @@ def main():
     val_ip = False
     while not val_ip:
         i = input('ip:')
+        if i.lower() == 'default gateway' or i.lower() == 'default gw':
+            i = get_gw()
+            print(f'default gateway is {i}')
+            val_ip = True
+            il = i.split('.')
+            i = '.'.join([il[0], il[1], il[2]])
         il = i.split('.')
         if len(il) == 3:
             if isnumber(il[0]) and isnumber(il[1]) and isnumber(il[2]):
                 val_ip = True
             else:
                 print(f'{i} is not a valid ip')
-        elif i.lower() == 'default gateway' or i.lower() == 'default gy':
-            i = get_gw()
-            print(f'default gateway is {i}')
-            val_ip = True
         else:
             print(f'{i} is not a valid ip')
     all_ans = []
     print("starting")
+    time.sleep(3)
     for crnt_ip in range(225):
         arp = arp_scan(f'{i}.{crnt_ip}')
         if arp != []:
