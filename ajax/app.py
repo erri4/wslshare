@@ -1,4 +1,4 @@
-import asyncio
+'''import asyncio
 import websockets
 async def handler(websocket, path):
     print(path)
@@ -10,36 +10,14 @@ async def handler(websocket, path):
 start_server = websockets.serve(handler, "127.0.0.1", 5001)
 
 asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
-
-#############################################################
-'''from flask import Flask, jsonify, render_template, request, redirect, url_for
-import socket
-import select
-from protocol import server_addr, pro_rd_msg, pro_wr_msg
+asyncio.get_event_loop().run_forever()'''
+###################################################
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
 
-server = socket.socket()
-server.bind(server_addr)
-server.listen(5)
-rd = [server]
-
-while True:
-        rdables, _, _ = select.select(rd, [], [], 0.1)
-        for rdable in rdables:
-            if rdable == server:
-                conn, addr = server.accept()
-                print('connected!')
-                rd.append(conn)
-                pro_wr_msg(conn, b'hi!')
-            else:
-                msg = pro_rd_msg(rdable)
-                if msg != b'':
-                    print(msg.decode())'''
-###################################################
-'''@app.route('/server', methods=['GET', 'POST'])
+@app.route('/server', methods=['GET', 'POST'])
 def ajax():
     if request.method == "POST":
         firstname = request.form['firstname']
@@ -58,4 +36,4 @@ def index():
 
 @app.route('/<custom_page>')
 def custom_page_func(custom_page):
-    return render_template('page_not_found.html', custom_page=custom_page), 404'''
+    return render_template('page_not_found.html', custom_page=custom_page), 404
