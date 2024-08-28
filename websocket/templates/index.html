@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>socket</title>
+</head>
+<body>
+    <script src="../static/socket.js"></script>
+    <div id="rooms"></div>
+    <div id="fails"></div>
+    <div id="msgs">
+        <input id="name" onkeydown="
+            if (event.key === 'Enter') {
+                s = connect(this.value);
+                document.querySelector('#fails').innerHTML = '';
+                document.querySelector('#msgs').innerHTML = login;
+            }
+        ">
+        <button onclick="
+            s = connect(document.querySelector('#name').value);
+            document.querySelector('#fails').innerHTML = '';
+            document.querySelector('#msgs').innerHTML = login;
+        ">login</button>
+    </div>
+</body>
+</html>

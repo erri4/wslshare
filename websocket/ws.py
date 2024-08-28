@@ -1,11 +1,78 @@
 from websocket_server import WebsocketServer
+import json
 
 clients = []
 clients_name = []
+rooms = {}
+
+
+def send(msg, cl, server, header = 'msg'):
+    server.send_message(cl, json.dumps([header, msg]))
+
+
+def get_rooms():
+    rooms_nm = list(rooms.keys())
+    return rooms_nm
+
+
+def get_cl_name(client):
+    for cl in clients_name:
+        if cl[0] == client['id']:
+            return cl[1]
+
+
+def create_room(name, creator):
+    ex = False
+    if name == True:
+        name = f"{get_cl_name(creator)}'s room"
+    for room in get_rooms():
+        if room == name:
+            ex = True
+    if ex == False:
+        rooms[f'{name}'] = [creator]
+        print(f'room created: {name}')
+        return True
+    else:
+        print('room already exist')
+        return False
+    
+def create_acc(cl, name):
+    ex = False
+    for cli in clients_name:
+        if cli[1] == name:
+            ex = True
+    if ex == False:
+        clients_name.remove([cl['id'], None])
+        clients_name.append([cl['id'], name])
+        print(f"New client connected: {name}")
+        return True
+    else:
+        print('user already exist')
+        return False
+
+
+def get_cr_rm(client):
+    for room in get_rooms():
+        for cl in rooms[f'{room}']:
+            if cl == client:
+                return room
+    return False
+            
+
+def join_room(cl, room):
+    rooms[f'{room}'].append(cl)
+
+
+def leave_room(cl):
+    room = get_cr_rm(cl)
+    rooms[f'{room}'].remove(cl)
+    if rooms[f'{room}'] == []:
+        rooms.pop(f'{room}')
+
+
 def new_client(client, server):
     clients.append(client)
-    clients_name.append(client['id'], None)
-    print(f"New client connected: {client['id']}")
+    clients_name.append([client['id'], None])
 
 
 def client_left(client, server):
@@ -13,29 +80,56 @@ def client_left(client, server):
     for cl in clients_name:
         if cl[0] == client['id']:
             cl_name = cl[1]
-    clients_name.remove(client['id'], cl_name)
+    clients_name.remove([client['id'], cl_name])
     clients.remove(client)
-    for cl in clients:
-        server.send_message(cl, f'{client['id']} have left the room')
+    if get_cr_rm(client) != False:
+        for cl in rooms[f'{get_cr_rm(client)}']:
+                if cl != client:
+                    send(f'<span class="sys_msg">*{cl_name} have left the room*</span>', cl, server)
+        leave_room(client)
     print(f"Client disconnected: {cl_name}")
 
 def message_received(client, server, msg):
-    cl_name = ''
-    for cl in clients_name:
-        if cl[0] == client['id']:
-            cl_name = cl[1]
-    if cl_name == None:
-        clients_name.remove([client['id'], None])
-        clients_name.append([client['id'], msg])
-        for cl in clients:
-            if cl != client:
-                server.send_message(cl, f'{cl_name} have joined the room')
-    else:
+    cl_name = get_cl_name(client)
+    msg = json.loads(msg)
+    header = msg[0]
+    msg = msg[1]
+    if cl_name == None and header == 'name':
+        acc = create_acc(client, msg)
+        if acc == True:
+            send('name', client, server, 'success')
+            send(list(get_rooms()), client, server, 'rooms')
+        else:
+            send('user already exist', client, server, 'fail')
+    elif header == 'msg':
         print(f"{cl_name}: {msg}")
-        reply = f"{cl_name}: {msg}"
-        for cl in clients:
+        reply = f"<span class='names'>{cl_name}</span>: {msg}"
+        for cl in rooms[f'{get_cr_rm(client)}']:
             if cl != client:
-                server.send_message(cl, reply)
+                send(reply, cl, server)
+    elif header == 'join':
+        for cl in rooms[f'{msg}']:
+            send(f'<span class="sys_msg">*{cl_name} have joined the room*</span>', cl, server)
+        join_room(client, msg)
+    elif header == 'create':
+        if msg == 'default':
+            msg = True
+        cr = create_room(msg, client)
+        if cr == True:
+            send('room', client, server, 'success')
+            for cl in clients:
+                if get_cr_rm(cl) == False:
+                    send(list(get_rooms()), cl, server, 'rooms')
+        else:
+            send('room already exist', client, server, 'fail')
+    elif header == 'leave':
+        for cl in rooms[f'{get_cr_rm(client)}']:
+                if cl != client:
+                    send(f'<span class="sys_msg">*{cl_name} have left the room*</span>', cl, server)
+        leave_room(client)
+        for cl in clients:
+            if get_cr_rm(cl) == False:
+                send(list(get_rooms()), cl, server, 'rooms')
 
 def start_server():
     server = WebsocketServer(host='127.0.0.1', port=5001)
