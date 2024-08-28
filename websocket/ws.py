@@ -144,6 +144,7 @@ def message_received(client, server, msg):
             if get_cr_rm(cl) == False:
                 send(list(get_rooms()), cl, server, 'rooms')
         send('', client, server, 'rm_name')
+        send('', client, server, 'rm_ppl')
 
 def start_server():
     server = WebsocketServer(host='192.168.68.74', port=5001)
