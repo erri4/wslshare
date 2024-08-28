@@ -87,6 +87,30 @@ let connect = function(name) {
                 document.querySelector('#msgs').innerHTML = cr;
             }
         }
+        else if (header === 'rm_name') {
+            if (msg === '') {
+                document.querySelector("#name").innerHTML = msg;
+            }
+            else {
+                document.querySelector("#name").innerHTML = `room: ${msg}`;
+            }
+        }
+        else if (header === 'rm_ppl') {
+            let txt = '';
+            for (let i = 0; i < msg.length; i++) {
+                if (i !== msg.length - 1) {
+                    txt += msg[i] + ', ';
+                }
+                else {
+                    txt += msg[i];
+                }
+            }
+            document.querySelector("#ppl").innerHTML = `participants: ${txt.replace(document.querySelector("#usrname").innerHTML, "you")}`
+        }
+        else if (header === 'name') {
+            document.querySelector('#username').innerHTML = `username:`;
+            document.querySelector('#usrname').innerHTML = `${msg}`;
+        }
     }
     return s
 }

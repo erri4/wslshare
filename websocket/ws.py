@@ -15,6 +15,13 @@ def get_rooms():
     return rooms_nm
 
 
+def get_participants(room):
+    r = []
+    for cl in rooms[f'{room}']:
+        r.append(get_cl_name(cl))
+    return r
+
+
 def get_cl_name(client):
     for cl in clients_name:
         if cl[0] == client['id']:
@@ -31,7 +38,7 @@ def create_room(name, creator):
     if ex == False:
         rooms[f'{name}'] = [creator]
         print(f'room created: {name}')
-        return True
+        return [True, name]
     else:
         print('room already exist')
         return False
@@ -98,6 +105,7 @@ def message_received(client, server, msg):
         acc = create_acc(client, msg)
         if acc == True:
             send('name', client, server, 'success')
+            send(msg, client, server, 'name')
             send(list(get_rooms()), client, server, 'rooms')
         else:
             send('user already exist', client, server, 'fail')
@@ -111,17 +119,22 @@ def message_received(client, server, msg):
         for cl in rooms[f'{msg}']:
             send(f'<span class="sys_msg">*{cl_name} have joined the room*</span>', cl, server)
         join_room(client, msg)
+        send(msg, client, server, 'rm_name')
+        for cl in rooms[f'{msg}']:
+            send(get_participants(msg), cl, server, 'rm_ppl')
     elif header == 'create':
         if msg == 'default':
             msg = True
         cr = create_room(msg, client)
-        if cr == True:
+        if cr == False:
+            send('room already exist', client, server, 'fail')
+        else:
             send('room', client, server, 'success')
+            send(cr[1], client, server, 'rm_name')
+            send([get_cl_name(client)], client, server, 'rm_ppl')
             for cl in clients:
                 if get_cr_rm(cl) == False:
                     send(list(get_rooms()), cl, server, 'rooms')
-        else:
-            send('room already exist', client, server, 'fail')
     elif header == 'leave':
         for cl in rooms[f'{get_cr_rm(client)}']:
                 if cl != client:
@@ -130,6 +143,7 @@ def message_received(client, server, msg):
         for cl in clients:
             if get_cr_rm(cl) == False:
                 send(list(get_rooms()), cl, server, 'rooms')
+        send('', client, server, 'rm_name')
 
 def start_server():
     server = WebsocketServer(host='127.0.0.1', port=5001)
