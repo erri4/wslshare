@@ -50,7 +50,7 @@ let cr = `<input id="cr" onkeydown="
     `;
 
 let connect = function(name) {
-    const s = new WebSocket('ws://127.0.0.1:5001');
+    const s = new WebSocket('ws://192.168.68.74:5001');
     s.onopen = function() {
         send(s, name, 'name');
     };

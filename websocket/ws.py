@@ -146,12 +146,12 @@ def message_received(client, server, msg):
         send('', client, server, 'rm_name')
 
 def start_server():
-    server = WebsocketServer(host='127.0.0.1', port=5001)
+    server = WebsocketServer(host='192.168.68.74', port=5001)
     server.set_fn_new_client(new_client)
     server.set_fn_client_left(client_left)
     server.set_fn_message_received(message_received)
     
-    print("Server listening on 127.0.0.1:5001")
+    print("Server listening on 192.168.68.74:5001")
     server.run_forever()
 
 if __name__ == "__main__":
