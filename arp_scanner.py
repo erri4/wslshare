@@ -89,6 +89,7 @@ def main():
     print("starting")
     time.sleep(3)
     for crnt_ip in range(225):
+        print(f'starting for {crnt_ip}')
         arp = arp_scan(f'{i}.{crnt_ip}')
         if arp != []:
             all_ans.append(arp)
