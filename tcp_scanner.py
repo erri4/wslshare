@@ -45,8 +45,9 @@ def tcp_scan(ip, port):
 
 def main():
     ports_to_scan = []
+    ip = input('ip: ')
     while ports_to_scan == []:
-        i = input('ports:')
+        i = input('ports: ')
         ls1 = i.split(', ')
         for port in ls1:
             if isnumber(port) == True:
@@ -60,7 +61,7 @@ def main():
                 print('give at least one valid port number')
     all_rs = []
     for port in ports_to_scan:
-        rs = tcp_scan('192.168.68.1', port)
+        rs = tcp_scan(ip, port)
         if rs != []:
             for r in rs:
                 all_rs.append(f'port {r.port} is open')
