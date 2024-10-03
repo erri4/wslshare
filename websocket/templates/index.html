@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>socket</title>
+</head>
+<body>
+    <script>
+        let ip = '';
+        fetch('static/ip.txt').then((res)=> {
+            res.text().then((text)=>{
+                ip = text;
+            })
+        })
+    </script>
+    <script src="static/socket.js"></script>
+    <br>
+    <div id="rooms"></div>
+    <div id="game"></div>
+    <div id="fails"></div>
+    <div id="msgs">
+        <input id="name" onkeydown="
+            if (event.key === 'Enter') {
+                askname(this.value);
+            }
+        ">
+        <button onclick="
+            askname(document.querySelector('#name').value);
+        ">login</button>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div id="room_data">
+        <div id="name"></div>
+        <div id="ppl"></div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <div id="username" class="username"></div>
+    <div id="usrname" class="username"></div>
+    <br>
+    <div id="logout"></div>
+</body>
+</html>
