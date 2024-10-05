@@ -91,7 +91,7 @@ class rom:
             for cli in self.participants:
                 if cli.name == player:
                     cl_color = cli.color
-            play += '''f'<div class="player" style="top:{poss[f'{player}'][0]}px;left:{poss[f'{player}'][1]}px;background-color:rgb({cl_color[0]},{cl_color[1]},{cl_color[2]});"><div class="name">{player}</div></div>'''
+            play += f'<div class="player" style="top:{poss[f'{player}'][0]}px;left:{poss[f'{player}'][1]}px;background-color:rgb({cl_color[0]},{cl_color[1]},{cl_color[2]});"><div class="name">{player}</div></div>'
         for cli in self.participants:
             send(play, cli.client, server, 'move')
     
