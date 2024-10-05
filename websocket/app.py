@@ -2,7 +2,29 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for
 import json
 from ws import start_server
 import threading
+import subprocess
 
+def get_ip():
+    ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
+    ipconfig = str(ipconfig.stdout.decode())
+
+    substr = 'IPv4 Address. . . . . . . . . . . : 192.168.68'
+
+    find = ipconfig.find(substr)
+    if find == -1:
+        return '127.0.0.1'
+    start = find + 47
+    end = start + 3
+    return f'192.168.68.{ipconfig[start:end].strip()}'
+
+def refresh():
+
+    with open('names.json', 'w') as file:
+        json.dump([], file)
+
+            
+    with open('static/ip.txt', 'w') as file:
+        file.write(f'{get_ip()}')
 
 app = Flask(__name__)
 
