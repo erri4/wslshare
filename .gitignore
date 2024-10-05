@@ -1,3 +1,3 @@
-__pycache__
-names.json
-ip.txt
+__pycache__/
+*.json
+*.txt
