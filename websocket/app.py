@@ -60,6 +60,7 @@ def runapp():
     app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
+    refresh()
     t1 = threading.Thread(target=start_server)
     t2 = threading.Thread(target=runapp)
     t1.start()
