@@ -18,6 +18,7 @@ class user:
         self.room = None
         self.x = 0
         self.y = 0
+        self.xp = 0
 
 
     def move(self, x, y):
@@ -233,8 +234,7 @@ def message_received(client, server, msg):
         for i in range(len(rooms)):
             if rooms[i].name == room:
                 r = i
-        users[c].x = msg[0]
-        users[c].y = msg[1]
+        users[c].move(msg[0], msg[1])
         rooms[r].move(server)
     elif header == 'eat':
         room = obj.room
@@ -247,9 +247,10 @@ def message_received(client, server, msg):
                     if msg[1] < int(part.y) + 29 and msg[1] > int(part.y) - 29:
                         if part.client != client:
                             p = get_cli_obj(part.client)
-                            users[p].x = 0
-                            users[p].y = 0
+                            users[c].xp += 10
+                            users[p].move(0, 0)
                             send('', part.client, server, 'ate')
+                            send(users[c].xp, users[c].client, server, 'xp')
                             rooms[r].sysmsg(f'<span style="color:rgb({obj.color[0]},{obj.color[1]},{obj.color[2]});">{obj.name}</span> ate <span style="color:rgb({part.color[0]},{part.color[1]},{part.color[2]});">{part.name}</span>', server)
                             print(f'{obj.name} ate {part.name}')
         rooms[r].move(server)

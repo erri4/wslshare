@@ -37,8 +37,6 @@ def ajax():
         name = request.form['name']
         if name in names:
             return jsonify(False)
-        with open('names.json', 'r') as file:
-            names = json.load(file)
         names.append(name)
         with open('names.json', 'w') as file:
             json.dump(names, file)

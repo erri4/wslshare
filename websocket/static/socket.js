@@ -1,4 +1,5 @@
 let s;
+let bod;
 let room;
 let login = `
     <input id="name" onkeydown="
@@ -36,7 +37,10 @@ let sen = `
             document.querySelector('#game').innerHTML = '';
             document.querySelector('#msgs').innerHTML = cr;
             document.querySelector('#fails').innerHTML = '';
-        ">leave room</button><br>
+            rom = false;
+        ">leave room</button>
+        <div id="msges"></div>
+        <br>
     `;
 let cr = `<input id="cr" onkeydown="
             if (event.key === 'Enter') {
@@ -61,6 +65,8 @@ let cr = `<input id="cr" onkeydown="
     `;
 let pos;
 let color = [];
+let xp = 0;
+let rom;
 color[0] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[1] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[2] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
@@ -79,7 +85,13 @@ let connect = function(name) {
         let header = JSON.parse(e.data)[0];
         let msg = JSON.parse(e.data)[1];
         if (header === 'msg'){
-            document.querySelector('#msgs').innerHTML += `${msg}<br>`;
+            document.querySelector('#msges').innerHTML += `${msg}<br>`;
+            let b = document.querySelector('#msges').innerHTML.split('<br>')
+            if (b.length === 18) {
+                b.shift();
+                b = b.join('<br>');
+                document.querySelector('#msges').innerHTML = b;
+            }
         }
         else if (header === 'rooms') {
             let text = "";
@@ -98,6 +110,7 @@ let connect = function(name) {
         }
         else if (header === 'success') {
             if (msg === 'room') {
+                rom = true;
                 document.querySelector('#msgs').innerHTML = sen;
                 document.querySelector('#rooms').innerHTML = '';
                 document.querySelector('#fails').innerHTML = '';
@@ -142,6 +155,10 @@ let connect = function(name) {
         else if (header === 'name') {
             document.querySelector('#username').innerHTML = `username:`;
             document.querySelector('#usrname').innerHTML = `${msg}`;
+        }
+        else if (header === 'xp') {
+            xp = msg
+            console.log(xp)
         }
         else if (header === 'ate') {
             pos = [0, 0];
@@ -202,12 +219,34 @@ let send = function(s, msg, header = 'msg') {
     if (msg !== '') {
         if (header === 'msg') {
             s.send(JSON.stringify([header, msg]))
-            document.querySelector('#msgs').innerHTML += `<span style="color:rgb(${color[0]},${color[1]},${color[2]});">you</span>: ${msg}<br>`;
+            document.querySelector('#msges').innerHTML += `<span style="color:rgb(${color[0]},${color[1]},${color[2]});">you</span>: ${msg}<br>`;
+            let b = document.querySelector('#msges').innerHTML.split('<br>')
+            if (b.length === 18) {
+                b.shift();
+                b = b.join('<br>');
+                document.querySelector('#msges').innerHTML = b;
+            }
         }
         else {
             s.send(JSON.stringify([header, msg]))
         }
     }
+}
+
+let show_profile = function() {
+    nam = document.querySelector('#usrname').innerText
+    bod = document.body.innerHTML;
+    document.body.innerHTML = `
+        <h1>${nam}</h1>
+        xp: ${xp}
+        <br>
+        <button onclick="
+            document.body.innerHTML = bod;
+            if (rom === true) {
+                send(s, pos, 'move');
+            }
+        ">back</button>
+    `;
 }
 
 let send_http_req = function(obj = {}, method = "POST", to = `http://${ip}:5000/server`, result_trgt = "body", func = (r) => {document.querySelector(`${result_trgt}`).innerHTML = `${r}`;}) {
@@ -264,6 +303,7 @@ let askname = function(name) {
                 }
                 document.querySelector('#msgs').innerHTML = cr;
                 document.querySelector('#logout').innerHTML = `
+                    <button onclick="show_profile();">profile</button>
                     <button onclick="location.reload();">sign out</button>
                 `;
             }
