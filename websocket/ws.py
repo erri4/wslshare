@@ -2,10 +2,6 @@ from websocket_server import WebsocketServer
 import json
 
 
-ip = ''
-with open('static/ip.txt', encoding='utf8') as file_object:
-    ip = file_object.read()
-
 users = []
 rooms = []
 
@@ -256,7 +252,7 @@ def message_received(client, server, msg):
         rooms[r].move(server)
 
 
-def start_server():
+def start_server(ip):
     server = WebsocketServer(host=f'{ip}', port=5001)
     server.set_fn_new_client(new_client)
     server.set_fn_client_left(client_left)

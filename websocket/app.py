@@ -2,20 +2,10 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for
 import json
 from ws import start_server
 import threading
-import subprocess
+import sys
+sys.path.insert(1, '/Users/Reef/Documents/WSLShare')
+from func import get_ip
 
-def get_ip():
-    ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
-    ipconfig = str(ipconfig.stdout.decode())
-
-    substr = 'IPv4 Address. . . . . . . . . . . : 192.168.68'
-
-    find = ipconfig.find(substr)
-    if find == -1:
-        return '127.0.0.1'
-    start = find + 47
-    end = start + 3
-    return f'192.168.68.{ipconfig[start:end].strip()}'
 
 def refresh():
 
@@ -25,6 +15,10 @@ def refresh():
             
     with open('static/ip.txt', 'w') as file:
         file.write(f'{get_ip()}')
+
+ip = ''
+with open('static/ip.txt', encoding='utf8') as file_object:
+    ip = file_object.read()
 
 app = Flask(__name__)
 
@@ -55,11 +49,12 @@ def custom_page_func(custom_page):
 
 
 def runapp():
-    app.run(host='0.0.0.0', port=5000)
+    print(ip)
+    app.run(host=f'{ip}', port=5000)
 
 if __name__ == '__main__':
     refresh()
-    t1 = threading.Thread(target=start_server)
+    t1 = threading.Thread(target=start_server, args=(ip,))
     t2 = threading.Thread(target=runapp)
     t1.start()
     t2.start()

@@ -1,33 +1,9 @@
 from scapy.all import *
 from collections import namedtuple
+from func import isnumber
 
 
 TCPport = namedtuple('TCPport', 'port')
-
-
-def isnumber(value):
-    if type(value) == int:
-        return bool(1)
-    if type(value) != str:
-        return bool(0)
-    if value == '':
-        return bool(0)
-    rt = list(value)
-    if rt[0] == "-" and not value == "-":
-        for i in range(1, len(rt)):
-            if not rt[i] == "0" and not rt[i] == "1" and not rt[i] == "2" and not rt[i] == "3" and not rt[i] == "4" and not \
-                    rt[
-                        i] == "5" and not \
-                    rt[i] == "6" and not rt[i] == "7" and not rt[i] == "8" and not rt[i] == "9":
-                return bool(0)
-    else:
-        for i in range(0, len(rt)):
-            if not rt[i] == "0" and not rt[i] == "1" and not rt[i] == "2" and not rt[i] == "3" and not rt[i] == "4" and not \
-                    rt[
-                        i] == "5" and not \
-                    rt[i] == "6" and not rt[i] == "7" and not rt[i] == "8" and not rt[i] == "9":
-                return bool(0)
-    return bool(1)
 
 
 def tcp_scan(ip, port):

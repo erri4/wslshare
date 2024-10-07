@@ -1,62 +1,9 @@
-import subprocess
 import time
 from scapy.all import *
 from collections import namedtuple
+from func import get_gw, isnumber
 
 Ans = namedtuple('Answer', 'ip mac')
-
-
-def get_gw():
-    ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
-    ipconfig = str(ipconfig.stdout.decode())
-
-    substr = 'Default Gateway . . . . . . . . . : '
-    i = 0
-    r1 = []
-    r2 = []
-    while i < len(ipconfig) - len(substr):
-        find = ipconfig.find(substr, i)
-        if find != -1:
-            r1.append(find)
-            i = find + 1
-        else:
-            i += 1
-
-    for f in r1:
-        start = f + len(substr)
-        end = start + 15
-        r2.append(ipconfig[start:end])
-
-    for d in r2:
-        ls = d.split('.')
-        if len(ls) >= 4:
-            rls = [ls[0], ls[1], ls[2], ls[3]]
-            return '.'.join(rls)
-
-
-def isnumber(value):
-    if type(value) == int:
-        return bool(1)
-    if type(value) != str:
-        return bool(0)
-    if value == '':
-        return bool(0)
-    rt = list(value)
-    if rt[0] == "-" and not value == "-":
-        for i in range(1, len(rt)):
-            if not rt[i] == "0" and not rt[i] == "1" and not rt[i] == "2" and not rt[i] == "3" and not rt[i] == "4" and not \
-                    rt[
-                        i] == "5" and not \
-                    rt[i] == "6" and not rt[i] == "7" and not rt[i] == "8" and not rt[i] == "9":
-                return bool(0)
-    else:
-        for i in range(0, len(rt)):
-            if not rt[i] == "0" and not rt[i] == "1" and not rt[i] == "2" and not rt[i] == "3" and not rt[i] == "4" and not \
-                    rt[
-                        i] == "5" and not \
-                    rt[i] == "6" and not rt[i] == "7" and not rt[i] == "8" and not rt[i] == "9":
-                return bool(0)
-    return bool(1)
 
 
 def arp_scan(ip):
