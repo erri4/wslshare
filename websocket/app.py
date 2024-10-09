@@ -47,9 +47,6 @@ def custom_page_func(custom_page):
     return render_template('page_not_found.html', custom_page=custom_page), 404
 
 
-def runapp(ip):
-    app.run(host=f'{ip}', port=5000)
-
 if __name__ == 'app':
     refresh()
     start_server(ip)
