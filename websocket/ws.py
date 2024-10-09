@@ -259,4 +259,4 @@ def start_server(ip):
     server.set_fn_message_received(message_received)
     
     print(f'Server listening on {ip}:5001')
-    server.run_forever()
+    server.run_forever(threaded=True)

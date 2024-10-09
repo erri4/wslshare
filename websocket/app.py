@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
 import json
 from ws import start_server
-import threading
 import sys
 sys.path.insert(1, '/Users/Reef/Documents/WSLShare')
 from func import get_ip
@@ -48,16 +47,11 @@ def custom_page_func(custom_page):
     return render_template('page_not_found.html', custom_page=custom_page), 404
 
 
-def runapp():
-    print(ip)
+def runapp(ip):
     app.run(host=f'{ip}', port=5000)
 
 if __name__ == '__main__':
     refresh()
-    t1 = threading.Thread(target=start_server, args=(ip,))
-    t2 = threading.Thread(target=runapp)
-    t1.start()
-    t2.start()
-    t1.join()
-    t2.join()
+    start_server(ip)
+    runapp(ip)
 
