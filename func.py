@@ -1,4 +1,5 @@
 import subprocess
+import math
 from random import randint
 
 def get_gw():
@@ -100,7 +101,7 @@ def is_prime(nh):
         return True
     if is_even(n)[0]:
         return False
-    h = round(n / 2)
+    h = round(math.sqrt(n))
     for u in range(5, h, 2):
         if n % u == 0:
             return False
