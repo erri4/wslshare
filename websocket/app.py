@@ -50,8 +50,6 @@ def custom_page_func(custom_page):
 def runapp(ip):
     app.run(host=f'{ip}', port=5000)
 
-if __name__ == '__main__':
+if __name__ == 'app':
     refresh()
     start_server(ip)
-    runapp(ip)
-
