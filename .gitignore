@@ -1,4 +1,7 @@
 __pycache__/
+exe/
 *.json
 *.txt
 *.ico
+*.png
+req.html
