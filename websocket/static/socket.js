@@ -85,7 +85,18 @@ let connect = function(name) {
         let header = JSON.parse(e.data)[0];
         let msg = JSON.parse(e.data)[1];
         if (header === 'msg'){
-            document.querySelector('#msges').innerHTML += `${msg}<br>`;
+            let mes = `<span style="color:rgb(${msg[2][0]},${msg[2][1]},${msg[2][2]});">${msg[0]}</span>: ${msg[1]}`
+            document.querySelector('#msges').innerHTML += `${mes}<br>`;
+            let b = document.querySelector('#msges').innerHTML.split('<br>')
+            if (b.length === 18) {
+                b.shift();
+                b = b.join('<br>');
+                document.querySelector('#msges').innerHTML = b;
+            }
+        }
+        else if (header === 'sys') {
+            let mes = `<span class="sys_msg">*${msg}*</span>`
+            document.querySelector('#msges').innerHTML += `${mes}<br>`;
             let b = document.querySelector('#msges').innerHTML.split('<br>')
             if (b.length === 18) {
                 b.shift();
@@ -124,7 +135,12 @@ let connect = function(name) {
             }
         }
         else if (header === 'move') {
-            document.querySelector("#game").innerHTML = msg
+            let mes = ''
+            for (let i = 0; i < msg.length; i++) {
+                let m = msg[i]
+                mes += `<div class="player" style="top:${m[1][0]}px;left:${m[1][1]}px;background-color:rgb(${m[2][0]},${m[2][1]},${m[2][2]});"><div class="name">${m[0]}</div></div>`
+            }
+            document.querySelector("#game").innerHTML = mes
         }
         else if (header === 'rm_name') {
             if (msg === '') {
@@ -160,8 +176,18 @@ let connect = function(name) {
             xp = msg
             console.log(xp)
         }
-        else if (header === 'ate') {
+        else if (header === 'uate') {
             pos = [0, 0];
+        }
+        else if (header === 'ate') {
+            let mes = `<span style="color:rgb(${msg[1][0][0]},${msg[1][0][1]},${msg[1][0][2]});">${msg[0][0]}</span> ate <span style="color:rgb(${msg[1][1][0]},${msg[1][1][1]},${msg[1][1][2]});">${msg[0][1]}</span>`
+            document.querySelector('#msges').innerHTML += `${mes}<br>`;
+            let b = document.querySelector('#msges').innerHTML.split('<br>')
+            if (b.length === 18) {
+                b.shift();
+                b = b.join('<br>');
+                document.querySelector('#msges').innerHTML = b;
+            }
         }
     }
     return s
@@ -217,19 +243,7 @@ document.addEventListener('keydown', move)
 
 let send = function(s, msg, header = 'msg') {
     if (msg !== '') {
-        if (header === 'msg') {
-            s.send(JSON.stringify([header, msg]))
-            document.querySelector('#msges').innerHTML += `<span style="color:rgb(${color[0]},${color[1]},${color[2]});">you</span>: ${msg}<br>`;
-            let b = document.querySelector('#msges').innerHTML.split('<br>')
-            if (b.length === 18) {
-                b.shift();
-                b = b.join('<br>');
-                document.querySelector('#msges').innerHTML = b;
-            }
-        }
-        else {
-            s.send(JSON.stringify([header, msg]))
-        }
+        s.send(JSON.stringify([header, msg]))
     }
 }
 

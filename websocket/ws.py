@@ -32,6 +32,8 @@ class user:
 
 
 def send(msg, cl, server, header = 'msg'):
+    if header == None:
+        header = 'msg'
     server.send_message(cl, json.dumps([header, msg]))
 
     
@@ -57,19 +59,15 @@ class rom:
     
 
     def sendmsg(self, msg, frm, server):
-        reply = f'<span style="color:rgb({frm.color[0]},{frm.color[1]},{frm.color[2]});">{frm.name}</span>: {msg}'
-        for cl in self.participants:
-            if cl != frm:
-                send(reply, cl.client, server)
+        reply = [frm.name, msg, [frm.color[0], frm.color[1], frm.color[2]]]
+        self.sendall(reply, server)
     
 
     def sysmsg(self, msg, server):
-        reply = f'<span class="sys_msg">*{msg}*</span>'
-        for cl in self.participants:
-            send(reply, cl.client, server)
+        self.sendall(msg, server, 'sys')
 
 
-    def sendall(self, msg, server, header):
+    def sendall(self, msg, server, header = 'msg'):
         for cl in self.participants:
             send(msg, cl.client, server, header)
 
@@ -82,15 +80,14 @@ class rom:
     
 
     def move(self, server):
-        play = ''
+        play = []
         poss = self.get_pos()
         for player in list(poss.keys()):
             for cli in self.participants:
                 if cli.name == player:
                     cl_color = cli.color
-            play += f'<div class="player" style="top:{poss[f'{player}'][0]}px;left:{poss[f'{player}'][1]}px;background-color:rgb({cl_color[0]},{cl_color[1]},{cl_color[2]});"><div class="name">{player}</div></div>'
-        for cli in self.participants:
-            send(play, cli.client, server, 'move')
+            play.append([player, [poss[f'{player}'][0], poss[f'{player}'][1]], [cl_color[0], cl_color[1], cl_color[2]]])
+        self.sendall(play, server, 'move')
     
 
     def get_usernames(self):
@@ -188,7 +185,7 @@ def message_received(client, server, msg):
         for i in range(len(rooms)):
             if rooms[i].name == msg:
                 r = i
-        rooms[r].sysmsg(f'<span class="sys_msg">{obj.name} have joined the room</span>', server)
+        rooms[r].sysmsg(f'{obj.name} have joined the room', server)
         rooms[r].add_participant(users[c])
         rooms[r].move(server)
         send(msg, client, server, 'rm_name')
@@ -245,9 +242,10 @@ def message_received(client, server, msg):
                             p = get_cli_obj(part.client)
                             users[c].xp += 10
                             users[p].move(0, 0)
-                            send('', part.client, server, 'ate')
+                            send('', part.client, server, 'uate')
                             send(users[c].xp, users[c].client, server, 'xp')
-                            rooms[r].sysmsg(f'<span style="color:rgb({obj.color[0]},{obj.color[1]},{obj.color[2]});">{obj.name}</span> ate <span style="color:rgb({part.color[0]},{part.color[1]},{part.color[2]});">{part.name}</span>', server)
+                            rep = [[obj.name, part.name], [[obj.color[0], obj.color[1], obj.color[2]], [part.color[0], part.color[1], part.color[2]]]]
+                            rooms[r].sendall(rep, server, 'ate')
                             print(f'{obj.name} ate {part.name}')
         rooms[r].move(server)
 
