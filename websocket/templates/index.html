@@ -22,14 +22,30 @@
     <div id="game"></div>
     <div id="fails"></div>
     <div id="msgs">
+        <h1>log in:</h1><br>
+        username:<br>
         <input id="name" onkeydown="
             if (event.key === 'Enter') {
-                askname(this.value);
+                s = connect(this.value, document.querySelector('#password').value);
+                document.querySelector('#fails').innerHTML = ''
+            }
+        "><br>
+        password:<br>
+        <input id="password" onkeydown="
+            if (event.key === 'Enter') {
+                s = connect(document.querySelector('#name').value, this.value);
+                document.querySelector('#fails').innerHTML = ''
             }
         ">
+        <br><br>
         <button onclick="
-            askname(document.querySelector('#name').value);
+            s = connect(document.querySelector('#name').value, document.querySelector('#password').value);
+            document.querySelector('#fails').innerHTML = ''
         ">login</button>
+        <button onclick="
+            document.querySelector('#msgs').innerHTML = reg;
+            document.querySelector('#fails').innerHTML = '';
+        ">register</button>
     </div>
     <br>
     <div id="room_data">
@@ -41,6 +57,27 @@
     <br>
     <div id="username" class="username"></div>
     <div id="usrname" class="username"></div>
+    <div id="profile"><div id="iprofile"><h1><span id="xpname"></span></h1>
+        xp: <span id="xp"></span>
+        <br><br>
+        <input type="text" id="changep" onkeydown="
+            if (event.key === 'Enter') {
+                send(s, this.value, 'changep');
+                this.value = ''
+            }
+        ">
+        <button id="del" onclick="
+            send(s, document.querySelector('#changep').value, 'changep');
+        ">change password</button><br><br>
+        <div id="friends"></div>
+        <button id="del" onclick="
+            send(s, 'del', 'del');
+            location.reload()
+        ">delete profile</button><br><br>
+        <button onclick="
+            document.querySelector('#profile').style.visibility = 'hidden'
+        ">close</button>
+        </div></div>
     <br>
     <div id="logout"></div>
 </body>

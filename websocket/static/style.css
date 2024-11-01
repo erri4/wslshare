@@ -2,10 +2,6 @@
     color: crimson;
 }
 
-.sys_msg {
-    color: #edae14;
-}
-
 .name {
     position: absolute;
     color: white;
@@ -28,4 +24,21 @@
 #game {
     position: absolute;
     left: 350px;
+}
+
+
+#msges {
+    border: none;
+    display: block;
+}
+
+
+#profile {
+    position: absolute;
+    visibility: hidden;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: gray;
 }

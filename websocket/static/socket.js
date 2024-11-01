@@ -1,23 +1,54 @@
 let s;
-let bod;
 let room;
 let login = `
+<h1>log in:</h1><br>
+username:<br>
+<input id="name" onkeydown="
+    if (event.key === 'Enter') {
+        s = connect(this.value, document.querySelector('#password').value);
+        document.querySelector('#fails').innerHTML = ''
+    }
+"><br>
+password:<br>
+<input id="password" onkeydown="
+    if (event.key === 'Enter') {
+        s = connect(document.querySelector('#name').value, this.value);
+        document.querySelector('#fails').innerHTML = ''
+    }
+">
+<br><br>
+<button onclick="
+    s = connect(document.querySelector('#name').value, document.querySelector('#password').value);
+    document.querySelector('#fails').innerHTML = ''
+">login</button>
+<button onclick="
+    document.querySelector('#msgs').innerHTML = reg;
+    document.querySelector('#fails').innerHTML = '';
+">register</button>
+`;
+let reg = `
+<h1>register:</h1><br>
+username:<br>
     <input id="name" onkeydown="
         if (event.key === 'Enter') {
-            if (this.value !== '') {
-                send(s, [this.value, color], 'name');
-                document.querySelector('#fails').innerHTML = '';
-                document.querySelector('#msgs').innerHTML = login;
-            }
+            s = connect(this.value, document.querySelector('#password').value, true);
+            document.querySelector('#fails').innerHTML = ''
         }
-    ">
+    "><br>password:<br>
+    <input id="password" onkeydown="
+        if (event.key === 'Enter') {
+            s = connect(document.querySelector('#name').value, this.value, true);
+            document.querySelector('#fails').innerHTML = ''
+        }
+    "><br><br>
     <button onclick="
-        if (document.querySelector('#name').value !== '') {
-            send(s, document.querySelector('#name').value, 'name');
-            document.querySelector('#fails').innerHTML = '';
-            document.querySelector('#msgs').innerHTML = login;
-        }
-    ">login</button>
+        s = connect(document.querySelector('#name').value, document.querySelector('#password').value, true);
+        document.querySelector('#fails').innerHTML = ''
+    ">register</button>
+    <button onclick="
+        document.querySelector('#msgs').innerHTML = login;
+        document.querySelector('#fails').innerHTML = '';
+    ">back</button>
 `;
 let sen = `
         <input id="send" onkeydown="
@@ -39,8 +70,9 @@ let sen = `
             document.querySelector('#fails').innerHTML = '';
             rom = false;
         ">leave room</button>
-        <div id="msges"></div>
+        <iframe id="msges"></iframe>
         <br>
+        <button onclick="show_profile()">show profile</button>
     `;
 let cr = `<input id="cr" onkeydown="
             if (event.key === 'Enter') {
@@ -51,7 +83,7 @@ let cr = `<input id="cr" onkeydown="
                     send(s, this.value, 'create');
                 }
                 this.value = '';
-            }    
+            }
         ">
         <button onclick="
             if (document.querySelector('#cr').value == '') {
@@ -62,47 +94,55 @@ let cr = `<input id="cr" onkeydown="
             }
             document.querySelector('#cr').value = '';
         ">create</button><br>
+        <button onclick="show_profile()">show profile</button>
     `;
 let pos;
 let color = [];
+let friends = [];
 let xp = 0;
 let rom;
 color[0] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[1] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[2] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 
-let connect = function(name) {
+let connect = function(name, password, reg = false) {
     const s = new WebSocket(`ws://${ip}:5001`);
     s.onopen = function() {
-        if (name !== '') {
-            send(s, [name, color], 'name');
+        if (reg) {
+            if (name !== '' && password !== '') {
+                send(s, [name, color, password], 'reg');
+            }
+            else if (name === '') {
+                document.querySelector('#fails').innerHTML = 'please write a name';
+            }
+            else if (password === '') {
+                document.querySelector('#fails').innerHTML = 'please write a password';
+            }
         }
         else {
-            document.querySelector('#fails').innerHTML = 'please write a name';
+            if (name !== '' && password !== '') {
+                send(s, [name, color, password], 'login');
+            }
+            else if (name === '') {
+                document.querySelector('#fails').innerHTML = 'please write a name';
+            }
+            else if (password === '') {
+                document.querySelector('#fails').innerHTML = 'please write a password';
+            }
         }
     };
     s.onmessage = function(e) {
         let header = JSON.parse(e.data)[0];
         let msg = JSON.parse(e.data)[1];
         if (header === 'msg'){
-            let mes = `<span style="color:rgb(${msg[2][0]},${msg[2][1]},${msg[2][2]});">${msg[0]}</span>: ${msg[1]}`
-            document.querySelector('#msges').innerHTML += `${mes}<br>`;
-            let b = document.querySelector('#msges').innerHTML.split('<br>')
-            if (b.length === 18) {
-                b.shift();
-                b = b.join('<br>');
-                document.querySelector('#msges').innerHTML = b;
-            }
+            let mes = `<span style="color:rgb(${msg[2][0]},${msg[2][1]},${msg[2][2]});">${msg[0]}</span>: ${msg[1]}`;
+            document.querySelector('#msges').contentWindow.document.body.innerHTML += `${mes}<br>`;
+            document.querySelector('#msges').contentWindow.document.body.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
         else if (header === 'sys') {
-            let mes = `<span class="sys_msg">*${msg}*</span>`
-            document.querySelector('#msges').innerHTML += `${mes}<br>`;
-            let b = document.querySelector('#msges').innerHTML.split('<br>')
-            if (b.length === 18) {
-                b.shift();
-                b = b.join('<br>');
-                document.querySelector('#msges').innerHTML = b;
-            }
+            let mes = `<span style="color: #edae14;">*${msg}*</span>`;
+            document.querySelector('#msges').contentWindow.document.body.innerHTML += `${mes}<br>`;
+            document.querySelector('#msges').contentWindow.document.body.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
         else if (header === 'rooms') {
             let text = "";
@@ -133,14 +173,18 @@ let connect = function(name) {
                 pos = [0, 0];
                 send(s, pos, 'move');
             }
+            else if (msg === 'name') {
+                document.querySelector('#msgs').innerHTML = cr;
+                document.querySelector('#logout').innerHTML = `<button onclick="location.reload();">log out</button>`;
+            }
         }
         else if (header === 'move') {
-            let mes = ''
+            let mes = '';
             for (let i = 0; i < msg.length; i++) {
-                let m = msg[i]
-                mes += `<div class="player" style="top:${m[1][0]}px;left:${m[1][1]}px;background-color:rgb(${m[2][0]},${m[2][1]},${m[2][2]});"><div class="name">${m[0]}</div></div>`
+                let m = msg[i];
+                mes += `<div class="player" style="top:${m[1][0]}px;left:${m[1][1]}px;background-color:rgb(${m[2][0]},${m[2][1]},${m[2][2]});"><div class="name">${m[0]}</div></div>`;
             }
-            document.querySelector("#game").innerHTML = mes
+            document.querySelector("#game").innerHTML = mes;
         }
         else if (header === 'rm_name') {
             if (msg === '') {
@@ -157,15 +201,15 @@ let connect = function(name) {
             }
             else {
                 let txt = '';
-            for (let i = 0; i < msg.length; i++) {
-                if (i !== msg.length - 1) {
-                    txt += msg[i] + ', ';
+                for (let i = 0; i < msg.length; i++) {
+                    if (i !== msg.length - 1) {
+                        txt += msg[i] + `<button onclick="send(s, '${msg[i]}', 'addf')">add</button>, `;
+                    }
+                    else {
+                        txt += msg[i] + `<button onclick="send(s, '${msg[i]}', 'addf')">add</button>`;
+                    }
                 }
-                else {
-                    txt += msg[i];
-                }
-            }
-            document.querySelector("#ppl").innerHTML = `participants: ${txt.replace(document.querySelector("#usrname").innerHTML, "you")}`;
+                document.querySelector("#ppl").innerHTML = `participants: ${txt.replace(document.querySelector("#usrname").innerHTML + `<button onclick="send(s, '${document.querySelector("#usrname").innerHTML}', 'addf')">add</button>`, "you")}`;
             }
         }
         else if (header === 'name') {
@@ -174,19 +218,24 @@ let connect = function(name) {
         }
         else if (header === 'xp') {
             xp = msg
-            console.log(xp)
+            document.querySelector('#xp').innerHTML = xp
         }
         else if (header === 'uate') {
             pos = [0, 0];
         }
         else if (header === 'ate') {
             let mes = `<span style="color:rgb(${msg[1][0][0]},${msg[1][0][1]},${msg[1][0][2]});">${msg[0][0]}</span> ate <span style="color:rgb(${msg[1][1][0]},${msg[1][1][1]},${msg[1][1][2]});">${msg[0][1]}</span>`
-            document.querySelector('#msges').innerHTML += `${mes}<br>`;
-            let b = document.querySelector('#msges').innerHTML.split('<br>')
-            if (b.length === 18) {
-                b.shift();
-                b = b.join('<br>');
-                document.querySelector('#msges').innerHTML = b;
+            document.querySelector('#msges').contentWindow.document.body.innerHTML += `${mes}<br>`;
+            document.querySelector('#msges').contentWindow.document.body.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+        else if (header === 'friend') {
+            friends = msg
+            document.querySelector('#friends').innerHTML = ``
+            if (friends.length !== 0) {
+                document.querySelector('#friends').innerHTML = `friends:`
+                friends.forEach((v) => {
+                    document.querySelector('#friends').innerHTML += `${v}<button onclick="send(s, '${v}', 'remf')">remove</button><br>`
+                });
             }
         }
     }
@@ -248,85 +297,6 @@ let send = function(s, msg, header = 'msg') {
 }
 
 let show_profile = function() {
-    nam = document.querySelector('#usrname').innerText
-    bod = document.body.innerHTML;
-    document.body.innerHTML = `
-        <h1>${nam}</h1>
-        xp: ${xp}
-        <br>
-        <button onclick="
-            document.body.innerHTML = bod;
-            if (rom === true) {
-                send(s, pos, 'move');
-            }
-        ">back</button>
-    `;
-}
-
-let send_http_req = function(obj = {}, method = "POST", to = `http://${ip}:5000/server`, result_trgt = "body", func = (r) => {document.querySelector(`${result_trgt}`).innerHTML = `${r}`;}) {
-    if (typeof obj == "object") {
-        httpreq = new XMLHttpRequest();
-        httpreq.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                if(this.responseText !== ""){
-                    if(this.responseText == true){
-                        document.querySelector(`${result_trgt}`).innerHTML = ``;
-                        return this.responseText;
-                    }
-                    else{
-                        func(this.responseText);
-                        return this.responseText;
-                    }
-                }
-            }
-            else if (this.status !== 200 && this.status !== "" && this.status !== 0) {
-                console.log(this.status);
-                return this.statusText;
-            }
-        };
-        arr = [];
-        Object.keys(obj).forEach((v) => {
-            arr.push(`${v}=${obj[`${v}`]}`);
-        });
-        txt = encodeURI(arr.join("&"));
-        if (method.toUpperCase() === "GET"){
-            httpreq.open(`${method.toUpperCase()}`, `${to}?${txt}`, true);
-            httpreq.setRequestHeader('Access-Control-Allow-Origin', "true");
-            httpreq.send();
-        }
-        else if(method.toUpperCase() === "POST"){
-            httpreq.open(`${method.toUpperCase()}`, `${to}`, true);
-            httpreq.setRequestHeader('Access-Control-Allow-Origin', "true");
-            httpreq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            httpreq.send(`${txt}`);
-        }
-    }
-}
-
-let askname = function(name) {
-    if (name !== '') {
-        send_http_req({name: name}, undefined, undefined, undefined, (r) => {
-            r = JSON.parse(r)
-            if (r === true) {
-                s = connect(name);
-                document.querySelector('#fails').innerHTML = '';
-                document.querySelector('#msgs').innerHTML = login;
-                if (focus !== document.body) {
-                    document.body.focus();
-                    document.activeElement.blur();
-                }
-                document.querySelector('#msgs').innerHTML = cr;
-                document.querySelector('#logout').innerHTML = `
-                    <button onclick="show_profile();">profile</button>
-                    <button onclick="location.reload();">sign out</button>
-                `;
-            }
-            else {
-                document.querySelector('#fails').innerHTML = 'user already exist'
-            }
-        })
-    }
-    else {
-        document.querySelector('#fails').innerHTML = 'please write a name';
-    }
+    document.querySelector('#xpname').innerHTML = document.querySelector('#usrname').innerHTML
+    document.querySelector('#profile').style.visibility = 'visible';
 }
