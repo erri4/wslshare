@@ -1,6 +1,8 @@
 import subprocess
 import math
 from random import randint
+import socket
+
 
 def get_gw():
     ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
@@ -23,23 +25,7 @@ def get_gw():
 
 
 def get_ip():
-    ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
-    ipconfig = str(ipconfig.stdout.decode())
-
-    substr = 'IPv4 Address. . . . . . . . . . . : '
-    find = ipconfig.find(substr)
-    start = find + len(substr)
-    end = start + len('fff.fff.fff.fff')
-    r1 = ipconfig[start:end].strip().split('.')
-    li = r1[-1]
-    n = False
-    while not n:
-        n = isnumber(li)
-        if n:
-            break
-        li = li[:len(li) - 2].strip()
-    r1[-1] = li
-    return '.'.join(r1)
+    return socket.gethostbyname(socket.gethostname())
         
 
 def isnumber(value):
