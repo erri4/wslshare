@@ -2,7 +2,7 @@ from websocket_server import WebsocketServer
 import json
 from User import User
 import message_handler
-from helper_funcs import get_rooms, getcliby, users, rooms
+from helper_funcs import sendrooms, getcliby, users, rooms
 
 
 def new_client(client, server):
@@ -29,7 +29,7 @@ def client_left(client, server):
             del rooms[r]
         for cl in users:
             if cl.room == None:
-                cl.send(server, list(get_rooms()), 'rooms')
+                sendrooms(cl, server)
     del users[c]
     print(f'client left: {obj.name}')
 

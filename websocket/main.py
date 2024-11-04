@@ -11,8 +11,8 @@ def refresh_ip():
 
 
 def get_stored_ip():
-    with open('static/ip.txt', encoding='utf8') as file_object:
-        return file_object.read()
+    with open('static/ip.txt', encoding='utf8') as file:
+        return file.read()
 
 
 def main():

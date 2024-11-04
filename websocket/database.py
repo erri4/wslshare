@@ -22,7 +22,7 @@ class ConnectionPool(ConnectionPoolInterface):
 
 
     class returnedsql:
-        def __init__(self, sqlres, rowcount, close):
+        def __init__(self, sqlres: list, rowcount: int, close):
             self.sqlres = sqlres
             self.rowcount = rowcount
             self.close = close

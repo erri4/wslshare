@@ -14,6 +14,14 @@ def getcliby(attr, con):
     return False
 
 
+def getroomby(attr, con):
+    global rooms
+    for i in range(len(rooms)):
+        if getattr(rooms[i], attr) == con:
+            return i
+    return False
+
+
 def get_rooms():
     global rooms
     r = []
@@ -42,3 +50,15 @@ def addname(name, passw):
             return True
         return False
     
+
+def sendrooms(clobj, server):
+    global rooms
+    roms = []
+    for rm in list(get_rooms()):
+        room = getroomby('name', rm)
+        finroom = []
+        for part in rooms[room].participants:
+            if part.name in clobj.friends:
+                finroom.append(part.name)
+        roms.append([rm, finroom])
+    clobj.send(server, roms, 'rooms')

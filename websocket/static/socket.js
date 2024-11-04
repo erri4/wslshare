@@ -134,6 +134,7 @@ let connect = function(name, password, reg = false) {
     s.onmessage = function(e) {
         let header = JSON.parse(e.data)[0];
         let msg = JSON.parse(e.data)[1];
+        console.log(`${header}: ${msg}`);
         if (header === 'msg'){
             let mes = `<span style="color:rgb(${msg[2][0]},${msg[2][1]},${msg[2][2]});">${msg[0]}</span>: ${msg[1]}`;
             document.querySelector('#msges').contentWindow.document.body.innerHTML += `${mes}<br>`;
@@ -146,14 +147,27 @@ let connect = function(name, password, reg = false) {
         }
         else if (header === 'rooms') {
             let text = "";
-            for (let i = 0; i < msg.length; i++) {
-                text += msg[i] + ` <button onclick="
-                    send(s, \`${msg[i]}\`, 'join')
+            msg.forEach((v) => {
+                if (v[1].length !== 0) {
+                    let friend = v[1][0];
+                    v[1].slice(1, v[1].length).forEach((val) => {friend += `, ${val}`});
+                    console.log(v[1])
+                    text += `${v[0]} <button onclick="
+                    send(s, \`${v[0]}\`, 'join')
                     document.querySelector('#msgs').innerHTML = sen;
                     document.querySelector('#rooms').innerHTML = '';
                     document.querySelector('#fails').innerHTML = '';
-                ">join</button><br>`;
-            }
+                ">join</button> friends in room: ${friend}<br>`;
+                }
+                else {
+                    text += `${v[0]} <button onclick="
+                        send(s, \`${v[0]}\`, 'join')
+                        document.querySelector('#msgs').innerHTML = sen;
+                        document.querySelector('#rooms').innerHTML = '';
+                        document.querySelector('#fails').innerHTML = '';
+                    ">join</button><br>`;
+                }
+            });
             document.querySelector("#rooms").innerHTML = text;
         }
         else if (header === 'fail'){
@@ -201,15 +215,26 @@ let connect = function(name, password, reg = false) {
             }
             else {
                 let txt = '';
-                for (let i = 0; i < msg.length; i++) {
+                msg.forEach((v, i) => {
                     if (i !== msg.length - 1) {
-                        txt += msg[i] + `<button onclick="send(s, '${msg[i]}', 'addf')">add</button>, `;
+                        //txt += `${v}<span id="${v}0"> <button onclick="send(s, '${v}', 'addf'); document.querySelector('#${v}0').innerHTML = '';">add</button></span>, `;
+                        if (v[1]) {
+                            txt += `${v[0]}, `;
+                        }
+                        else {
+                            txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>, `;
+                        }
                     }
                     else {
-                        txt += msg[i] + `<button onclick="send(s, '${msg[i]}', 'addf')">add</button>`;
+                        if (v[1]) {
+                            txt += `${v[0]}`;
+                        }
+                        else {
+                            txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>`;
+                        }
                     }
-                }
-                document.querySelector("#ppl").innerHTML = `participants: ${txt.replace(document.querySelector("#usrname").innerHTML + `<button onclick="send(s, '${document.querySelector("#usrname").innerHTML}', 'addf')">add</button>`, "you")}`;
+                })
+                document.querySelector("#ppl").innerHTML = `participants: ${txt.replace(document.querySelector("#usrname").innerHTML, "you")}`;
             }
         }
         else if (header === 'name') {
@@ -232,10 +257,15 @@ let connect = function(name, password, reg = false) {
             friends = msg
             document.querySelector('#friends').innerHTML = ``
             if (friends.length !== 0) {
-                document.querySelector('#friends').innerHTML = `friends:`
-                friends.forEach((v) => {
-                    document.querySelector('#friends').innerHTML += `${v}<button onclick="send(s, '${v}', 'remf')">remove</button><br>`
-                });
+                if (friends.length === 1) {
+                    document.querySelector('#friends').innerHTML = `friends: <span id="f0">${friends[0]}<button onclick="send(s, '${friends[0]}', 'remf'); document.querySelector('#friends').innerHTML = ''">remove</button><br></span>`;
+                }
+                else {
+                    document.querySelector('#friends').innerHTML = `friends:`;
+                    friends.forEach((v, i) => {
+                        document.querySelector('#friends').innerHTML += `<span id="f${i}">${v}<button onclick="send(s, '${v}', 'remf'); document.querySelector('#f${i}').innerHTML = ''">remove</button><br></span>`;
+                    });
+                }
             }
         }
     }
