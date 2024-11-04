@@ -37,14 +37,28 @@ def send_message(contact_name, message):
     time.sleep(1)
     pyautogui.press('tab')
     time.sleep(1)
+    ######################## ignore this this is for my locked chats
     pyautogui.press('enter')
+    time.sleep(1)
+    pyautogui.press('tab')
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'f')
     time.sleep(1)
     pyautogui.press('enter')
     time.sleep(1)
-    keyboard.write(message)
+    pyautogui.press('tab')
+    time.sleep(1)
+    ######################
     pyautogui.press('enter')
+    time.sleep(1)
+    pyautogui.press('enter')
+    while True:
+        time.sleep(1)
+        keyboard.write(message)
+        pyautogui.press('enter')
 
 
-contact_name = input('contact_name: ')
-message = input('message: ')
-send_message(contact_name, message)
+if __name__ == '__main__':
+    contact_name = input('contact_name: ')
+    message = input('message: ')
+    send_message(contact_name, message)
