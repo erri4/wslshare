@@ -1,7 +1,5 @@
 from app import app
 from ws import start_server
-import sys
-sys.path.insert(1, '/Users/Reef/Documents/WSLShare')
 from func import get_ip
 
 

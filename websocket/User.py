@@ -12,12 +12,12 @@ class User:
         self.friends = []
 
 
-    def move(self, x, y):
+    def move(self, x: int, y: int):
         self.x = x
         self.y = y
 
 
-    def set_name_color(self, name, color):
+    def set_name_color(self, name: str, color):
         self.name = name
         self.color = color
 

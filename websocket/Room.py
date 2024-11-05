@@ -1,5 +1,5 @@
 class Room:
-    def __init__(self, name, creator):
+    def __init__(self, name: str, creator):
         self.name = name
         self.participants = [creator]
     
@@ -8,7 +8,7 @@ class Room:
         self.participants.append(participant)
         
 
-    def remove_participant(self, participant):
+    def remove_participant(self, participant) -> bool:
         for part in self.participants:
             if part == participant:
                 self.participants.remove(participant)
@@ -27,12 +27,12 @@ class Room:
         self.sendall(msg, server, 'sys')
 
 
-    def sendall(self, msg, server, header = 'msg'):
+    def sendall(self, msg, server, header: str = 'msg'):
         for cl in self.participants:
             cl.send(server, msg, header)
 
 
-    def get_pos(self):
+    def get_pos(self) -> dict:
         r = {}
         for cl in self.participants:
             r[cl.name] = [cl.x, cl.y]
@@ -50,7 +50,7 @@ class Room:
         self.sendall(play, server, 'move')
     
 
-    def get_usernames(self):
+    def get_usernames(self) -> list:
         r = []
         for cl in self.participants:
             r.append(cl.name)

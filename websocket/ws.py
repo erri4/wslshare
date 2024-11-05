@@ -31,7 +31,8 @@ def client_left(client, server):
             if cl.room == None:
                 sendrooms(cl, server)
     del users[c]
-    print(f'client left: {obj.name}')
+    if obj.name != 'admin' and obj.name != None:
+        print(f'client left: {obj.name}')
 
 
 def message_received(client, server, msg):

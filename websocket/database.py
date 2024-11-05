@@ -1,10 +1,11 @@
 import pymysql
 from dbutils.pooled_db import PooledDB
 from interfaces import ConnectionPoolInterface
+import types
 
 
 class ConnectionPool(ConnectionPoolInterface):
-    def __init__(self, host='localhost', user='root', password='033850900reefmysql', database='mysqldb', port=3300):
+    def __init__(self, host: str, user: str, password: str, database: str, port: int):
         self.pool = PooledDB(
             creator=pymysql,
             maxconnections=10,
@@ -21,14 +22,16 @@ class ConnectionPool(ConnectionPoolInterface):
         )
 
 
-    class returnedsql:
-        def __init__(self, sqlres: list, rowcount: int, close):
+    class ReturnedSql:
+        def __init__(self, sqlres: list, rowcount: int, close: types.FunctionType):
             self.sqlres = sqlres
             self.rowcount = rowcount
             self.close = close
-            
+
+
         def __enter__(self):
             return self
+
 
         def __exit__(self, exc_type, exc_value, tb):
             self.close()
@@ -43,7 +46,7 @@ class ConnectionPool(ConnectionPoolInterface):
         if conn:
             conn.close()
 
-    def runsql(self, sql):
+    def runsql(self, sql: str):
         r = 0
         conn = self._connect()
         with conn.cursor() as cursor:
@@ -53,7 +56,7 @@ class ConnectionPool(ConnectionPoolInterface):
         self._disconnect(conn)
         return r
 
-    def select(self, sql):
+    def select(self, sql: str) -> ReturnedSql:
         result = []
         conn = self._connect()
         with conn.cursor() as cursor:

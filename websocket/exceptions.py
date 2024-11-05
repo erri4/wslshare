@@ -1,5 +1,5 @@
 class UnrelatedException(Exception):
-    def __init__(self, errcode = 0):
+    def __init__(self, errcode: int = 0):
         errcodes = [0, 1]
         errdic = ['user must be logged out to do this', 'user must be inside a room to leave it']
         self.errcode = 0

@@ -189,7 +189,7 @@ let connect = function(name, password, reg = false) {
             }
             else if (msg === 'name') {
                 document.querySelector('#msgs').innerHTML = cr;
-                document.querySelector('#logout').innerHTML = `<button onclick="location.reload();">log out</button>`;
+                document.querySelector('#logout').innerHTML = `<button onclick="s.close(); location.reload();">log out</button>`;
             }
         }
         else if (header === 'move') {
@@ -217,7 +217,6 @@ let connect = function(name, password, reg = false) {
                 let txt = '';
                 msg.forEach((v, i) => {
                     if (i !== msg.length - 1) {
-                        //txt += `${v}<span id="${v}0"> <button onclick="send(s, '${v}', 'addf'); document.querySelector('#${v}0').innerHTML = '';">add</button></span>, `;
                         if (v[1]) {
                             txt += `${v[0]}, `;
                         }

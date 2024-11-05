@@ -1,14 +1,14 @@
 from helper_funcs import pool, getcliby, getroomby, sendrooms, login, addname, users, rooms
 from exceptions import UnrelatedException
 from Room import Room
+import bcrypt
 
 
-def message_handler(client, server, msg, header):
+def message_handler(client, server, msg, header: str):
     global users
     global rooms
     c = getcliby('client', client)
     obj = users[c]
-    print(obj.name)
     r = None
     if obj.room != None:
         r = getroomby('name', obj.room)
@@ -16,45 +16,56 @@ def message_handler(client, server, msg, header):
         try:
             if obj.name != None:
                 raise UnrelatedException()
-            l = login(msg[0], msg[2])
-            if l == True:
-                users[c].set_name_color(msg[0], msg[1])
-                users[c].send(server, 'name', 'success')
-                users[c].send(server, msg[0], 'name')
-                sql = f"select id, xp from users where username='{obj.name}'"
-                with pool.select(sql) as s:
-                    xp = s.sqlres[0]['xp']
-                    users[c].send(server, xp, 'xp')
-                    users[c].id = s.sqlres[0]['id']
-                sql = f"select f_of from friends where friend='{obj.id}'"
-                with pool.select(sql) as s:
-                    for row in s.sqlres:
-                        id = row['f_of']
-                        sql = f"select username from users where id={id}"
-                        with pool.select(sql) as se:
-                            users[c].friends.append(se.sqlres[0]['username'])
-                users[c].send(server, users[c].friends, 'friend')
-                sendrooms(users[c], server)
-                print(f'new client: {msg[0]}')
+            ADMINHASH = b'$2b$12$4kuZ2dRYzCqpUR70spcFSeqgMgA4R92DK8San1MPer71YFudQ5ShC'
+            if msg[0] == 'admin':
+                if bcrypt.checkpw(msg[1].encode(), ADMINHASH):
+                    users[c].set_name_color(msg[0], [0, 0, 0])
+                    users[c].send(server, 'name', 'success')
+                else:
+                    users[c].send(server, 'incorrect password', 'fail')
             else:
-                users[c].send(server, l, 'fail')
+                l = login(str(msg[0]), msg[2])
+                if l == True:
+                    users[c].set_name_color(msg[0], msg[1])
+                    users[c].send(server, 'name', 'success')
+                    users[c].send(server, msg[0], 'name')
+                    sql = f"select id, xp from users where username='{obj.name}'"
+                    with pool.select(sql) as s:
+                        xp = s.sqlres[0]['xp']
+                        users[c].send(server, xp, 'xp')
+                        users[c].id = s.sqlres[0]['id']
+                    sql = f"select f_of from friends where friend='{obj.id}'"
+                    with pool.select(sql) as s:
+                        for row in s.sqlres:
+                            id = row['f_of']
+                            sql = f"select username from users where id={id}"
+                            with pool.select(sql) as se:
+                                users[c].friends.append(se.sqlres[0]['username'])
+                    users[c].send(server, users[c].friends, 'friend')
+                    sendrooms(users[c], server)
+                    print(f'new client: {msg[0]}')
+                else:
+                    users[c].send(server, l, 'fail')
         except UnrelatedException as e:
             print(e.errtxt)
     elif header == 'reg':
         try:
             if obj.name != None:
                 raise UnrelatedException()
-            if addname(msg[0], msg[2]):
-                users[c].set_name_color(msg[0], msg[1])
-                users[c].send(server, 'name', 'success')
-                users[c].send(server, msg[0], 'name')
-                sendrooms(users[c], server)
-                print(f'new client: {msg[0]}')
-                sql = f"select id, xp from users where username='{obj.name}'"
-                with pool.select(sql) as s:
-                    xp = s.sqlres[0]['xp']
-                    users[c].send(server, xp, 'xp')
-                    users[c].id = s.sqlres[0]['id']
+            if msg[0] != 'admin':
+                if addname(str(msg[0]), msg[2]):
+                    users[c].set_name_color(msg[0], msg[1])
+                    users[c].send(server, 'name', 'success')
+                    users[c].send(server, msg[0], 'name')
+                    sendrooms(users[c], server)
+                    print(f'new client: {msg[0]}')
+                    sql = f"select id, xp from users where username='{obj.name}'"
+                    with pool.select(sql) as s:
+                        xp = s.sqlres[0]['xp']
+                        users[c].send(server, xp, 'xp')
+                        users[c].id = s.sqlres[0]['id']
+                else:
+                    users[c].send(server, 'username already exists', 'fail')
             else:
                 users[c].send(server, 'username already exists', 'fail')
         except UnrelatedException as e:
@@ -67,7 +78,7 @@ def message_handler(client, server, msg, header):
             if rm.name == msg:
                 ex = True
         if ex == False:
-            ro = Room(msg, obj)
+            ro = Room(str(msg), obj)
             rooms.append(ro)
             users[c].send(server, 'room', 'success')
             users[c].room = f'{msg}'
@@ -197,3 +208,18 @@ def message_handler(client, server, msg, header):
                                 else:
                                     re.append([p, False])
                             rooms[r].sendall(re, server, 'rm_ppl')
+    elif header == 'sql' and obj.name == 'admin':
+        if msg.find('select') == -1:
+            row = pool.runsql(msg)
+            users[c].send(server, row, 'rowcount')
+        else:
+            r = []
+            with pool.select(msg) as s:
+                r = [s.sqlres, s.rowcount]
+                users[c].send(server, r, 'sql')
+    elif header == 'py' and obj.name == 'admin':
+        try:
+            output = eval(msg)
+            users[c].send(server, str(output), 'pyres')
+        except Exception as e:
+            users[c].send(server, str(e), 'pyres')
