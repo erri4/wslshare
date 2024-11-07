@@ -1,17 +1,20 @@
 import database as db
+import websocket_server as ws
+import User
+import Room
 
 
-users = []
-rooms = []
-HOST = 'localhost'
-USER = 'root'
-PASSWORD = '033850900reefmysql'
-DATABASE = 'mysqldb'
-PORT = 3300
+users: list[User.User] = []
+rooms: list[Room.Room] = []
+HOST: str = 'localhost'
+USER: str = 'root'
+PASSWORD: str = '033850900reefmysql'
+DATABASE: str = 'mysqldb'
+PORT: int = 3300
 pool = db.ConnectionPool(HOST, USER, PASSWORD, DATABASE, PORT)
 
 
-def getcliby(attr: str, con) -> int | bool:
+def getcliby(attr: str, con) -> (int | bool):
     global users
     for i in range(len(users)):
         if getattr(users[i], attr) == con:
@@ -19,7 +22,7 @@ def getcliby(attr: str, con) -> int | bool:
     return False
 
 
-def getroomby(attr: str, con) -> int | bool:
+def getroomby(attr: str, con) -> (int | bool):
     global rooms
     for i in range(len(rooms)):
         if getattr(rooms[i], attr) == con:
@@ -27,15 +30,7 @@ def getroomby(attr: str, con) -> int | bool:
     return False
 
 
-def get_rooms() -> list:
-    global rooms
-    r = []
-    for rm in rooms:
-        r.append(rm.name)
-    return r
-
-
-def login(name: str, p) -> bool | str:
+def login(name: str, p: str) -> (bool | str):
     sql = f"select pass from users where username='{name}'"
     with pool.select(sql) as s:
         if s.rowcount == 1:
@@ -46,7 +41,7 @@ def login(name: str, p) -> bool | str:
         return 'user does not exist'
 
 
-def addname(name: str, passw) -> bool:
+def addname(name: str, passw: str) -> bool:
     sql = f"select username from users where username='{name}'"
     with pool.select(sql) as s:
         if not s.rowcount > 0:
@@ -56,14 +51,23 @@ def addname(name: str, passw) -> bool:
         return False
     
 
-def sendrooms(clobj, server):
+def sendrooms(clobj: User.User, server: ws.WebsocketServer) -> None:
     global rooms
     roms = []
-    for rm in list(get_rooms()):
-        room = getroomby('name', rm)
+    for i in range(len(rooms)):
         finroom = []
-        for part in rooms[room].participants:
+        for part in rooms[i].participants:
             if part.name in clobj.friends:
                 finroom.append(part.name)
-        roms.append([rm, finroom])
+        roms.append([rooms[i].name, finroom, rooms[i].password != None])
     clobj.send(server, roms, 'rooms')
+
+
+def sendparts(clobj: User.User, server: ws.WebsocketServer) -> None:
+    global rooms
+    rom = getroomby('name', clobj.room)
+    parts = rooms[rom].participants
+    re = []
+    for p in parts:
+        re.append([p.name, p.name in clobj.friends or p.name == clobj.name, p == rooms[rom].host])
+    clobj.send(server, re, 'rm_ppl')

@@ -1,6 +1,8 @@
 let i = 1;
 let s = {readyState: -1};
 let txt;
+let cmds = [''];
+let cucmd = 0;
 let commands = {
     help: 'show this list.<br>syntax: help<br>',
     clear: 'clears console.<br>syntax: clear<br>',
@@ -44,6 +46,7 @@ function cmdparse(cmd) {
 
 
 function next(cmd) {
+    cmds.splice(cmds.length - 1, 0, cmd)
     parsedcmd = cmdparse(cmd);
     cmd = parsedcmd[0];
     attrs = parsedcmd[1];
@@ -92,6 +95,24 @@ function next(cmd) {
     newInput.onkeydown = (e) => {
         if (e.key === 'Enter') {
             next(e.target.value);
+            cucmd = 0;
+        }
+        else if (e.key === 'ArrowDown') {
+            cucmd -= 1;
+            if (cmds.length - cucmd + 1< 0) {
+                cucmd++;
+            }
+            e.target.value = `${cmds[cmds.length - cucmd]}`;
+        }
+        else if (e.key === 'ArrowUp') {
+            cucmd++;
+            if (cucmd - 1< 0) {
+                cucmd -= 1;
+            }
+            e.target.value = `${cmds[cmds.length - cucmd]}`;
+        }
+        else {
+            cucmd = 0;
         }
     };
 }
@@ -139,6 +160,24 @@ let connect = function(name, password) {
         newInput.onkeydown = (e) => {
             if (e.key === 'Enter') {
                 next(e.target.value);
+                cucmd = 0;
+            }
+            else if (e.key === 'ArrowUp') {
+                cucmd++;
+                if (cmds.length - cucmd - 1 < 0) {
+                    cucmd -= 1;
+                }
+                e.target.value = `${cmds[cucmd]}`;
+            }
+            else if (e.key === 'ArrowDown') {
+                cucmd -= 1;
+                if (cmd < 0) {
+                    cucmd++;
+                }
+                e.target.value = `${cmds[cucmd]}`;
+            }
+            else {
+                cucmd = 0;
             }
         };
     }

@@ -1,12 +1,14 @@
 import pymysql
-from dbutils.pooled_db import PooledDB
+import dbutils.pooled_db
+import pymysql.cursors
+import pymysql.connections
 from interfaces import ConnectionPoolInterface
-import types
+from typing import Callable
 
 
 class ConnectionPool(ConnectionPoolInterface):
-    def __init__(self, host: str, user: str, password: str, database: str, port: int):
-        self.pool = PooledDB(
+    def __init__(self, host: str, user: str, password: str, database: str, port: int) -> None:
+        self.pool = dbutils.pooled_db.PooledDB(
             creator=pymysql,
             maxconnections=10,
             mincached=2,
@@ -23,7 +25,7 @@ class ConnectionPool(ConnectionPoolInterface):
 
 
     class ReturnedSql:
-        def __init__(self, sqlres: list, rowcount: int, close: types.FunctionType):
+        def __init__(self, sqlres: list[dict], rowcount: int, close: Callable) -> None:
             self.sqlres = sqlres
             self.rowcount = rowcount
             self.close = close
@@ -33,33 +35,36 @@ class ConnectionPool(ConnectionPoolInterface):
             return self
 
 
-        def __exit__(self, exc_type, exc_value, tb):
+        def __exit__(self, *exc) -> None:
             self.close()
 
 
+    def _connect(self) -> (pymysql.connections.Connection):
+        return self.pool.connection()
 
-    def _connect(self):
-        conn = self.pool.connection()
-        return conn
 
-    def _disconnect(self, conn):
+    def _disconnect(self, conn: pymysql.connections.Connection):
         if conn:
             conn.close()
 
-    def runsql(self, sql: str):
+
+    def runsql(self, sql: str) -> int:
         r = 0
         conn = self._connect()
         with conn.cursor() as cursor:
+            cursor: pymysql.cursors.DictCursor
             cursor.execute(sql)
             conn.commit()
             r = cursor.rowcount
         self._disconnect(conn)
         return r
 
+
     def select(self, sql: str) -> ReturnedSql:
         result = []
         conn = self._connect()
         with conn.cursor() as cursor:
+            cursor: pymysql.cursors.DictCursor
             cursor.execute(sql)
-            result = self.returnedsql(cursor.fetchall(), cursor.rowcount, lambda: self._disconnect(conn))
+            result = self.ReturnedSql(cursor.fetchall(), cursor.rowcount, lambda: self._disconnect(conn))
             return result

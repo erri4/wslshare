@@ -1,33 +1,47 @@
-class Room:
-    def __init__(self, name: str, creator):
-        self.name = name
-        self.participants = [creator]
-    
+from User import User
+import websocket_server as ws
+from types import NoneType
 
-    def add_participant(self, participant):
+
+class Room:
+    def __init__(self, name: str, creator: User, password: str | NoneType) -> None:
+        self.name = name
+        self.participants: list[User] = [creator]
+        self.host: User = creator
+        self.blacklist: list[User] = []
+        self.password = password
+
+
+    def add_participant(self, participant: User) -> None:
         self.participants.append(participant)
         
 
-    def remove_participant(self, participant) -> bool:
+    def remove_participant(self, participant: User) -> bool:
         for part in self.participants:
             if part == participant:
                 self.participants.remove(participant)
         if self.participants == []:
             return True
         else:
+            if participant == self.host:
+                xpl = None
+                for part in self.participants:
+                    if xpl == None or part.xp > xpl.xp:
+                        xpl = part
+                self.host = xpl
             return False
     
 
-    def sendmsg(self, msg, frm, server):
+    def sendmsg(self, msg: str, frm: User, server: ws.WebsocketServer) -> None:
         reply = [frm.name, msg, [frm.color[0], frm.color[1], frm.color[2]]]
         self.sendall(reply, server)
     
 
-    def sysmsg(self, msg, server):
+    def sysmsg(self, msg: str, server: ws.WebsocketServer) -> None:
         self.sendall(msg, server, 'sys')
 
 
-    def sendall(self, msg, server, header: str = 'msg'):
+    def sendall(self, msg: str | list, server: ws.WebsocketServer, header: str = 'msg') -> None:
         for cl in self.participants:
             cl.send(server, msg, header)
 
@@ -35,24 +49,12 @@ class Room:
     def get_pos(self) -> dict:
         r = {}
         for cl in self.participants:
-            r[cl.name] = [cl.x, cl.y]
+            r[cl] = [cl.x, cl.y]
         return r
     
 
-    def move(self, server):
+    def move(self, server: ws.WebsocketServer) -> None:
         play = []
-        poss = self.get_pos()
-        for player in list(poss.keys()):
-            for cli in self.participants:
-                if cli.name == player:
-                    cl_color = cli.color
-            play.append([player, [poss[f'{player}'][0], poss[f'{player}'][1]], [cl_color[0], cl_color[1], cl_color[2]]])
+        for cli in self.participants:
+            play.append([cli.name, [cli.x, cli.y], [cli.color[0], cli.color[1], cli.color[2]]])
         self.sendall(play, server, 'move')
-    
-
-    def get_usernames(self) -> list:
-        r = []
-        for cl in self.participants:
-            r.append(cl.name)
-        return r
-    

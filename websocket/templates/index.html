@@ -59,6 +59,14 @@
     <div id="usrname" class="username"></div>
     <div id="profile"><div id="iprofile"><h1><span id="xpname"></span></h1>
         xp: <span id="xp"></span>
+        <br>
+        color: <span id="colors">this is your color</span><br>
+        <input type="color" id="col">
+        <button onclick="
+            color = hex2rgb(document.querySelector('#col').value);
+            document.querySelector('#colors').style.color = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+            send(s, color, 'col');
+        ">change color</button>
         <br><br>
         <input type="text" id="changep" onkeydown="
             if (event.key === 'Enter') {

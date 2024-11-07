@@ -77,23 +77,69 @@ let sen = `
 let cr = `<input id="cr" onkeydown="
             if (event.key === 'Enter') {
                 if (this.value == '') {
-                    send(s, null, 'create');
+                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    let newInput = document.querySelector(\`#pasi\`);
+                    newInput.focus();
+                    newInput.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            if (e.target.value === '') {
+                                send(s, [null, null], 'create');
+                            }
+                            else {
+                                send(s, [null, e.target.value], 'create');
+                            }
+                        }
+                    }
                 }
                 else {
-                    send(s, this.value, 'create');
+                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    let newInput = document.querySelector(\`#pasi\`);
+                    newInput.focus();
+                    newInput.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            if (e.target.value === '') {
+                                send(s, [String(this.value), null], 'create');
+                            }
+                            else {
+                                send(s, [String(this.value), e.target.value], 'create');
+                            }
+                        }
+                    }
                 }
-                this.value = '';
             }
         ">
         <button onclick="
-            if (document.querySelector('#cr').value == '') {
-                send(s, null, 'create');
-            }
-            else {
-                send(s, document.querySelector('#cr').value, 'create');
-            }
-            document.querySelector('#cr').value = '';
-        ">create</button><br>
+            if (document.querySelector(\`#cr\`).value == '') {
+                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    let newInput = document.querySelector(\`#pasi\`);
+                    newInput.focus();
+                    newInput.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            if (e.target.value === '') {
+                                send(s, [null, null], 'create');
+                            }
+                            else {
+                                send(s, [null, e.target.value], 'create');
+                            }
+                        }
+                    }
+                }
+                else {
+                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    let newInput = document.querySelector(\`#pasi\`);
+                    newInput.focus();
+                    newInput.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            if (e.target.value === '') {
+                                send(s, [String(document.querySelector(\`#cr\`).value), null], 'create');
+                            }
+                            else {
+                                send(s, [String(document.querySelector(\`#cr\`).value), e.target.value], 'create');
+                            }
+                        }
+                    }
+                }
+        ">create</button><span id="passpan"></span><br><br>
         <button onclick="show_profile()">show profile</button>
     `;
 let pos;
@@ -104,6 +150,10 @@ let rom;
 color[0] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[1] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
 color[2] = Math.floor(Math.random() * (255 - 0 + 1)) + 0
+window.onload = (e) => {
+    document.querySelector('#colors').style.color = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    document.querySelector('#col').value = rgb2hex(color);
+}
 
 let connect = function(name, password, reg = false) {
     const s = new WebSocket(`ws://${ip}:5001`);
@@ -148,24 +198,38 @@ let connect = function(name, password, reg = false) {
         else if (header === 'rooms') {
             let text = "";
             msg.forEach((v) => {
-                if (v[1].length !== 0) {
-                    let friend = v[1][0];
-                    v[1].slice(1, v[1].length).forEach((val) => {friend += `, ${val}`});
-                    console.log(v[1])
-                    text += `${v[0]} <button onclick="
-                    send(s, \`${v[0]}\`, 'join')
-                    document.querySelector('#msgs').innerHTML = sen;
-                    document.querySelector('#rooms').innerHTML = '';
-                    document.querySelector('#fails').innerHTML = '';
-                ">join</button> friends in room: ${friend}<br>`;
+                if (v[2]) {
+                    if (v[1].length !== 0) {
+                        let friend = v[1][0];
+                        v[1].slice(1, v[1].length).forEach((val) => {friend += `, ${val}`});
+                        text += `${v[0]} <button onclick="
+                            setpassw(\`${v[0]}\`);
+                            document.querySelector('#fails').innerHTML = '';
+                        ">join</button> friends in room: ${friend} <span id="passw"></span><br>`;
+                    }
+                    else {
+                        text += `${v[0]} <button onclick="
+                            setpassw(\`${v[0]}\`);
+                            document.querySelector('#fails').innerHTML = '';
+                        ">join</button> <span id="passw"></span><br>`;
+                    }
                 }
                 else {
-                    text += `${v[0]} <button onclick="
-                        send(s, \`${v[0]}\`, 'join')
-                        document.querySelector('#msgs').innerHTML = sen;
-                        document.querySelector('#rooms').innerHTML = '';
+                    if (v[1].length !== 0) {
+                        let friend = v[1][0];
+                        v[1].slice(1, v[1].length).forEach((val) => {friend += `, ${val}`});
+                        console.log(v[1])
+                        text += `${v[0]} <button onclick="
+                        send(s, [\`${v[0]}\`, null], 'join')
                         document.querySelector('#fails').innerHTML = '';
-                    ">join</button><br>`;
+                    ">join</button> friends in room: ${friend}<br>`;
+                    }
+                    else {
+                        text += `${v[0]} <button onclick="
+                            send(s, [\`${v[0]}\`, null], 'join')
+                            document.querySelector('#fails').innerHTML = '';
+                        ">join</button><br>`;
+                    }
                 }
             });
             document.querySelector("#rooms").innerHTML = text;
@@ -217,19 +281,39 @@ let connect = function(name, password, reg = false) {
                 let txt = '';
                 msg.forEach((v, i) => {
                     if (i !== msg.length - 1) {
-                        if (v[1]) {
-                            txt += `${v[0]}, `;
+                        if (v[2]) {
+                            if (v[1]) {
+                                txt += `${v[0]} (host), `;
+                            }
+                            else {
+                                txt += `${v[0]} (host)<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>, `;
+                            }
                         }
                         else {
-                            txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>, `;
+                            if (v[1]) {
+                                txt += `${v[0]}, `;
+                            }
+                            else {
+                                txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>, `;
+                            }
                         }
                     }
                     else {
-                        if (v[1]) {
-                            txt += `${v[0]}`;
+                        if (v[2]) {
+                            if (v[1]) {
+                                txt += `${v[0]} (host)`;
+                            }
+                            else {
+                                txt += `${v[0]} (host)<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>`;
+                            }
                         }
                         else {
-                            txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>`;
+                            if (v[1]) {
+                                txt += `${v[0]}`;
+                            }
+                            else {
+                                txt += `${v[0]}<span id="${v[0]}0"> <button onclick="send(s, '${v[0]}', 'addf'); document.querySelector('#${v[0]}0').innerHTML = '';">add</button></span>`;
+                            }
                         }
                     }
                 })
@@ -321,11 +405,42 @@ document.addEventListener('keydown', move)
 
 let send = function(s, msg, header = 'msg') {
     if (msg !== '') {
-        s.send(JSON.stringify([header, msg]))
+        s.send(JSON.stringify([header, msg]));
     }
 }
 
 let show_profile = function() {
-    document.querySelector('#xpname').innerHTML = document.querySelector('#usrname').innerHTML
+    document.querySelector('#xpname').innerHTML = document.querySelector('#usrname').innerHTML;
     document.querySelector('#profile').style.visibility = 'visible';
+}
+
+
+function setpassw(name) {
+    document.querySelector('#passw').innerHTML = `<input id="passwo">`;
+    let newInput = document.querySelector(`#passwo`);
+    newInput.focus();
+    newInput.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            send(s, [`${name}`, e.target.value], 'join');
+            document.querySelector('#fails').innerHTML = '';
+        }
+    };
+}
+
+function hex2rgb(hex) {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
+}
+
+
+let componentToHex = (c) => {
+    let hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+
+function rgb2hex(rgb) {
+    return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
 }
