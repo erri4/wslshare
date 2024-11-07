@@ -243,8 +243,8 @@ let connect = function(name, password, reg = false) {
                 document.querySelector('#msgs').innerHTML = sen;
                 document.querySelector('#rooms').innerHTML = '';
                 document.querySelector('#fails').innerHTML = '';
-                document.querySelector("#game").style.width = '500px';
-                document.querySelector("#game").style.height = '500px';
+                document.querySelector("#game").style.width = '430px';
+                document.querySelector("#game").style.height = '400px';
                 document.querySelector("#game").style.border = 'black';
                 document.querySelector("#game").style.borderWidth = '1px';
                 document.querySelector("#game").style.borderStyle = 'solid';
@@ -376,13 +376,13 @@ let move = function(e) {
             }
         }
         else if (e.key === 'ArrowDown') {
-            if (pos[0] + 30 !== 492) {
+            if (pos[0] + 30 < 390) {
                 pos[0] += 14;
                 send(s, pos, 'move');
             }
         }
         else if (e.key === 'ArrowRight') {
-            if (pos[1] + 30 !== 492) {
+            if (pos[1] + 30 < 420) {
                 pos[1] += 14;
                 send(s, pos, 'move');
             }

@@ -19,44 +19,63 @@
     <script src="static/socket.js"></script>
     <br>
     <div id="rooms"></div>
-    <div id="game"></div>
     <div id="fails"></div>
-    <div id="msgs">
-        <h1>log in:</h1><br>
-        username:<br>
-        <input id="name" onkeydown="
-            if (event.key === 'Enter') {
-                s = connect(this.value, document.querySelector('#password').value);
+    <div id="chat-container">
+        <div id="msgs">
+            <h1>log in:</h1><br>
+            username:<br>
+            <input id="name" onkeydown="
+                if (event.key === 'Enter') {
+                    s = connect(this.value, document.querySelector('#password').value);
+                    document.querySelector('#fails').innerHTML = ''
+                }
+            "><br>
+            password:<br>
+            <input id="password" onkeydown="
+                if (event.key === 'Enter') {
+                    s = connect(document.querySelector('#name').value, this.value);
+                    document.querySelector('#fails').innerHTML = ''
+                }
+            ">
+            <br><br>
+            <button onclick="
+                s = connect(document.querySelector('#name').value, document.querySelector('#password').value);
                 document.querySelector('#fails').innerHTML = ''
-            }
-        "><br>
-        password:<br>
-        <input id="password" onkeydown="
-            if (event.key === 'Enter') {
-                s = connect(document.querySelector('#name').value, this.value);
-                document.querySelector('#fails').innerHTML = ''
-            }
-        ">
-        <br><br>
-        <button onclick="
-            s = connect(document.querySelector('#name').value, document.querySelector('#password').value);
-            document.querySelector('#fails').innerHTML = ''
-        ">login</button>
-        <button onclick="
-            document.querySelector('#msgs').innerHTML = reg;
-            document.querySelector('#fails').innerHTML = '';
-        ">register</button>
+            ">login</button>
+            <button onclick="
+                document.querySelector('#msgs').innerHTML = reg;
+                document.querySelector('#fails').innerHTML = '';
+            ">register</button>
+        </div>
+        <div id="game"></div>
     </div>
     <br>
-    <div id="room_data">
-        <div id="name"></div>
-        <div id="ppl"></div>
+    <div id="data">
+        <div id="room_data">
+            <div id="name"></div>
+            <div id="ppl"></div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div id="username" class="username"></div>
+        <div id="usrname" class="username"></div>
+        <br>
+        <div id="logout"></div>
     </div>
-    <br>
-    <br>
-    <br>
-    <div id="username" class="username"></div>
-    <div id="usrname" class="username"></div>
     <div id="profile"><div id="iprofile"><h1><span id="xpname"></span></h1>
         xp: <span id="xp"></span>
         <br>
@@ -85,8 +104,7 @@
         <button onclick="
             document.querySelector('#profile').style.visibility = 'hidden'
         ">close</button>
-        </div></div>
-    <br>
-    <div id="logout"></div>
+        </div>
+    </div>
 </body>
 </html>
