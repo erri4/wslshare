@@ -1,4 +1,5 @@
 let s;
+let host = location.hostname;
 let room;
 let login = `
 <h1>log in:</h1><br>
@@ -156,7 +157,7 @@ window.onload = (e) => {
 }
 
 let connect = function(name, password, reg = false) {
-    const s = new WebSocket(`ws://${ip}:5001`);
+    const s = new WebSocket(`ws://${host}:5001`);
     s.onopen = function() {
         if (reg) {
             if (name !== '' && password !== '') {

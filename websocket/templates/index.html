@@ -8,14 +8,6 @@
     <title>socket</title>
 </head>
 <body>
-    <script>
-        let ip = '';
-        fetch('static/ip.txt').then((res)=> {
-            res.text().then((text)=>{
-                ip = text;
-            })
-        })
-    </script>
     <script src="static/socket.js"></script>
     <br>
     <div id="rooms"></div>
