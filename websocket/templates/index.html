@@ -23,7 +23,7 @@
                 }
             "><br>
             password:<br>
-            <input id="password" onkeydown="
+            <input id="password" type="password" onkeydown="
                 if (event.key === 'Enter') {
                     s = connect(document.querySelector('#name').value, this.value);
                     document.querySelector('#fails').innerHTML = ''

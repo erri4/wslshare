@@ -11,7 +11,7 @@ username:<br>
     }
 "><br>
 password:<br>
-<input id="password" onkeydown="
+<input id="password" type="password" onkeydown="
     if (event.key === 'Enter') {
         s = connect(document.querySelector('#name').value, this.value);
         document.querySelector('#fails').innerHTML = ''
@@ -36,7 +36,7 @@ username:<br>
             document.querySelector('#fails').innerHTML = ''
         }
     "><br>password:<br>
-    <input id="password" onkeydown="
+    <input id="password" type="password" onkeydown="
         if (event.key === 'Enter') {
             s = connect(document.querySelector('#name').value, this.value, true);
             document.querySelector('#fails').innerHTML = ''
@@ -78,7 +78,7 @@ let sen = `
 let cr = `<input id="cr" onkeydown="
             if (event.key === 'Enter') {
                 if (this.value == '') {
-                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    document.querySelector('#passpan').innerHTML = \`<br>password: <input type='password' id='pasi'><button id='pasb'>create</button>\`;
                     let newInput = document.querySelector(\`#pasi\`);
                     newInput.focus();
                     newInput.onkeydown = (e) => {
@@ -91,9 +91,18 @@ let cr = `<input id="cr" onkeydown="
                             }
                         }
                     }
+                    newInput = document.querySelector(\`#pasb\`);
+                    newInput.onclick = (e) => {
+                        if (document.querySelector(\`#pasi\`).value === '') {
+                            send(s, [null, null], 'create');
+                        }
+                        else {
+                            send(s, [null, document.querySelector(\`#pasi\`).value], 'create');
+                        }
+                    }
                 }
                 else {
-                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    document.querySelector('#passpan').innerHTML = \`<br>password: <input id='pasi' type='password'><button id='pasb'>create</button>\`;
                     let newInput = document.querySelector(\`#pasi\`);
                     newInput.focus();
                     newInput.onkeydown = (e) => {
@@ -106,12 +115,21 @@ let cr = `<input id="cr" onkeydown="
                             }
                         }
                     }
+                    newInput = document.querySelector(\`#pasb\`);
+                    newInput.onclick = (e) => {
+                        if (document.querySelector(\`#pasi\`).value === '') {
+                            send(s, [null, null], 'create');
+                        }
+                        else {
+                            send(s, [null, document.querySelector(\`#pasi\`).value], 'create');
+                        }
+                    }
                 }
             }
         ">
         <button onclick="
             if (document.querySelector(\`#cr\`).value == '') {
-                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    document.querySelector('#passpan').innerHTML = \`<br>password: <input id='pasi' type='password'><button id='pasb'>create</button>\`;
                     let newInput = document.querySelector(\`#pasi\`);
                     newInput.focus();
                     newInput.onkeydown = (e) => {
@@ -124,9 +142,18 @@ let cr = `<input id="cr" onkeydown="
                             }
                         }
                     }
+                    newInput = document.querySelector(\`#pasb\`);
+                    newInput.onclick = (e) => {
+                        if (document.querySelector(\`#pasi\`).value === '') {
+                            send(s, [null, null], 'create');
+                        }
+                        else {
+                            send(s, [null, document.querySelector(\`#pasi\`).value], 'create');
+                        }
+                    }
                 }
                 else {
-                    document.querySelector('#passpan').innerHTML = \`<input id='pasi'>\`;
+                    document.querySelector('#passpan').innerHTML = \`<br>password: <input id='pasi' type='password'><button id='pasb'>create</button>\`;
                     let newInput = document.querySelector(\`#pasi\`);
                     newInput.focus();
                     newInput.onkeydown = (e) => {
@@ -137,6 +164,15 @@ let cr = `<input id="cr" onkeydown="
                             else {
                                 send(s, [String(document.querySelector(\`#cr\`).value), e.target.value], 'create');
                             }
+                        }
+                    }
+                    newInput = document.querySelector(\`#pasb\`);
+                    newInput.onclick = (e) => {
+                        if (document.querySelector(\`#pasi\`).value === '') {
+                            send(s, [null, null], 'create');
+                        }
+                        else {
+                            send(s, [null, document.querySelector(\`#pasi\`).value], 'create');
                         }
                     }
                 }

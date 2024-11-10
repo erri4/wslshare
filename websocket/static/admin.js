@@ -1,3 +1,4 @@
+let host = location.hostname;
 let i = 1;
 let s = {readyState: -1};
 let txt;
@@ -39,6 +40,16 @@ document.querySelector('#nextcmd').onkeydown = (e) => {
 }
 
 
+document.querySelector(`#nextcmd`).onkeyup = (e) => {
+    if (e.target.value.slice(0, 8) === 'connect ') {
+        document.querySelector(`#nextcmd`).type = 'password';
+    }
+    else {
+        document.querySelector(`#nextcmd`).type = 'text';
+    }
+}
+
+
 function cmdparse(cmd) {
     resarr = cmd.split(' ');
     return [resarr[0], resarr.slice(1)]
@@ -46,11 +57,16 @@ function cmdparse(cmd) {
 
 
 function next(cmd) {
-    cmds.splice(cmds.length - 1, 0, cmd)
+    cmds.splice(cmds.length - 1, 0, cmd);
     parsedcmd = cmdparse(cmd);
     cmd = parsedcmd[0];
     attrs = parsedcmd[1];
-    document.querySelector(`#cmd${i}`).innerHTML = `>${cmd} ${attrs.join(' ')}`;
+    if (cmd === 'connect') {
+        document.querySelector(`#cmd${i}`).innerHTML = '>connect .... .........';
+    }
+    else {
+        document.querySelector(`#cmd${i}`).innerHTML = `>${cmd} ${attrs.join(' ')}`;
+    }
     if (cmd === 'clear') {
         document.querySelector("#consolebody").innerHTML = ``;
         i = 0;
@@ -86,12 +102,22 @@ function next(cmd) {
         document.querySelector("#consolebody").innerHTML += dict[s.readyState + 1];
     }
     else {
-        document.querySelector("#consolebody").innerHTML += `command not found: ${cmd}`;
+        if (cmd !== '') {
+            document.querySelector("#consolebody").innerHTML += `command not found: ${cmd}`;
+        }
     }
     i++;
     document.querySelector("#consolebody").innerHTML += `<p id="cmd${i}">><input class="commandline" id="nextcmd" autocomplete="off"></p>`;
     let newInput = document.querySelector(`#nextcmd`);
     newInput.focus();
+    document.querySelector(`#nextcmd`).onkeyup = (e) => {
+        if (e.target.value.slice(0, 8) === 'connect ') {
+            document.querySelector(`#nextcmd`).type = 'password';
+        }
+        else {
+            document.querySelector(`#nextcmd`).type = 'text';
+        }
+    }
     newInput.onkeydown = (e) => {
         if (e.key === 'Enter') {
             next(e.target.value);
@@ -119,7 +145,7 @@ function next(cmd) {
 
 
 let connect = function(name, password) {
-    const s = new WebSocket(`ws://${ip}:5001`);
+    const s = new WebSocket(`ws://${host}:5001`);
     s.onopen = function() {
         send(s, [name, password], 'login');
     };
@@ -157,6 +183,14 @@ let connect = function(name, password) {
         document.querySelector("#consolebody").innerHTML += `<p id="cmd${i}">><input class="commandline" id="nextcmd" autocomplete="off"></p>`;
         let newInput = document.querySelector(`#nextcmd`);
         newInput.focus();
+        document.querySelector(`#nextcmd`).onkeyup = (e) => {
+            if (e.target.value.slice(0, 8) === 'connect ') {
+                document.querySelector(`#nextcmd`).type = 'password';
+            }
+            else {
+                document.querySelector(`#nextcmd`).type = 'text';
+            }
+        }
         newInput.onkeydown = (e) => {
             if (e.key === 'Enter') {
                 next(e.target.value);

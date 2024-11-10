@@ -17,7 +17,7 @@ def message_handler(client: dict, server: ws.WebsocketServer, msg: str | list, h
         try:
             if obj.name != None:
                 raise UnrelatedException()
-            if getcliby('name', msg[0]) != False:
+            if type(getcliby('name', msg[0])) != bool:
                 raise UnrelatedException(2)
             ADMINHASH = b'$2b$12$4kuZ2dRYzCqpUR70spcFSeqgMgA4R92DK8San1MPer71YFudQ5ShC'
             if msg[0] == 'admin':
@@ -76,8 +76,8 @@ def message_handler(client: dict, server: ws.WebsocketServer, msg: str | list, h
     elif header == 'create':
         if msg[0] == None:
             msg[0] = f"{obj.name}'s room"
-        ex = getroomby('name', msg[0]) != False
-        if ex == False:
+        ex = getroomby('name', msg[0])
+        if type(ex) == bool:
             ro = Room(str(msg[0]), obj, msg[1])
             rooms.append(ro)
             users[c].send(server, 'room', 'success')
@@ -147,9 +147,9 @@ def message_handler(client: dict, server: ws.WebsocketServer, msg: str | list, h
                     l = msg.strip().split(' ')
                     l[0] = l[0][1:]
                     if len(l) >= 2:
-                        if l[0] == 'kick':
+                        if l[0] == 'kick' and l[1] != obj.name:
                             k = getcliby('name', l[1])
-                            if k != False and users[k] in rooms[r].participants:
+                            if type(k) != bool and users[k] in rooms[r].participants:
                                 rooms[r].remove_participant(users[k])
                                 users[k].room = None
                                 users[k].send(server, 'you were kicked from the room', 'sys')
@@ -163,9 +163,9 @@ def message_handler(client: dict, server: ws.WebsocketServer, msg: str | list, h
                                             sendrooms(cl, server)
                                 users[k].send(server, '', 'rm_name')
                                 users[k].send(server, '', 'rm_ppl')
-                        elif l[0] == 'ban':
+                        elif l[0] == 'ban' and l[1] != obj.name:
                             k = getcliby('name', l[1])
-                            if k != False and users[k] in rooms[r].participants:
+                            if type(k) != bool and users[k] in rooms[r].participants:
                                 rooms[r].remove_participant(users[k])
                                 rooms[r].blacklist.append(users[k])
                                 users[k].room = None
@@ -182,7 +182,7 @@ def message_handler(client: dict, server: ws.WebsocketServer, msg: str | list, h
                                 users[k].send(server, '', 'rm_ppl')
                         elif l[0] == 'givehost':
                                 k = getcliby('name', l[1])
-                                if k != False:
+                                if type(k) != bool:
                                     rooms[r].host = users[k]
                                     for part in rooms[r].participants:
                                         sendparts(part, server)
