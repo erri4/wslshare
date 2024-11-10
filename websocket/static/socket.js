@@ -126,7 +126,7 @@ let cr = `<input id="cr" onkeydown="
                     }
                 }
             }
-        ">
+        "><span id="passpan">
         <button onclick="
             if (document.querySelector(\`#cr\`).value == '') {
                     document.querySelector('#passpan').innerHTML = \`<br>password: <input id='pasi' type='password'><button id='pasb'>create</button>\`;
@@ -176,7 +176,7 @@ let cr = `<input id="cr" onkeydown="
                         }
                     }
                 }
-        ">create</button><span id="passpan"></span><br><br>
+        ">create</button></span><br><br>
         <button onclick="show_profile()">show profile</button>
     `;
 let pos;
