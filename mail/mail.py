@@ -6,6 +6,7 @@ from email.header import decode_header
 emil = 'reef.abramson@gamil.com'
 pas = 'xbcm oeic nwkf mbwo'
 imapserver = 'imap.gmail.com'
+# replace those with your email details if you want to run it
 
 def check_new_emails():
     mail = imaplib.IMAP4_SSL(imapserver)

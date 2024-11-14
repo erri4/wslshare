@@ -14,7 +14,7 @@ class Bounce(tk.Toplevel):
         self.img = img
         self.x = 100
         self.y = 100
-        self.dx = 5  # Horizontal speed
+        self.dx = 5
         self.dy = 5
         self.screen_width = root.winfo_screenwidth()
         self.screen_height = root.winfo_screenheight()

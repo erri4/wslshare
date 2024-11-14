@@ -1,6 +1,4 @@
 __pycache__/
 exe/
-*.ico
 *.png
-.flaskenv
 req.html

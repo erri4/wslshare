@@ -34,3 +34,4 @@ for r in range(1, len(chars) + 1):
     t2.join()
     if found == True:
         break
+# i use just two threads because more threads is too much for my computer

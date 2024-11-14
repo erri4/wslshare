@@ -13,7 +13,8 @@
     an experimental project for connecting to a gmail account a reading messages.
 
 ## pyautogui :
-    grabs focus on whatsapp and a contact and sends a message.
+### autosend :
+    grabs focus on whatsapp and a contact and spams a message.
 
 ## req :
     sends an http request to a given url and stores the reply in req.html.
