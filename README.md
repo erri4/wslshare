@@ -32,8 +32,5 @@
 ## virus :
     a self duplicating virus. can't be stopped without the antivirus. the virus opens a small moving image of trollface on the screen.
 
-## websocket :
-    my biggest project. combining all my knowledge of python together: flask, websocket, classes, exceptions, interfaces, ...
-
 
 > note: every mention of a func module is a mention to my func repository. on my computer it is on my site packages diractory for easier importing across all locations.
