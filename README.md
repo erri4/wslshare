@@ -31,6 +31,3 @@
 
 ## virus :
     a self duplicating virus. can't be stopped without the antivirus. the virus opens a small moving image of trollface on the screen.
-
-
-> note: every mention of a func module is a mention to my func repository. on my computer it is on my site packages diractory for easier importing across all locations.
