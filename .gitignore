@@ -1,7 +1,5 @@
 __pycache__/
 exe/
-*.json
-*.txt
 *.ico
 *.png
 .flaskenv

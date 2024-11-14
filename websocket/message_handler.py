@@ -1,6 +1,6 @@
 from helper_funcs import pool, getcliby, getroomby, sendrooms, login, addname, sendparts, users, rooms
-from exceptions import UnrelatedException
-from Room import Room
+from classes.exceptions import UnrelatedException
+from classes.Room import Room
 import bcrypt
 import websocket_server as ws
 

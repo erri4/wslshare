@@ -4,11 +4,12 @@ from types import NoneType
 
 
 class Room:
+    blacklist: list[User] = []
+
     def __init__(self, name: str, creator: User, password: str | NoneType) -> None:
         self.name = name
         self.participants: list[User] = [creator]
         self.host: User = creator
-        self.blacklist: list[User] = []
         self.password = password
 
 

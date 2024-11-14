@@ -1,6 +1,6 @@
 import websocket_server as ws
 import json
-from User import User
+from classes.User import User
 import message_handler
 from helper_funcs import sendrooms, getroomby, sendparts, getcliby, users, rooms
 

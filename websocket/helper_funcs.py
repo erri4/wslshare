@@ -1,7 +1,7 @@
-import database as db
+import classes.database as db
 import websocket_server as ws
-import User
-import Room
+import classes.User as User
+import classes.Room as Room
 
 
 users: list[User.User] = []
