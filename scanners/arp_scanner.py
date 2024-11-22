@@ -1,7 +1,7 @@
 import time
 from scapy.all import *
 from collections import namedtuple
-from func import get_gw, isnumber
+from pypackage.functions import get_gw, isnumber
 
 Ans = namedtuple('Answer', 'ip mac')
 

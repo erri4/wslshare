@@ -1,6 +1,6 @@
 from scapy.all import *
 from collections import namedtuple
-from func import isnumber
+from pypackage.functions import isnumber
 
 
 TCPport = namedtuple('TCPport', 'port')
