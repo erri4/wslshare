@@ -1,6 +1,7 @@
-from scapy.all import *
+from scapy.all import TCP, IP, sr
+import socket
 from collections import namedtuple
-from pypackage.functions import isnumber
+from functions import isnumber
 
 
 TCPport = namedtuple('TCPport', 'port')
