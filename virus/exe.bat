@@ -1,15 +1,15 @@
 cd exe
 start ./antivirus.exe
-del virus.exe
-del viruscopy.exe
+del virabot.exe
+del virabotcopy.exe
 del antivirus.exe
 cd ..
-pyinstaller --noconsole --onefile --add-data "trollface.png;." virus.py
-del virus.spec
+pyinstaller --noconsole --onefile --add-data "trollface.png;." virabot.py
+del virabot.spec
 del /f /s /q build 1>nul
 rmdir /s /q build
 cd dist
-move virus.exe ../exe
+move virabot.exe ../exe
 cd ..
 rmdir dist
 cd exe

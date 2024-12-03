@@ -8,7 +8,7 @@ import sys
 
 
 class Bounce(tk.Toplevel):
-    def __init__(self, img, root):
+    def __init__(self, img, root: tk.Tk):
         super().__init__()
         self.root = root
         self.img = img
