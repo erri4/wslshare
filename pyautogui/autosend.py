@@ -6,7 +6,7 @@ import subprocess
 
 
 def open_whatsapp():
-    whatsapp_path = r"C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2443.7.0_x64__cv1g1gvanyjgm\WhatsApp.exe" # if you want to use this program replacethis with your whatsapp location
+    whatsapp_path = r"C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2445.7.0_x64__cv1g1gvanyjgm\WhatsApp.exe" # if you want to use this program replacethis with your whatsapp location
     # for getting your actual whatsapp location run dir "WhatsApp.exe" /S on C:\ in administrator commandline
     subprocess.Popen([whatsapp_path])
     time.sleep(5)
