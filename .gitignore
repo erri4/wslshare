@@ -1,4 +1,13 @@
 __pycache__/
+ajax/__pycache__/
+bruteforce/__pycache__/
+chat/__pycache__/
+mail/__pycache__/
+pyautogui/__pycache__/
+req/__pycache__/
+scanners/__pycache__/
+udp/__pycache__/
+virus/__pycache__/
 exe/
 *.png
 req.html
