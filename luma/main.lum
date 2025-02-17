@@ -1,0 +1,13 @@
+function main (name){
+    show ("hello " + name)
+    if (name == "liam"){
+        show ("liam stop cutting the internet")
+    }
+    elif (not name == "liam"){
+        show ("oh ok u r not liam")
+    }
+}
+
+set i to input ("your name please sir ")
+
+main (i)
