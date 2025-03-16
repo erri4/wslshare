@@ -10,4 +10,5 @@ udp/__pycache__/
 virus/__pycache__/
 exe/
 *.png
+*.txt
 req.html
