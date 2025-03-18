@@ -1,4 +1,4 @@
-VIRUS_HASH = '1af52cf139789da3e04f0469abb8410a882f8243cec8c47cb52f01a752f70063'
+VIRUS_HASH = 'eba2ae1e1aeeb170875061daf3e34e44859b1862e15d24b430c4fcf19d0e93f7'
 from os import system
 from hashlib import sha256
 from psutil import NoSuchProcess, AccessDenied, ZombieProcess, process_iter
