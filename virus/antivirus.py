@@ -1,4 +1,4 @@
-VIRUS_HASH = 'THIS IS A PLACE HOLDER'
+VIRUS_HASH = 'THIS IS A PLACEHOLDER'
 from os import system
 from hashlib import sha256
 from psutil import NoSuchProcess, AccessDenied, ZombieProcess, process_iter

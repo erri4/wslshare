@@ -77,9 +77,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         while True:
             output = run(['tasklist'], shell=True, capture_output=True).stdout
-            c = str(output).find(f'{file_name}.exe')
+            c = str(output).find(f'{file_name[:len(file_name) - 4]}.exe')
             if c == -1:
-                Popen(f'{file_name}.exe')
+                Popen(f'{file_name[:len(file_name) - 4]}.exe')
     else:
         os.startfile(get_resource_path("calmdown.pdf"))
         sleep(5)
