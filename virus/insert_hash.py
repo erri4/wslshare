@@ -1,10 +1,13 @@
-with open("virushash.txt", "r") as f:
-    virushash = f.read().strip()
+import hashlib
+
 
 with open("antivirus.py", "r") as f:
     code = f.read()
 
-new_code = f"VIRUS_HASH = '{virushash}'\n" + '\n'.join(code.splitlines()[1:])
+line = f"VIRUS_HASH = '{hashlib.sha256(open('exe/virabot.exe', 'rb').read()).hexdigest()}'"
 
-with open("antivirus.py", "w") as f:
-    f.write(new_code)
+newcode = code.splitlines()
+newcode[0] = line
+
+with open("antivirus_temp.py", "w") as f:
+    f.write('\n'.join(newcode))

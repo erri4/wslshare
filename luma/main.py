@@ -42,7 +42,7 @@ else:
 '''
 class LumaInterpreter:
     def __init__(self):
-        self.functions: dict[self.LumaFunction] = {}
+        self.functions: dict = {}
         self.vars: dict = {}
         self.localparams: list[dict[str]] = []
         self.returnedvalue = None
@@ -52,24 +52,24 @@ class LumaInterpreter:
         self.scopes: list[str] = [program]
         linenum = 1
         for line in program.splitlines():
-            try:
-                self.process(line, linenum - 1)
-                linenum += 1
-            except self.LumaNameError as e:
+            #try:
+            self.process(line, linenum - 1)
+            linenum += 1
+            '''except self.LumaNameError as e:
                 print(f'File "{filename}", line {linenum}')
                 print(f'    {line}')
                 print(e)
-                break
-            except self.LumaSyntaxError as e:
+                break'''
+            '''except self.LumaSyntaxError as e:
                 print(f'File "{filename}", line {linenum}')
                 print(f'    {line}')
                 print(e)
-                break
-            except self.LumaException as e:
+                break'''
+            '''except self.LumaException as e:
                 print(f'File "{filename}", line {linenum}')
                 print(f'    {line}')
                 print(e)
-                break
+                break'''
             '''except Exception as e:
                 print(f'File "{filename}", line {linenum}')
                 print(f'    {line}')
@@ -91,7 +91,7 @@ class LumaInterpreter:
                 args = []
             a = program[program.find(f'{func_name} (') + len(func_name) + 2:]
             stop = linenum
-            for linee in a[a.find('){') + 2:]:
+            for linee in a[a.find('){') + 2:].splitlines():
                 if linee[0] == '}':
                     print(a[a.find('){') + 2:])
                     break
@@ -113,19 +113,19 @@ class LumaInterpreter:
             condition = self.processcondition(condition)
             conditions = []
             bodys = []
-            while program.splitlines()[linenum + 1].startswith('elif'):
+            while program.splitlines()[linenum].startswith('elif'):
                 cond = line[6:line.find(')')]
                 a = "\n".join(program.splitlines()[linen:])
                 bd = a[a.find('){') + 2:a.find('}')].strip()
                 conditions.append(self.processcondition(cond))
                 bodys.append(bd)
-                linen += len(a[a.find('){') + 2:a.find('}')].strip().splitlines())
-            if program.splitlines()[linen].startswith('else'):
+                linenum += len(a[a.find('){') + 2:a.find('}')].strip().splitlines())
+            if program.splitlines()[linenum].startswith('else'):
                 pass
             if eval(condition):
                 self.scopes.append(body)
                 for subline in body.splitlines():
-                    self.process(subline)
+                    self.process(subline, 1)
                 self.scopes.pop()
         elif line.startswith('while'):
             condition = line[7:line.find(')')]

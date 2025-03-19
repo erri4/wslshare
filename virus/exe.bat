@@ -13,19 +13,21 @@ move virabot.exe ../exe
 cd ..
 rmdir dist
 
-python -c "import hashlib; print(hashlib.sha256(open('exe/virabot.exe', 'rb').read()).hexdigest())" > virushash.txt
-
 python insert_hash.py
 
 cd exe
 del antivirus.exe
 cd ..
 
-pyinstaller --onefile antivirus.py
-del antivirus.spec
+pyinstaller --onefile antivirus_temp.py
+del antivirus_temp.spec
 del /f /s /q build 1>nul
 rmdir /s /q build
 cd dist
-move antivirus.exe ../exe
+move antivirus_temp.exe ../exe
 cd ..
 rmdir dist
+cd exe
+rename antivirus_temp.exe antivirus.exe
+cd ..
+del antivirus_temp.py

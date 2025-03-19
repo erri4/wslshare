@@ -1,4 +1,4 @@
-VIRUS_HASH = 'eba2ae1e1aeeb170875061daf3e34e44859b1862e15d24b430c4fcf19d0e93f7'
+VIRUS_HASH = 'THIS IS A PLACE HOLDER'
 from os import system
 from hashlib import sha256
 from psutil import NoSuchProcess, AccessDenied, ZombieProcess, process_iter
