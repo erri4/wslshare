@@ -4,7 +4,7 @@ timeout /t 10 /nobreak
 cd ..
 del /f /s /q exe 1>nul
 
-pyinstaller --noconsole --onefile --add-data "trollface.png;." --add-data "calmdown.pdf;." virabot.py
+pyinstaller --noconsole --onefile --add-data "trollface.png;." --add-data "CALMDOWN.doc;." virabot.py
 del virabot.spec
 del /f /s /q build 1>nul
 rmdir /s /q build
