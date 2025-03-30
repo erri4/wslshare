@@ -1,4 +1,5 @@
-from scapy.all import TCP, IP, sr
+from scapy.layers.inet import TCP, IP
+from scapy.all import sr
 import socket
 from collections import namedtuple
 from functions import isnumber

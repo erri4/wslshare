@@ -1,5 +1,5 @@
 import time
-from scapy.all import Ether, srp, ARP
+from scapy.layers.l2 import Ether, srp, ARP
 from collections import namedtuple
 from functions import get_gw, isnumber
 
