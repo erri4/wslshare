@@ -14,7 +14,6 @@ cd ..
 rmdir dist
 
 python insert_hash.py
-
 cd exe
 del antivirus.exe
 cd ..
