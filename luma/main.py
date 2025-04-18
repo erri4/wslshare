@@ -4,55 +4,29 @@ import re
 
 ###################################################
 '''
-get something's body return
-
-
-function func (param){
-    if (param == "string"){
-        show (param)
-    }
-}
-
-result:
-if (param == "strincd show (param)
-'''
-###################################################
-'''
 TODO:
-. elif/else
-read all the elif's/else and then:
-if condition: # handle if
-    if body
-else:
-    stopped = false
-    for con in conditions:
-        if eval(con): # handle elif
-            elif body
-            stopped = true
-            break
-    if stopped: # handle else
-        else body
+. loops, set X to Y not working if X is already set
 . lists, length, type
 . import
 
 . dictinaries
 
 
-. classes
+. classes # I don't think so
 '''
 class LumaInterpreter:
     def __init__(self):
-        self.functions: dict = {}
-        self.vars: dict = {}
+        self.functions: dict[str] = {}
+        self.vars: dict[str] = {}
         self.localparams: list[dict[str]] = []
         self.returnedvalue = None
 
 
     def run(self, program: str, filename: str):
+        self.vars['__file__'] = filename
         self.scopes: list[str] = [program]
         linenum = 1
         for line in program.splitlines():
-            #try:
             self.process(line, linenum - 1)
             linenum += 1
             '''except self.LumaNameError as e:
@@ -79,24 +53,41 @@ class LumaInterpreter:
 
     def getfirstword(self, line: str):
         return line.split(' ')[0]
+    
+
+    def removetab(self, line: str):
+        return line.replace('    ', '', 1) if line.startswith('    ') else line
+    
+
+    def runsubprogram(self, subprogram: str):
+        linen = 1
+        subprogram = subprogram.splitlines()
+        for i in range(len(subprogram)):
+            subprogram[i] = self.removetab(subprogram[i])
+        subprogram = '\n'.join(subprogram)
+        self.scopes.append(subprogram)
+        for subline in subprogram.splitlines():
+            self.process(subline, linen)
+            if subline.startswith('return'):
+                break
+            linen += 1
+        self.scopes.pop()
 
 
     def process(self, line: str, linenum: int):
         program = self.scopes[-1]
         if line.startswith('function'):
-            print(program)
             func_name = line[9:line.find(' (')]
             args = line[line.find(' (') + 2:line.find(')')].split(', ')
             if args == ['']:
                 args = []
             a = program[program.find(f'{func_name} (') + len(func_name) + 2:]
-            stop = linenum
-            for linee in a[a.find('){') + 2:].splitlines():
+            stop = len(a[:a.find('){') + 3])
+            for linee in a[a.find('){') + 3:].splitlines():
                 if linee[0] == '}':
-                    print(a[a.find('){') + 2:])
                     break
-                stop += 1
-            body = a[a.find('){') + 2:stop].strip()
+                stop += len(linee) + 1
+            body = a[a.find('){') + 3:stop].strip()
             self.functions[func_name] = self.LumaFunction(func_name, args, body)
         elif line.startswith('show'):
             arg = self.evaluate(line[line.find('show (') + 6:len(line) - 1])
@@ -106,65 +97,72 @@ class LumaInterpreter:
             value = self.evaluate(line[line.find('to') + 3:])
             self.vars[varname] = value
         elif line.startswith('if'):
-            print(program)
-            condition = line[4:line.find(')')]
-            a = "\n".join(program.splitlines()[linenum:])
+            condition = line[4:line.find('){')]
+            a = "\n".join(program.splitlines()[linenum - 1:])
             body = a[a.find('){') + 2:a.find('}')].strip()
             condition = self.processcondition(condition)
             conditions = []
             bodys = []
-            while program.splitlines()[linenum].startswith('elif'):
-                cond = line[6:line.find(')')]
-                a = "\n".join(program.splitlines()[linen:])
+            linenu = int(linenum) + len(body.splitlines()) + 2
+            subline = self.removetab(program.splitlines()[linenu - 1])
+            while subline.startswith('elif'):
+                cond = subline[6:subline.find(')')]
+                a = "\n".join(program.splitlines()[linenu - 1:])
                 bd = a[a.find('){') + 2:a.find('}')].strip()
                 conditions.append(self.processcondition(cond))
+
                 bodys.append(bd)
-                linenum += len(a[a.find('){') + 2:a.find('}')].strip().splitlines())
-            if program.splitlines()[linenum].startswith('else'):
-                pass
+                linenu += len(bd.splitlines()) + 2
+
+                try:
+                    subline = self.removetab(program.splitlines()[linenu - 1])
+                except IndexError:
+                    break
+            subline = self.removetab(program.splitlines()[linenu - 1])
+            elsebody = ''
+            if subline.startswith('else'):
+                a = "\n".join(program.splitlines()[linenu - 1:])
+                elsebody = a[a.find('{') + 1:a.find('}')].strip()
             if eval(condition):
-                self.scopes.append(body)
-                for subline in body.splitlines():
-                    self.process(subline, 1)
-                self.scopes.pop()
+                self.runsubprogram(body)
+            else:
+                stopped = False
+                for i in range(len(conditions)):
+                    con = conditions[i]
+                    bd: str = bodys[i]
+                    if eval(con):
+                        self.runsubprogram(bd)
+                        stopped = True
+                        break
+                if not stopped:
+                    self.runsubprogram(elsebody)
         elif line.startswith('while'):
-            condition = line[7:line.find(')')]
-            a = "\n".join(program.splitlines()[linenum:])
+            print(program)
+            condition = line[7:line.find('){')]
+            a = "\n".join(program.splitlines()[linenum - 1:])
             body = a[a.find('){') + 2:a.find('}')].strip()
             processedcondition = self.processcondition(condition)
-            self.scopes.append(body)
             while eval(processedcondition):
-                linen = 1
-                for subline in body.splitlines():
-                    self.process(subline.replace('    ', '', 1), linen)
+                self.runsubprogram(body)
                 processedcondition = self.processcondition(condition)
-                linen += 1
-            self.scopes.pop()
         elif len(self.localparams) > 0 and line.startswith('return'):
             value = line[7:]
             self.returnedvalue = self.evaluate(value.strip())
-        elif line.startswith('#') or line == '' or line.startswith(' ') or line == '}':
+        elif line.startswith('#') or line == '' or line.startswith(' ') or line == '}' or line.startswith('elif') or line.startswith('else'):
             pass
         else:
             if self.getfirstword(line) in self.functions.keys():
+                func_name = self.getfirstword(line)
                 args = self.extractargs(line)
-                if len(args) == len(self.functions[self.getfirstword(line)].args):
+                if len(args) == len(self.functions[func_name].args):
                     argdict = {}
                     for i in range(len(args)):
-                        argdict[self.functions[self.getfirstword(line)].args[i]] = args[i]
+                        argdict[self.functions[func_name].args[i]] = args[i]
                     self.localparams.append(argdict)
-                    linen = 1
-                    self.scopes.append(self.functions[self.getfirstword(line)].body)
-                    for subline in self.functions[self.getfirstword(line)].body.splitlines():
-                        self.process(subline.replace('    ', '', 1), linen)
-                        if subline.startswith('return'):
-                            break
-                        linen += 1
-                    self.scopes.pop()
+                    self.runsubprogram(self.functions[func_name].body)
                     self.localparams.pop()
             else:
-                print(line)
-                raise self.LumaNameError(f"undefined function {line}")
+                raise self.LumaNameError(f"undefined function {self.getfirstword(line)}")
     
 
     def processcondition(self, condition: str):
@@ -255,21 +253,14 @@ class LumaInterpreter:
                     for i in range(len(args)):
                         argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
                     self.localparams.append(argdict)
-                    self.scopes.append(self.functions[self.getfirstword(expr.strip())].body)
-                    linen = 1
-                    for subline in self.functions[self.getfirstword(expr.strip())].body.splitlines():
-                        self.process(subline.replace('    ', '', 1), linen)
-                        if subline.startswith('return'):
-                            break
-                        linen += 1
-                    self.scopes.pop()
+                    self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
                     self.localparams.pop()
                     return f'"{self.returnedvalue}"'
             else:
                 return None
         else:
             print(expr)
-            raise LumaInterpreter.LumaNameError(f"undefined variable {expr}")
+            raise LumaInterpreter.LumaNameError(f"undefined variable '{expr}'")
 
 
     def evaluate(self, expr: str, recursable: bool = True):
@@ -322,14 +313,7 @@ class LumaInterpreter:
                     for i in range(len(args)):
                         argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
                     self.localparams.append(argdict)
-                    self.scopes.append(self.functions[self.getfirstword(expr.strip())].body)
-                    linen = 1
-                    for subline in self.functions[self.getfirstword(expr.strip())].body.splitlines():
-                        self.process(subline.replace('    ', '', 1), linen)
-                        if subline.startswith('return'):
-                            break
-                        linen += 1
-                    self.scopes.pop()
+                    self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
                     self.localparams.pop()
                     return self.returnedvalue
             else:
