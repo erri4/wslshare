@@ -5,7 +5,6 @@ import re
 ###################################################
 '''
 TODO:
-. loops, set X to Y not working if X is already set
 . lists, length, type
 . import
 
@@ -137,10 +136,14 @@ class LumaInterpreter:
                 if not stopped:
                     self.runsubprogram(elsebody)
         elif line.startswith('while'):
-            print(program)
             condition = line[7:line.find('){')]
             a = "\n".join(program.splitlines()[linenum - 1:])
-            body = a[a.find('){') + 2:a.find('}')].strip()
+            stop = len(a[:a.find('){') + 3])
+            for linee in a[a.find('){') + 3:].splitlines():
+                if linee[0] == '}':
+                    break
+                stop += len(linee) + 1
+            body = a[a.find('){') + 3:stop].strip()
             processedcondition = self.processcondition(condition)
             while eval(processedcondition):
                 self.runsubprogram(body)

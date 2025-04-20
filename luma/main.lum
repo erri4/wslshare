@@ -1,19 +1,12 @@
-function main (name){
-    while (not name == "exit") {
-        show ("hello " + name)
-        if (name == "liam"){
-            show ("liam stop cutting the internet")
+set i to input ("name ")
+function main (){
+    while (not i == "exit"){
+        show ("go away")
+        if (i == "reef"){
+            show ("hi reef")
         }
-        elif (name == "reef"){
-            show ("welcome")
-        }
-        else {
-            show ("oh ok u r not liam")
-        }
-        set name to input ("next!")
+        set i to input ("i said go away! ")
     }
 }
 
-set i to input ("your name please sir ")
-
-main (i)
+main ()
