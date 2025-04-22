@@ -1,12 +1,3 @@
-set i to input ("name ")
-function main (){
-    while (not i == "exit"){
-        show ("go away")
-        if (i == "reef"){
-            show ("hi reef")
-        }
-        set i to input ("i said go away! ")
-    }
-}
+set i to input ("hi")
 
-main ()
+show (i)

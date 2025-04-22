@@ -1,12 +1,13 @@
-from functions import isnumber
+from functions import isnumber, reverse_list
+from types import FunctionType
 import re
 
 
 ###################################################
 '''
 TODO:
-. lists, length, type
-. import
+. (lists, length), type
+. import # I think it will be easier
 
 . dictinaries
 
@@ -16,7 +17,10 @@ TODO:
 class LumaInterpreter:
     def __init__(self):
         self.functions: dict[str] = {}
-        self.vars: dict[str] = {}
+        def nativecode(pytext):
+            return eval(pytext)
+        self.functions['nativecode'] = self.LumaFunction('nativecode', ['pytext'], nativecode)
+        self.vars: dict[str] = {'true': True, 'false': False}
         self.localparams: list[dict[str]] = []
         self.returnedvalue = None
 
@@ -24,6 +28,16 @@ class LumaInterpreter:
     def run(self, program: str, filename: str):
         self.vars['__file__'] = filename
         self.scopes: list[str] = [program]
+        with open("builtins.lum") as builtins:
+            linen = 1
+            subprogram = builtins.read()
+            self.scopes.append(subprogram)
+            for subline in subprogram.splitlines():
+                self.process(subline, linen)
+                if subline.startswith('return'):
+                    break
+                linen += 1
+            self.scopes.pop()
         linenum = 1
         for line in program.splitlines():
             self.process(line, linenum - 1)
@@ -88,9 +102,6 @@ class LumaInterpreter:
                 stop += len(linee) + 1
             body = a[a.find('){') + 3:stop].strip()
             self.functions[func_name] = self.LumaFunction(func_name, args, body)
-        elif line.startswith('show'):
-            arg = self.evaluate(line[line.find('show (') + 6:len(line) - 1])
-            print(arg)
         elif line.startswith('set'):
             varname = line[4:line.find('to') - 1]
             value = self.evaluate(line[line.find('to') + 3:])
@@ -161,33 +172,35 @@ class LumaInterpreter:
         else:
             if self.getfirstword(line) in self.functions.keys():
                 func_name = self.getfirstword(line)
-                args = self.extractargs(line)
+                args = self.extractargs(line, func_name)
                 if len(args) == len(self.functions[func_name].args):
                     argdict = {}
                     for i in range(len(args)):
                         argdict[self.functions[func_name].args[i]] = args[i]
                     self.localparams.append(argdict)
-                    self.runsubprogram(self.functions[func_name].body)
+                    if type(self.functions[func_name].body) == str:
+                        self.runsubprogram(self.functions[func_name].body)
+                    else:
+                        self.functions[func_name].body(*args)
                     self.localparams.pop()
             else:
                 raise self.LumaNameError(f"undefined function {self.getfirstword(line)}")
     
 
     def processcondition(self, condition: str):
-        parts: list[str] = re.findall(r"(not|and|or|\S+\s*(?:==|!=|>=|<=|>|<)\s*\S+|\S+)", condition)
-        result: list[str] = [part.strip() for part in parts if part.strip()]
-        for i in range(len(result)):
-            if result[i] != 'and' and result[i] != 'or' and result[i] != 'not':
-                operator = ''
-                for op in [' == ', ' > ', ' < ', ' => ', ' >= ', ' =< ', ' <= ']:
-                    if len(result[i].split(op)) == 2:
-                        operator = str(op)
-                result[i] = operator.join([str(self.evaluateeval(result[i].split(operator)[0])), str(self.evaluateeval(result[i].split(operator)[1]))])
-        return ' '.join(result)
+        match = re.search(r' (==|<=|>=|>|<) ', condition)
+        if not match:
+            return self.evaluateeval(condition.strip())
+
+        op = match.group(1)
+        parts = condition.split(f' {op} ', 1)
+        left = self.evaluateeval(parts[0].strip())
+        right = self.evaluateeval(parts[1].strip())
+        return f"{left} {op} {right}"
 
 
-    def extractargs(self, line: str):
-        rawargs = line[line.find(' (') + 2:line.find(')')]
+    def extractargs(self, line: str, funcname):
+        rawargs = line[line.find(' (') + 2:-1]
         args = rawargs.split(', ')
         res = []
         instring = False
@@ -209,77 +222,46 @@ class LumaInterpreter:
                     else:
                         cuarg += f', {args[i]}'
         return res
+    
+
+    def alltermsclosed(self, exprs: list[str]):
+        res = []
+        for expr in exprs:
+            stack = []
+            inside_quotes = False
+
+            pairs = {')': '(', ']': '[', '}': '{'}
+            openers = set(pairs.values())
+
+            i = 0
+            while i < len(expr):
+                char = expr[i]
+
+                if char == '"':
+                    inside_quotes = not inside_quotes
+                elif not inside_quotes:
+                    if char in openers:
+                        stack.append(char)
+                    elif char in pairs:
+                        if not stack or stack[-1] != pairs[char]:
+                            res.append(False)
+                        else:
+                            stack.pop()
+
+                i += 1
+
+            res.append(not inside_quotes and not stack)
+
+        for protected in res:
+            if protected == False:
+                return False
+        return True
+
+
 
 
     def evaluateeval(self, expr: str, recursable: bool = True):
-        scopes = list(reversed(self.localparams))
-        if expr.startswith('input'):
-            arg = self.evaluateeval(expr[expr.find('input (') + 7:len(expr) - 1])
-            i = input(arg)
-            if isnumber(i):
-                return int(i)
-            else:
-                return f'"{str(i)}"'
-        for scope in scopes:
-            if expr in scope.keys():
-                return f'"{scope[expr]}"'
-        if isnumber(expr):
-            return int(expr)
-        elif not bool(re.search(r'[a-zA-Z]', expr)):
-            try:
-                result = eval(expr)
-                return result
-            except:
-                raise self.LumaSyntaxError("invalid syntax")
-        elif expr in self.vars.keys():
-            return f'"{self.vars[expr]}"'
-        elif ' + ' in expr:
-            res = ''
-            terms = expr.split(' + ')
-            if recursable:
-                for i in range(len(terms) - 1):
-                    if not isnumber(self.evaluateeval(terms[i])):
-                        res += '"' + self.evaluateeval(terms[i]) + '" + '
-                    else:
-                        res += str(self.evaluateeval(terms[i])) + ' + '
-                if not isnumber(self.evaluateeval(terms[-1])):
-                    res += '"' + self.evaluateeval(terms[-1]) + '"'
-                else:
-                    res += str(self.evaluateeval(terms[-1]))
-                return self.evaluateeval(res, False)
-            else:
-                for term in terms:
-                    res += str(self.evaluateeval(term))
-                return res
-        elif expr.startswith('"') and expr.endswith('"'):
-            return expr
-        elif self.getfirstword(expr) in self.functions.keys():
-            if 'return' in self.functions[self.getfirstword(expr)].body:
-                args = self.extractargs(expr.strip())
-                if len(args) == len(self.functions[self.getfirstword(expr.strip())].args):
-                    argdict = {}
-                    for i in range(len(args)):
-                        argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
-                    self.localparams.append(argdict)
-                    self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
-                    self.localparams.pop()
-                    return f'"{self.returnedvalue}"'
-            else:
-                return None
-        else:
-            print(expr)
-            raise LumaInterpreter.LumaNameError(f"undefined variable '{expr}'")
-
-
-    def evaluate(self, expr: str, recursable: bool = True):
-        scopes = list(reversed(self.localparams))
-        if expr.startswith('input'):
-            arg = self.evaluate(expr[expr.find('input (') + 7:len(expr) - 1])
-            i = input(arg)
-            if isnumber(i):
-                return int(i)
-            else:
-                return str(i)
+        scopes: list[dict] = reverse_list(self.localparams)
         for scope in scopes:
             if expr in scope.keys():
                 return scope[expr]
@@ -292,8 +274,8 @@ class LumaInterpreter:
             except:
                 raise self.LumaSyntaxError("invalid syntax")
         elif expr in self.vars.keys():
-            return self.vars[expr]
-        elif ' + ' in expr:
+            return f'"{self.vars[expr]}"'
+        elif ' + ' in expr and self.alltermsclosed(expr.split(' + ')):
             res = ''
             terms = expr.split(' + ')
             if recursable:
@@ -311,27 +293,100 @@ class LumaInterpreter:
                 for term in terms:
                     res += str(self.evaluate(term))
                 return res
-        elif expr.startswith('"') and expr.endswith('"'):
-            return expr[1:-1]
+        elif expr.startswith('"') and expr.endswith('"') and not '"' in expr[1:-1]:
+            return expr
         elif self.getfirstword(expr) in self.functions.keys():
-            if 'return' in self.functions[self.getfirstword(expr)].body:
-                args = self.extractargs(expr.strip())
+            if type(self.functions[self.getfirstword(expr)].body) == str:
+                if 'return' in self.functions[self.getfirstword(expr)].body:
+                    args = self.extractargs(expr.strip(), self.getfirstword(expr))
+                    if len(args) == len(self.functions[self.getfirstword(expr.strip())].args):
+                        argdict = {}
+                        for i in range(len(args)):
+                            argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
+                        self.localparams.append(argdict)
+                        self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
+                        self.localparams.pop()
+                        return self.returnedvalue
+                else:
+                    return None
+            else:
+                args = self.extractargs(expr.strip(), self.getfirstword(expr))
                 if len(args) == len(self.functions[self.getfirstword(expr.strip())].args):
                     argdict = {}
                     for i in range(len(args)):
                         argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
                     self.localparams.append(argdict)
-                    self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
+                    self.returnedvalue = self.functions[self.getfirstword(expr)].body(*args)
                     self.localparams.pop()
                     return self.returnedvalue
-            else:
-                return None
         else:
-            print(expr)
-            raise LumaInterpreter.LumaNameError(f"undefined variable {expr}")
+            raise LumaInterpreter.LumaNameError(f"undefined variable '{expr}'")
+
+
+    def evaluate(self, expr: str, recursable: bool = True):
+        scopes: list[dict] = reverse_list(self.localparams)
+        for scope in scopes:
+            if expr in scope.keys():
+                return scope[expr]
+        if isnumber(expr):
+            return int(expr)
+        elif not bool(re.search(r'[a-zA-Z]', expr)):
+            try:
+                result = eval(expr)
+                return result
+            except:
+                raise self.LumaSyntaxError("invalid syntax")
+        elif expr in self.vars.keys():
+            return self.vars[expr]
+        elif ' + ' in expr and self.alltermsclosed(expr.split(' + ')):
+            res = ''
+            terms = expr.split(' + ')
+            if recursable:
+                for i in range(len(terms) - 1):
+                    if not isnumber(self.evaluate(terms[i])):
+                        res += '"' + self.evaluate(terms[i]) + '" + '
+                    else:
+                        res += str(self.evaluate(terms[i])) + ' + '
+                if not isnumber(self.evaluate(terms[-1])):
+                    res += '"' + self.evaluate(terms[-1]) + '"'
+                else:
+                    res += str(self.evaluate(terms[-1]))
+                return self.evaluate(res, False)
+            else:
+                for term in terms:
+                    res += str(self.evaluate(term))
+                return res
+        elif expr.startswith('"') and expr.endswith('"') and not '"' in expr[1:-1]:
+            return expr[1:-1]
+        elif self.getfirstword(expr) in self.functions.keys():
+            if type(self.functions[self.getfirstword(expr)].body) == str:
+                if 'return' in self.functions[self.getfirstword(expr)].body:
+                    args = self.extractargs(expr.strip(), self.getfirstword(expr))
+                    if len(args) == len(self.functions[self.getfirstword(expr.strip())].args):
+                        argdict = {}
+                        for i in range(len(args)):
+                            argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
+                        self.localparams.append(argdict)
+                        self.runsubprogram(self.functions[self.getfirstword(expr.strip())].body)
+                        self.localparams.pop()
+                        return self.returnedvalue
+                else:
+                    return None
+            else:
+                args = self.extractargs(expr.strip(), self.getfirstword(expr))
+                if len(args) == len(self.functions[self.getfirstword(expr.strip())].args):
+                    argdict = {}
+                    for i in range(len(args)):
+                        argdict[self.functions[self.getfirstword(expr.strip())].args[i]] = args[i]
+                    self.localparams.append(argdict)
+                    self.returnedvalue = self.functions[self.getfirstword(expr)].body(*args)
+                    self.localparams.pop()
+                    return self.returnedvalue
+        else:
+            raise LumaInterpreter.LumaNameError(f"undefined variable '{expr}'")
 
     class LumaFunction:
-        def __init__(self, name: str, args: list[str], body: str):
+        def __init__(self, name: str, args: list[str], body: str | FunctionType):
             self.name = name
             self.args = args
             self.body = body

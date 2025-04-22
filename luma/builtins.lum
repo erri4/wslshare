@@ -1,0 +1,13 @@
+function input (prompt){
+    set i to nativecode ("input('" + prompt + "')")
+    if (nativecode ("isnumber('" + i + "')") == true){
+        return nativecode ("int('" + i + "')")
+    }
+    else{
+        return nativecode ("str('" + i + "')")
+    }
+}
+
+function show (data){
+    nativecode ("print('" + data + "')")
+}
