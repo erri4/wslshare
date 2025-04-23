@@ -1,3 +1,4 @@
-set i to input ("hi")
+import importtests.lum
 
-show (i)
+show (hi)
+im ()

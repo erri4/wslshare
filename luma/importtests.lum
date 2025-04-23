@@ -1,0 +1,7 @@
+show ("imported!")
+
+function im (){
+    show ("hi")
+}
+
+set hi to "hello"

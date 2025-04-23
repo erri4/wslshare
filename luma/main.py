@@ -7,7 +7,6 @@ import re
 '''
 TODO:
 . (lists, length), type
-. import # I think it will be easier
 
 . dictinaries
 
@@ -28,16 +27,7 @@ class LumaInterpreter:
     def run(self, program: str, filename: str):
         self.vars['__file__'] = filename
         self.scopes: list[str] = [program]
-        with open("builtins.lum") as builtins:
-            linen = 1
-            subprogram = builtins.read()
-            self.scopes.append(subprogram)
-            for subline in subprogram.splitlines():
-                self.process(subline, linen)
-                if subline.startswith('return'):
-                    break
-                linen += 1
-            self.scopes.pop()
+        self.runimport('builtins.lum')
         linenum = 1
         for line in program.splitlines():
             self.process(line, linenum - 1)
@@ -70,6 +60,17 @@ class LumaInterpreter:
 
     def removetab(self, line: str):
         return line.replace('    ', '', 1) if line.startswith('    ') else line
+    
+
+    def runimport(self, module):
+        with open(module) as imported:
+            linen = 1
+            subprogram = imported.read()
+            self.scopes.append(subprogram)
+            for subline in subprogram.splitlines():
+                self.process(subline, linen)
+                linen += 1
+            self.scopes.pop()
     
 
     def runsubprogram(self, subprogram: str):
@@ -106,6 +107,9 @@ class LumaInterpreter:
             varname = line[4:line.find('to') - 1]
             value = self.evaluate(line[line.find('to') + 3:])
             self.vars[varname] = value
+        elif line.startswith('import'):
+            module = line[7:]
+            self.runimport(module)
         elif line.startswith('if'):
             condition = line[4:line.find('){')]
             a = "\n".join(program.splitlines()[linenum - 1:])
