@@ -6,7 +6,7 @@ import re
 ###################################################
 '''
 TODO:
-. lists, length
+. lists, (length, methods)
 
 . dictinaries
 
@@ -127,7 +127,12 @@ class LumaInterpreter:
             while subline.startswith('elif'):
                 cond = subline[6:subline.find(')')]
                 a = "\n".join(program.splitlines()[linenu - 1:])
-                bd = a[a.find('){') + 2:a.find('}')].strip()
+                stop = len(a[:a.find('){') + 3])
+                for linee in a[a.find('){') + 3:].splitlines():
+                    if linee[0] == '}':
+                        break
+                    stop += len(linee) + 1
+                bd = a[a.find('){') + 3:stop].strip()
                 conditions.append(self.processcondition(cond))
 
                 bodys.append(bd)
@@ -141,19 +146,24 @@ class LumaInterpreter:
             elsebody = ''
             if subline.startswith('else'):
                 a = "\n".join(program.splitlines()[linenu - 1:])
-                elsebody = a[a.find('{') + 1:a.find('}')].strip()
+                stop = len(a[:a.find('{') + 2])
+                for linee in a[a.find('{') + 2:].splitlines():
+                    if linee[0] == '}':
+                        break
+                    stop += len(linee) + 1
+                elsebody = a[a.find('{') + 2:stop].strip()
             if eval(condition):
                 self.runsubprogram(body)
             else:
-                stopped = False
+                foundelif = False
                 for i in range(len(conditions)):
                     con = conditions[i]
                     bd: str = bodys[i]
                     if eval(con):
                         self.runsubprogram(bd)
-                        stopped = True
+                        foundelif = True
                         break
-                if not stopped:
+                if not foundelif:
                     self.runsubprogram(elsebody)
         elif line.startswith('while'):
             condition = line[7:line.find('){')]
@@ -168,7 +178,7 @@ class LumaInterpreter:
             while eval(processedcondition):
                 self.runsubprogram(body)
                 processedcondition = self.processcondition(condition)
-        elif len(self.localparams) > 0 and line.startswith('return'):
+        elif line.startswith('return'):
             value = line[7:]
             self.returnedvalue = self.evaluate(value.strip())
         elif line.startswith('#') or line == '' or line.startswith(' ') or line == '}' or line.startswith('elif') or line.startswith('else'):
@@ -271,6 +281,8 @@ class LumaInterpreter:
                 return scope[expr]
         if isnumber(expr):
             return int(expr)
+        elif expr[0] == '&' and expr[1:] in self.vars.keys():
+            return type(self.vars[expr[1:]]).__name__
         elif not bool(re.search(r'[a-zA-Z]', expr)):
             try:
                 result = eval(expr)
@@ -278,7 +290,7 @@ class LumaInterpreter:
             except:
                 raise self.LumaSyntaxError("invalid syntax")
         elif expr in self.vars.keys():
-            return f'"{self.vars[expr]}"'
+            return self.vars[expr]
         elif ' + ' in expr and self.alltermsclosed(expr.split(' + ')):
             res = ''
             terms = expr.split(' + ')
