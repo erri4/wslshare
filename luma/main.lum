@@ -1,4 +1,3 @@
-import importtests.lum
+set i to 8
 
-show (hi)
-im ()
+show (&i)

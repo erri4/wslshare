@@ -6,7 +6,7 @@ import re
 ###################################################
 '''
 TODO:
-. (lists, length), type
+. lists, length
 
 . dictinaries
 
@@ -334,6 +334,8 @@ class LumaInterpreter:
                 return scope[expr]
         if isnumber(expr):
             return int(expr)
+        elif expr[0] == '&' and expr[1:] in self.vars.keys():
+            return type(self.vars[expr[1:]]).__name__
         elif not bool(re.search(r'[a-zA-Z]', expr)):
             try:
                 result = eval(expr)
