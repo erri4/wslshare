@@ -1,4 +1,4 @@
-from functions import isnumber, reverse_list
+from pypackage.functions import isnumber, reverse_list
 from types import FunctionType
 import copy
 import re
@@ -10,8 +10,6 @@ TODO:
 . add builtin classes
 
 . lists (length)
-
-. maybe inheritance?
 
 . dictinaries
 '''
@@ -121,7 +119,7 @@ class LumaInterpreter:
             functions[func_name] = self.LumaFunction(func_name, args, body)
         elif line.startswith('class'):
             class_name = line[6:line.find(' {')]
-            a = program[program.find(f'{class_name}' + ' {') + len(class_name) + 2:]
+            a = program[program.find(f'class {class_name}' + ' {') + len(class_name) + 2:]
             stop = len(a[:a.find(' {') + 3])
             for linee in a[a.find(' {') + 3:].splitlines():
                 if linee != '':
@@ -129,7 +127,13 @@ class LumaInterpreter:
                         break
                 stop += len(linee) + 1
             body = a[a.find(' {') + 3:stop].strip()
-            self.classes[class_name] = self.LumaClass(class_name)
+            parent = None
+            if '(' in class_name and ')' in class_name:
+                parent = class_name[class_name.find('(') + 1:class_name.find(')')]
+                class_name = class_name[:class_name.find('(') - 1]
+                self.classes[class_name] = copy.deepcopy(self.classes[parent])
+            else:
+                self.classes[class_name] = self.LumaClass(class_name)
             self.runsubprogram(body, self.classes[class_name])
         elif line.startswith('constructor'):
             class_name = line[12:line.find(' (')]
@@ -272,6 +276,8 @@ class LumaInterpreter:
 
     def extractargs(self, line: str, funcname):
         rawargs = line[line.find(' (') + 2:-1]
+        if rawargs == '':
+            return []
         args = rawargs.split(', ')
         for i in range(len(args)):
             args[i] = self.evaluate(args[i])
@@ -444,7 +450,7 @@ class LumaInterpreter:
                             if 'return' in self.vars[instancename].functions[propertyname].body:
                                 pass
                             else:
-                                return None
+                                self.returnedvalue = None
                         self.vars[instancename].callmethod(propertyname, args, self, instancename)
                         return self.vars[instancename].returnedvalue
             else:
@@ -458,7 +464,7 @@ class LumaInterpreter:
                     if 'return' in self.functions[self.getfirstword(expr)].body:
                         pass
                     else:
-                        return None
+                        self.returnedvalue = None
                 self.functions[self.getfirstword(expr.strip())].run(self, args)
                 return self.returnedvalue
         else:
@@ -480,6 +486,8 @@ class LumaInterpreter:
             if Object:
                 argdict['this'] = interpreter.vars[Object]
             interpreter.localparams.append(argdict)
+            orig_func = set(interpreter.functions.keys())
+            orig_vars = set(interpreter.vars.keys())
             if type(self.body) == str:
                 interpreter.runsubprogram(self.body, None, Object)
             else:
@@ -487,6 +495,12 @@ class LumaInterpreter:
                     Object.returnedvalue = self.body(*args)
                 else:
                     interpreter.returnedvalue = self.body(*args)
+            added_keys = set(interpreter.functions.keys()) - orig_func
+            for key in added_keys:
+                interpreter.functions.pop(key, None)
+            added_keys = set(interpreter.vars.keys()) - orig_vars
+            for key in added_keys:
+                interpreter.vars.pop(key, None)
             interpreter.localparams.pop()
 
     
@@ -511,7 +525,6 @@ class LumaInterpreter:
             method: LumaInterpreter.LumaFunction = self.functions[method]
             method.run(interpreter, args, instancename)
             
-
 
     class LumaNameError(NameError):
         def __init__(self, *args):
