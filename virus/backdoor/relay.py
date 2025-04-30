@@ -22,7 +22,7 @@ def main():
     PORT = int(os.environ.get("PORT", 9000))
     relay = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     relay.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    relay.bind(('0.0.0.0', PORT))
+    relay.bind(('127.0.0.1', PORT))
     relay.listen(2)
     print(f"[*] Relay is listening on port {PORT}...")
 

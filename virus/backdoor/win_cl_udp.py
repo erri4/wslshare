@@ -2,7 +2,7 @@ import socket
 import json
 import os
 
-relay_addr = ('backdoor.pythonanywhere.com', 9000)
+relay_addr = ('127.0.0.1', 9000)
 
 def recv_msg(conn):
     length_bytes = conn.recv(4)
