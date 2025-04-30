@@ -11,3 +11,9 @@ function input (prompt){
 function show (data){
     nativecode ("print('" + data + "')")
 }
+
+class PythonLiteral{
+    constructor PythonLiteral (value){
+        set this.value to nativecode (value)
+    }
+}

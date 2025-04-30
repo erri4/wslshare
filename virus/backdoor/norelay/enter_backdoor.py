@@ -1,8 +1,52 @@
+from functions import get_gw
 import socket
 import json
 import os
+from pathlib import Path
 
-relay_addr = ('127.0.0.1', 9000)
+server_port = 9000
+handshake_msg = b"HELLO_SERVER\n"
+cache_file = Path(".server_ip")
+
+
+def verify_server(ip):
+    try:
+        with socket.create_connection((ip, server_port), timeout=2) as sock:
+            greeting = sock.recv(64)
+            if greeting.strip() == handshake_msg.strip():
+                return True
+    except:
+        pass
+    return False
+
+
+def save_server_ip(ip):
+    cache_file.write_text(ip)
+
+
+def load_cached_ip():
+    if cache_file.exists():
+        ip = cache_file.read_text().strip()
+        if verify_server(ip):
+            print(f"[+] Using cached server IP: {ip}")
+            return ip
+        else:
+            print("[-] Cached IP invalid or server not responding.")
+    return None
+
+
+def discover_server_ip():
+    print("[*] Scanning local network for server...")
+    gw = get_gw()
+    base_ip = '.'.join(gw.split('.')[:-1])
+    for i in range(1, 255):  # skip .0 (network) and .255 (broadcast)
+        subnet = f"{base_ip}.{i}"
+        if verify_server(subnet):
+            print(f"[+] Server found at {subnet}")
+            save_server_ip(subnet)
+            return subnet
+    raise Exception("[-] No server found on network.")
+
 
 def recv_msg(conn):
     length_bytes = conn.recv(4)
@@ -17,10 +61,12 @@ def recv_msg(conn):
         data += chunk
     return json.loads(data.decode())
 
+
 def send_msg(conn, msg):
     encoded = json.dumps(msg).encode()
     length = len(encoded).to_bytes(4, byteorder='big')
     conn.sendall(length + encoded)
+
 
 def upload_file(conn, filepath):
     if not os.path.isfile(filepath):
@@ -47,13 +93,18 @@ def upload_file(conn, filepath):
     resp = recv_msg(conn)
     print(resp.get("output", "[No response]"))
 
-def main():
-    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    conn.connect(relay_addr)
-    conn.sendall(b"client\n")
-    print("[+] Connected to relay.")
 
-    cwd = os.getcwd()
+def main():
+    server_ip = load_cached_ip()
+    if not server_ip:
+        server_ip = discover_server_ip()
+
+    conn = socket.create_connection((server_ip, server_port))
+    conn.recv(64)  # consume handshake
+
+    send_msg(conn, "cd")
+    response = recv_msg(conn)
+    cwd = response.get("cwd", os.getcwd())
 
     try:
         while True:
@@ -79,7 +130,8 @@ def main():
         print(f"[!] Error: {e}")
     finally:
         conn.close()
-        print("[-] Disconnected from relay.")
+        print("[-] Disconnected from server.")
+
 
 if __name__ == '__main__':
     main()

@@ -10,6 +10,8 @@ ricky/__pycache__/
 scanners/__pycache__/
 udp/__pycache__/
 virus/__pycache__/
+mobile app/
+!mobile app/digital_cal/lib/main.dart
 *.png
 *.txt
 req.html
