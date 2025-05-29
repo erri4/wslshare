@@ -60,7 +60,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int moodBefore = 3;
   int moodAfter = 3;
-  int hydration = 0;
+  int hydration = 1;
   int energy = 3;
   int participation = 3;
   int sleep = 1;
@@ -118,12 +118,14 @@ class _HomePageState extends State<HomePage> {
               label: moodAfter.toString(),
             ),
             const Text('כמה שתיתי?', style: TextStyle(fontWeight: FontWeight.bold)),
-            Row(
-              children: List.generate(5, (index) => IconButton(
-                icon: Icon(index < hydration ? Icons.opacity : Icons.opacity_outlined),
-                onPressed: () => setState(() => hydration = index + 1),
-              )),
-            ),
+Row(
+  children: List.generate(6, (index) => IconButton(
+    icon: Icon(index == 0
+        ? Icons.clear
+        : (index <= hydration ? Icons.opacity : Icons.opacity_outlined)),
+    onPressed: () => setState(() => hydration = index),
+  )),
+),
             const Text('רמת האנרגיה?', style: TextStyle(fontWeight: FontWeight.bold)),
             Slider(
               value: energy.toDouble(),
@@ -210,34 +212,53 @@ class _GraphsPageState extends State<GraphsPage> {
   }
 
   Widget buildChart(Box box, String field, String label, Color color) {
-    final filteredEntries = _getFilteredEntries(box);
+  final filteredEntries = _getFilteredEntries(box);
+  if (filteredEntries.isEmpty) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        SizedBox(
-          height: 150,
-          child: LineChart(
-            LineChartData(
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _generateData(filteredEntries, field),
-                  isCurved: true,
-                  barWidth: 3,
-                  color: color,
-                  dotData: FlDotData(show: true),
-                ),
-              ],
-              titlesData: FlTitlesData(show: false),
-              borderData: FlBorderData(show: true),
-              gridData: FlGridData(show: true),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16)
+        const SizedBox(height: 40),
+        const Text('אין נתונים להצגה', style: TextStyle(color: Colors.grey)),
+        const SizedBox(height: 16),
       ],
     );
   }
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      SizedBox(
+        height: 150,
+        child: LineChart(
+          LineChartData(
+            lineBarsData: [
+              LineChartBarData(
+                spots: _generateData(filteredEntries, field),
+                isCurved: true,
+                barWidth: 3,
+                color: color,
+                dotData: FlDotData(show: true),
+              ),
+            ],
+            titlesData: FlTitlesData(
+              show: true,
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: true),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: true),
+              ),
+            ),
+            borderData: FlBorderData(show: true),
+            gridData: FlGridData(show: true),
+          ),
+        ),
+      ),
+      const SizedBox(height: 16)
+    ],
+  );
+}
 
   @override
   Widget build(BuildContext context) {
