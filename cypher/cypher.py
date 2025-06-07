@@ -1,7 +1,7 @@
-from jump import *
+from BetterLinkedLists import *
 import string
 
-letters = DoubleLoopedLinkedList(string.ascii_lowercase)
+letters = DoubleLoopedLinkedList(list(string.ascii_lowercase))
 
 
 def processkey(key: str) -> list[list[int]]:
@@ -25,14 +25,14 @@ def processkey(key: str) -> list[list[int]]:
 if __name__ == '__main__':
     key = input('key: ')
     text = input('text: ')
-    jkey = LoopedLinkedList(processkey(key)[0])
-    dkey = LoopedLinkedList(processkey(key)[1])
+    jkey = DoubleLoopedLinkedList(processkey(key)[0])
+    dkey = DoubleLoopedLinkedList(processkey(key)[1])
     jkeyvalue = jkey.head
     dkeyvalue = dkey.head
     text = list(text.lower())
 
     for i in range(len(text)):
-        text[i] = jump(letters, text[i], jkeyvalue.data * dkeyvalue.data)
+        text[i] = linkedlist_funcs.jump(letters, text[i], jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
         jkeyvalue = jkeyvalue.next
         dkeyvalue = dkeyvalue.next
 
