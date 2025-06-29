@@ -1,6 +1,7 @@
 import time
 import pyautogui
 import keyboard
+import sys
 
 
 def write(text: str):
@@ -23,7 +24,10 @@ def open_whatsapp():
     time.sleep(2)
 
 
-def send_message(contact_name, message):
+def send_message(contact_name, message, isfile):
+    if isfile:
+        with open(message) as f:
+            message = f.read()
     open_whatsapp()
     pyautogui.hotkey('ctrl', 'f')
     for i in range(10):
@@ -34,11 +38,15 @@ def send_message(contact_name, message):
     pyautogui.press('enter')
     pyautogui.press('enter')
     while True:
-        write(message)
+        write(message.replace('\n', r'\n'))
         pyautogui.press('enter')
 
 
 if __name__ == '__main__':
+    file = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--file':
+            file = True
     contact_name = input('contact_name: ')
-    message = input('message: ')
-    send_message(contact_name, message)
+    message = input('message/file: ')
+    send_message(contact_name, message, file)
