@@ -1,51 +1,40 @@
 import time
 import pyautogui
-import pygetwindow
 import keyboard
-import subprocess
 
+
+def write(text: str):
+    if len(text.split(r'\n')) == 1:
+        keyboard.write(text)
+        return
+    for line in text.split(r'\n')[:-1]:
+        keyboard.write(line)
+        pyautogui.keyDown('shift')
+        pyautogui.press('enter')
+        pyautogui.keyUp('shift')
+    keyboard.write(text.split(r'\n')[-1])
+    
 
 def open_whatsapp():
     pyautogui.press('win')
-    time.sleep(1)
     keyboard.write('whatsapp')
     time.sleep(1)
     pyautogui.press('enter')
-    time.sleep(5)
-
-
-def focus_whatsapp_app():
-    try:
-        whatsapp_window: pygetwindow.Win32Window = pygetwindow.getWindowsWithTitle("WhatsApp")[0]
-        whatsapp_window.activate()
-        time.sleep(1)
-    except IndexError:
-        print("WhatsApp window not found.")
-        return False
-    return True
+    time.sleep(2)
 
 
 def send_message(contact_name, message):
-    if not focus_whatsapp_app():
-        open_whatsapp()
-        time.sleep(5)
+    open_whatsapp()
     pyautogui.hotkey('ctrl', 'f')
-    time.sleep(1)
     for i in range(10):
         pyautogui.press('backspace')
-        time.sleep(1)
     keyboard.write(contact_name) # pyautogui not working for non english languages
-    time.sleep(1)
     pyautogui.press('enter')
-    time.sleep(1)
     pyautogui.press('tab')
-    time.sleep(1)
     pyautogui.press('enter')
-    time.sleep(1)
     pyautogui.press('enter')
     while True:
-        time.sleep(1)
-        keyboard.write(message)
+        write(message)
         pyautogui.press('enter')
 
 

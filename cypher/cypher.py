@@ -32,7 +32,7 @@ if __name__ == '__main__':
     text = list(text.lower())
 
     for i in range(len(text)):
-        text[i] = linkedlist_funcs.jump(letters, text[i], jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
+        text[i] = linkedlisttools.jump(letters, text[i], jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
         jkeyvalue = jkeyvalue.next
         dkeyvalue = dkeyvalue.next
 
