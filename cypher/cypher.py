@@ -1,5 +1,6 @@
 from BetterLinkedLists import *
 import string
+import sys
 
 letters = DoubleLoopedLinkedList(list(string.ascii_lowercase))
 
@@ -23,6 +24,10 @@ def processkey(key: str) -> list[list[int]]:
 
 
 if __name__ == '__main__':
+    decode = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--decode':
+            decode = True
     key = input('key: ')
     text = input('text: ')
     jkey = DoubleLoopedLinkedList(processkey(key)[0])
@@ -32,7 +37,7 @@ if __name__ == '__main__':
     text = list(text.lower())
 
     for i in range(len(text)):
-        text[i] = linkedlisttools.jump(letters, text[i], jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
+        text[i] = linkedlisttools.jump(letters, text[i],  (-1 if decode else 1) * jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
         jkeyvalue = jkeyvalue.next
         dkeyvalue = dkeyvalue.next
 
