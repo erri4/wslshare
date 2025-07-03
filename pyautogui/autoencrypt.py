@@ -62,3 +62,4 @@ if __name__ == '__main__':
         for i in range(len(text)):
             text[i] = encryptor.rotate(text[i], -1)
         print(''.join(text))
+        input()

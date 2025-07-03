@@ -37,8 +37,8 @@ def get_active_keyboard_layout():
     return GetKeyboardLayout(thread_id)
 
 def map_char(char: str) -> str:
-    if not (char.isalpha() and len(char) == 1):
-        raise ValueError("Input must be a single alphabetic character (a-z or A-Z).")
+    if not len(char) == 1:
+        raise ValueError("Input must be a single character.")
 
     vk_code = ord(char.upper())
     scan_code = MapVirtualKey(vk_code, 0)
