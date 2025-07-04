@@ -1,65 +1,168 @@
+import tkinter as tk
+from tkinter import simpledialog, messagebox
 from encrypter import RotorEncryptor
 from getkey import map_char
 import string
 import keyboard
+import threading
 
-def is_modifier(key_name: str):
-    return key_name in {'ctrl', 'ctrl_l', 'ctrl_r', 'alt', 'alt_l', 'alt_r'}
+class RotorApp:
+    def __init__(self, root: tk.Tk):
+        self.root = root
+        self.root.title("Rotor Mini")
+        self.root.geometry("227x265")  # ~6cm x 7cm
+        self.root.resizable(False, False)
 
-def on_key(event: keyboard.KeyboardEvent):
-    global modifiers_pressed
+        self.mode = tk.StringVar(value="decrypt")
+        self.wheels = [
+            string.ascii_lowercase,
+            string.ascii_uppercase,
+            "אבגדהוזחטיכלמנסעפצקרשת"
+        ]
+        self.encryptor = None
+        self.modifiers_pressed = set()
+        self.hooking = False
 
-    if event.event_type == "down":
-        if is_modifier(event.name):
-            modifiers_pressed.add(event.name)
+        font_opts = ("Arial", 8)
+
+        # Mode Toggle
+        self.toggle_btn = tk.Button(root, text="Mode: Decrypt", command=self.toggle_mode, font=font_opts)
+        self.toggle_btn.pack(pady=2)
+
+        # Key Input
+        tk.Label(root, text="Key:", font=font_opts).pack()
+        self.key_entry = tk.Entry(root, font=font_opts)
+        self.key_entry.pack()
+
+        # Add Wheel
+        tk.Button(root, text="Add Wheel", command=self.add_wheel, font=font_opts).pack(pady=2)
+
+        # Text for Decryption
+        self.text_label = tk.Label(root, text="Text:", font=font_opts)
+        self.text_label.pack()
+        self.text_entry = tk.Entry(root, font=font_opts)
+        self.text_entry.pack()
+
+        # Run Button
+        self.run_button = tk.Button(root, text="Run", command=self.run, font=font_opts)
+        self.run_button.pack(pady=2)
+
+        # Output
+        self.output_label = tk.Label(root, text="", wraplength=210, font=font_opts)
+        self.output_label.pack()
+
+        # Start/Stop Encryption Button
+        self.stop_button = tk.Button(root, text="Start Encryption", command=self.toggle_encryption, font=font_opts)
+        self.stop_button.pack(pady=2)
+
+        self.update_visibility()
+
+    def toggle_mode(self):
+        if self.mode.get() == "decrypt":
+            self.mode.set("encrypt")
+            self.toggle_btn.config(text="Mode: Encrypt")
+        else:
+            self.mode.set("decrypt")
+            self.toggle_btn.config(text="Mode: Decrypt")
+        self.update_visibility()
+
+    def update_visibility(self):
+        is_encrypt = self.mode.get() == "encrypt"
+        # Hide decrypt-related widgets in encrypt mode
+        for widget in [self.text_label, self.text_entry, self.run_button, self.output_label]:
+            widget.pack_forget() if is_encrypt else widget.pack()
+        # Show encryption button only in encrypt mode
+        if is_encrypt:
+            self.stop_button.config(text="Stop Encryption" if self.hooking else "Start Encryption")
+            self.stop_button.pack(pady=2)
+        else:
+            self.stop_button.pack_forget()
+
+    def add_wheel(self):
+        wheel = simpledialog.askstring("Add Wheel", "Enter custom wheel:")
+        if wheel:
+            self.wheels.append(wheel.strip())
+
+    def run(self):
+        key = self.key_entry.get()
+        if not key:
+            messagebox.showwarning("Missing Key", "Please enter a key.")
             return
 
-        if modifiers_pressed:
+        try:
+            self.encryptor = RotorEncryptor(key, *self.wheels)
+        except Exception as e:
+            messagebox.showerror("Key Error", str(e))
             return
 
-        if event.name == 'backspace':
-            encryptor.rotates = max(encryptor.rotates - 1, 0)
+        if self.mode.get() == "decrypt":
+            text = self.text_entry.get()
+            result = [self.encryptor.rotate(ch, -1) for ch in text]
+            self.output_label.config(text="".join(result))
+
+    def toggle_encryption(self):
+        key = self.key_entry.get()
+        if not key:
+            messagebox.showwarning("Missing Key", "Please enter a key.")
             return
 
-        if event.name is None or len(event.name) != 1:
-            return
+        if not self.encryptor:
+            try:
+                self.encryptor = RotorEncryptor(key, *self.wheels)
+            except Exception as e:
+                messagebox.showerror("Key Error", str(e))
+                return
 
-        char = event.name
-        if char.isprintable():
-            keyboard.send('backspace')
-            encrypted = encryptor.rotate(char if map_char(char) == char.lower() else map_char(char))
-            keyboard.write(encrypted)
+        if not self.hooking:
+            self.hooking = True
+            threading.Thread(target=self.start_encryption_hook, daemon=True).start()
+            self.update_visibility()
+        else:
+            self.stop_encryption()
 
-    elif event.event_type == "up":
-        if is_modifier(event.name):
-            modifiers_pressed.discard(event.name)
-
-
-if __name__ == '__main__':
-    if input('encrypt or decrypt? (e/d)') == 'e':
-        key = input('key: (in the form of "j: 1, 2, 1, 3 d: up, down, up")')
-        wheels = [string.ascii_lowercase, string.ascii_uppercase, 'אבגדהוזחטיכלמנסעפצקרשת']
-        if input('add wheels? (y/n)') == 'y':
-            morewheel = input('wheel (type stop to stop)')
-            while not morewheel == 'stop':
-                wheels.append(morewheel)
-        encryptor = RotorEncryptor(key, *wheels)
-
-        modifiers_pressed = set()
-
-        keyboard.hook(on_key)
-        print('now encrypting everything you type! press escape to stop')
+    def start_encryption_hook(self):
+        keyboard.hook(self.on_key)
         keyboard.wait('esc')
-    else:
-        key = input('key: (in the form of "j: 1, 2, 1, 3 d: up, down, up")')
-        wheels = [string.ascii_lowercase, string.ascii_uppercase, 'אבגדהוזחטיכלמנסעפצקרשת']
-        if input('add wheels? (y/n)') == 'y':
-            morewheel = input('wheel (type stop to stop)')
-            while not morewheel == 'stop':
-                wheels.append(morewheel)
-        encryptor = RotorEncryptor(key, *wheels)
-        text = list(input('text:'))
-        for i in range(len(text)):
-            text[i] = encryptor.rotate(text[i], -1)
-        print(''.join(text))
-        input()
+        self.stop_encryption()
+
+    def stop_encryption(self):
+        if self.hooking:
+            self.encryptor.rotates = 0
+            keyboard.unhook_all()
+            self.hooking = False
+            self.update_visibility()
+
+    def is_modifier(self, key_name):
+        return key_name in {'ctrl', 'ctrl_l', 'ctrl_r', 'alt', 'alt_l', 'alt_r'}
+
+    def on_key(self, event: keyboard.KeyboardEvent):
+        if event.event_type == "down":
+            if self.is_modifier(event.name):
+                self.modifiers_pressed.add(event.name)
+                return
+
+            if self.modifiers_pressed:
+                return
+
+            if event.name == 'backspace':
+                self.encryptor.rotates = max(self.encryptor.rotates - 1, 0)
+                return
+
+            if event.name is None or len(event.name) != 1:
+                return
+
+            char = event.name
+            if char.isprintable():
+                keyboard.send('backspace')
+                mapped = map_char(char)
+                encrypted = self.encryptor.rotate(char if mapped == char.lower() else mapped)
+                keyboard.write(encrypted)
+
+        elif event.event_type == "up":
+            if self.is_modifier(event.name):
+                self.modifiers_pressed.discard(event.name)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = RotorApp(root)
+    root.mainloop()
