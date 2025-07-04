@@ -10,7 +10,7 @@ class RotorApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Rotor Mini")
-        self.root.geometry("227x265")  # ~6cm x 7cm
+        self.root.geometry("227x265")
         self.root.resizable(False, False)
 
         self.mode = tk.StringVar(value="decrypt")
@@ -25,33 +25,26 @@ class RotorApp:
 
         font_opts = ("Arial", 8)
 
-        # Mode Toggle
         self.toggle_btn = tk.Button(root, text="Mode: Decrypt", command=self.toggle_mode, font=font_opts)
         self.toggle_btn.pack(pady=2)
 
-        # Key Input
-        tk.Label(root, text="Key:", font=font_opts).pack()
+        tk.Label(root, text="Key in the form of 'j: 1, 3, 2 d: up, down' :", font=font_opts).pack()
         self.key_entry = tk.Entry(root, font=font_opts)
         self.key_entry.pack()
 
-        # Add Wheel
         tk.Button(root, text="Add Wheel", command=self.add_wheel, font=font_opts).pack(pady=2)
 
-        # Text for Decryption
         self.text_label = tk.Label(root, text="Text:", font=font_opts)
         self.text_label.pack()
         self.text_entry = tk.Entry(root, font=font_opts)
         self.text_entry.pack()
 
-        # Run Button
         self.run_button = tk.Button(root, text="Run", command=self.run, font=font_opts)
         self.run_button.pack(pady=2)
 
-        # Output
         self.output_label = tk.Label(root, text="", wraplength=210, font=font_opts)
         self.output_label.pack()
 
-        # Start/Stop Encryption Button
         self.stop_button = tk.Button(root, text="Start Encryption", command=self.toggle_encryption, font=font_opts)
         self.stop_button.pack(pady=2)
 
@@ -68,10 +61,8 @@ class RotorApp:
 
     def update_visibility(self):
         is_encrypt = self.mode.get() == "encrypt"
-        # Hide decrypt-related widgets in encrypt mode
         for widget in [self.text_label, self.text_entry, self.run_button, self.output_label]:
             widget.pack_forget() if is_encrypt else widget.pack()
-        # Show encryption button only in encrypt mode
         if is_encrypt:
             self.stop_button.config(text="Stop Encryption" if self.hooking else "Start Encryption")
             self.stop_button.pack(pady=2)
