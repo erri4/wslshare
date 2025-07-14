@@ -12,6 +12,7 @@ class RotorApp:
         self.root.title("Rotor Mini")
         self.root.geometry("227x265")
         self.root.resizable(False, False)
+        self.root.wm_attributes("-topmost", True)
 
         self.mode = tk.StringVar(value="decrypt")
         self.wheels = [
