@@ -21,12 +21,12 @@ def serversend():
 def serverrecv():
     while server_queue == []:
         pass
-    return server_queue[-1]
+    return json.dumps(server_queue[-1])
 
 
 @app.route('/client/send', methods=['POST'])
 def clientsend():
-    data = json.loads(request.get_json())['command']
+    data = json.loads(request.get_json())
     server_queue.append(data)
     return ''
 

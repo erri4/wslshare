@@ -11,6 +11,7 @@ terminate = False
 proceed = True
 send_t: threading.Thread = None
 
+
 def recv():
     global cd, lastest, proceed
     resp = requests.post(SERVER_IP + '/client/recv', timeout=10).text
@@ -22,6 +23,7 @@ def recv():
             lastest = json.loads(resp)['output'] if json.loads(resp)['output'] is not None else '\033[31m' + str(json.loads(resp)['error']) + '\033[0m'
         except requests.exceptions.ReadTimeout:
             continue
+
 
 def send():
     global lastest, terminate, proceed
