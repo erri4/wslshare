@@ -4,7 +4,7 @@ import os
 
 relay_addr = ('127.0.0.1', 9000)
 
-def recv_msg(conn):
+def recv_msg(conn: socket.socket):
     length_bytes = conn.recv(4)
     if not length_bytes:
         raise ConnectionError("Disconnected")
@@ -17,12 +17,12 @@ def recv_msg(conn):
         data += chunk
     return json.loads(data.decode())
 
-def send_msg(conn, msg):
+def send_msg(conn: socket.socket, msg):
     encoded = json.dumps(msg).encode()
     length = len(encoded).to_bytes(4, byteorder='big')
     conn.sendall(length + encoded)
 
-def upload_file(conn, filepath):
+def upload_file(conn: socket.socket, filepath):
     if not os.path.isfile(filepath):
         print("File not found.")
         return
@@ -44,7 +44,7 @@ def upload_file(conn, filepath):
                 break
             conn.sendall(chunk)
 
-    resp = recv_msg(conn)
+    resp: dict = recv_msg(conn)
     print(resp.get("output", "[No response]"))
 
 def main():

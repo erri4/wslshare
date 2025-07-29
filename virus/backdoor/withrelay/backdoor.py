@@ -6,7 +6,7 @@ import time
 
 relay_addr = ('127.0.0.1', 9000)
 
-def recv_msg(conn):
+def recv_msg(conn: socket.socket):
     length_bytes = conn.recv(4)
     if not length_bytes:
         raise ConnectionError("Disconnected")
@@ -19,12 +19,12 @@ def recv_msg(conn):
         data += chunk
     return json.loads(data.decode())
 
-def send_msg(conn, msg):
+def send_msg(conn: socket.socket, msg):
     encoded = json.dumps(msg).encode()
     length = len(encoded).to_bytes(4, byteorder='big')
     conn.sendall(length + encoded)
 
-def handle_upload(conn, header, current_dir):
+def handle_upload(conn: socket.socket, header, current_dir):
     filename = os.path.basename(header['filename'])
     filesize = header['size']
     full_path = os.path.join(current_dir, filename)
@@ -40,12 +40,12 @@ def handle_upload(conn, header, current_dir):
 
     send_msg(conn, {"output": f"File '{filename}' uploaded successfully."})
 
-def handle_client(conn):
+def handle_client(conn: socket.socket):
     current_dir = os.getcwd()
 
     while True:
         try:
-            msg = recv_msg(conn)
+            msg: str = recv_msg(conn)
 
             if isinstance(msg, dict) and msg.get("action") == "upload":
                 handle_upload(conn, msg, current_dir)
