@@ -14,11 +14,12 @@ send_t: threading.Thread = None
 def recv():
     global cd, lastest, proceed
     resp = requests.post(SERVER_IP + '/client/recv', timeout=10).text
-    cd = 'PS ' + json.loads(resp[:-5] + '"') + '>'
+    cd = 'PS ' + json.loads(resp)['output'] + '>'
     while not terminate:
         try:
             resp = requests.post(SERVER_IP + '/client/recv', timeout=10).text
-            lastest = json.loads(resp)
+            cd = 'PS ' + json.loads(resp)['cwd'] + '>'
+            lastest = json.loads(resp)['output'] if json.loads(resp)['output'] is not None else '\033[31m' + str(json.loads(resp)['error']) + '\033[0m'
         except requests.exceptions.ReadTimeout:
             continue
 
