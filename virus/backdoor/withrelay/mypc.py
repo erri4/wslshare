@@ -35,7 +35,7 @@ def recv():
                 filedata = base64.b64decode(resp['download']['filedata'])
                 with open(filename, 'wb') as f:
                     f.write(filedata)
-                lastest = f"\033[32mDownloaded file saved as: {filename}\033[0m"
+                lastest = f"Downloaded file saved as: {filename}"
             else:
                 lastest = resp['output'] if resp['output'] is not None else '\033[31m' + str(resp['error']) + '\033[0m'
         except requests.exceptions.ReadTimeout:

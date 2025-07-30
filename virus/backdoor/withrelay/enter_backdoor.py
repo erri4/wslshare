@@ -50,7 +50,7 @@ def upload_file(conn: socket.socket, filepath):
 def main():
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.connect(relay_addr)
-    conn.sendall(b"client\n")
+    conn.sendall(b"client")
     print("[+] Connected to relay.")
 
     send_msg(conn, "cd")
