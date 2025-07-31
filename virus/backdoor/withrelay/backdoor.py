@@ -86,7 +86,6 @@ def main():
         output = result.stdout.decode()
         error = result.stderr.decode()
         output = output if output else None
-        error = error if error else None
 
         send({'error': error, 'output': output, 'cwd': cwd})
 

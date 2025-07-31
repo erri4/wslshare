@@ -58,7 +58,7 @@ def recv(client_recv: Callable[[], requests.Response]):
                 lastest = f"Downloaded file saved as: {filename}"
             else:
                 lastest = resp['output'] if resp['output'] is not None else '\033[31m' + str(resp['error']) + '\033[0m'
-        except requests.exceptions.ReadTimeout:
+        except (requests.exceptions.ReadTimeout, AttributeError):
             continue
 
 
