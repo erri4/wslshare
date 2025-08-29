@@ -1,9 +1,37 @@
 import time
-from scapy.layers.l2 import Ether, srp, ARP
+from scapy.layers.l2 import Ether, ARP, srp
 from collections import namedtuple
-from functions import get_gw, isnumber
+import subprocess
+import re
+
+NUMBER_RE = re.compile(r"^[+-]?\d+(\.\d+)?$")
 
 Ans = namedtuple('Answer', 'ip mac')
+def isnumber(data: str | int | float):
+    if type(data) is str:
+        return bool(re.match(NUMBER_RE, data))
+    return isinstance(data, (int, float))
+def get_gw():
+    """
+    get the default gateway.
+    """
+    ipconfig = subprocess.run(['ipconfig'], shell=True, capture_output=True)
+    ipconfig = str(ipconfig.stdout.decode())
+
+    substr = 'Default Gateway . . . . . . . . . : '
+    find = ipconfig.find(substr)
+    start = find + len(substr)
+    end = start + len('fff.fff.fff.fff')
+    r1 = ipconfig[start:end].strip().split('.')
+    li = r1[-1]
+    n = False
+    while not n:
+        n = isnumber(li)
+        if n:
+            break
+        li = li[:len(li) - 2].strip()
+    r1[-1] = li
+    return '.'.join(r1)
 
 
 def arp_scan(ip):
