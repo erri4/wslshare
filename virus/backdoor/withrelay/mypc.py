@@ -45,7 +45,7 @@ def recv(client_recv: Callable[[], requests.Response]):
     
     resp: requests.Response = client_recv()
     resp = resp.text
-    cd = 'PS ' + json.loads(resp)['output'] + '>'
+    cd = 'PS ' + json.loads(resp)['cwd'] + '>'
     while not terminate:
         try:
             resp = json.loads(client_recv().text)
