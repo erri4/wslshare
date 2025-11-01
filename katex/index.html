@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <style>
+        #LaTeX {
+            border: none;
+            outline: none;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="LaTeX" onkeyup="
+        const el = document.getElementById('output');
+            try {
+                el.innerHTML = katex.renderToString(this.textContent.trim(), {displayMode: true});
+            }
+            catch(e){}
+        " contenteditable>\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}</div>
+    <div id="output"></div>
+
+    <script>
+        window.onload = () => {
+            const el = document.getElementById('output');
+            try {
+                el.innerHTML = katex.renderToString(document.getElementById("LaTeX").textContent.trim(), {displayMode: true});
+            }
+            catch(e){}
+        };
+    </script>
+</body>
+</html>
