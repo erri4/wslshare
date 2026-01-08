@@ -27,9 +27,15 @@
     </style>
     <!--
 '''#*/
-#include <iostream>
-#define str int main(){std::cout << "hello from c++"; /*c++ goes here*/ return 0;}
+#include <stdio.h>
+#if __cplusplus
+#define str int main(){printf("hello from c++"); /*c++ goes here*/ return 0;}
 str
+#endif
+#ifndef __cplusplus
+#define str int main(){printf("hullo from c"); /*c goes here*/ return 0;}
+str
+#endif
 #if 0
 print('hia from python')
 # python goes here
