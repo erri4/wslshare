@@ -73,7 +73,7 @@ flag6 = 877474685//1;"""
                     return chars.join("");
                 }
 
-                console.log(decryptInt(flag1)+decryptInt(flag2)+decryptInt(flag3)+decryptInt(flag4)+decryptInt(flag5)+decryptInt(flag6));
+                document.body.innerText = (decryptInt(flag1)+decryptInt(flag2)+decryptInt(flag3)+decryptInt(flag4)+decryptInt(flag5)+decryptInt(flag6));
             </script>
         </body>
         </html>
