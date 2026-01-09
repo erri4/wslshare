@@ -1,0 +1,153 @@
+#/*
+'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *:not(iframe) {
+            visibility: hidden;
+        }
+        iframe {
+            visibility: visible;
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: block;
+            background: transparent;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+    </style>
+</head>
+<body><!--
+'''
+"""-->
+    <iframe srcdoc='
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+        <body>
+            hi from html
+            <script>
+            let int = eval;
+            //"""#*/
+int
+flag1 = 1165128297//1;"""
+;//"""
+int
+flag2 = 880499023//1;"""
+;//"""
+int
+flag3 = 1432308784//1;"""
+;//"""
+int
+flag4 = 894721876//1;"""
+;//"""
+int
+flag5 = 1211326279//1;"""
+;//"""
+int
+flag6 = 877474685//1;"""
+;
+//</script><!--
+/*-->
+            <!-- html goes here -->
+            <script>
+                function decryptInt(n) {
+                    let chars = [];
+                    chars.push(String.fromCharCode((n >>> 24) & 0xFF));
+                    chars.push(String.fromCharCode((n >>> 16) & 0xFF));
+                    chars.push(String.fromCharCode((n >>> 8) & 0xFF));
+                    chars.push(String.fromCharCode(n & 0xFF));
+                    return chars.join("");
+                }
+
+                console.log(decryptInt(flag1)+decryptInt(flag2)+decryptInt(flag3)+decryptInt(flag4)+decryptInt(flag5)+decryptInt(flag6));
+            </script>
+        </body>
+        </html>
+    ' loading="eager"></iframe>
+    <!--
+"""#*/
+#if __cplusplus /*
+"""*/
+#include <iostream>
+#include <string>
+std::string process(int n) {
+    std::string s;
+    for (int i = 0; i < 4; i++) {
+        char c = (n >> (i * 8)) & 0xFF;
+        s += char((c % 26) + 'A');
+    }
+    return s;
+}
+
+int main() {
+    std::cout << process(flag1);
+    std::cout << process(flag2);
+    std::cout << process(flag3);
+    std::cout << process(flag4);
+    std::cout << process(flag5);
+    std::cout << process(flag6);
+}
+//"""
+#endif
+#ifndef __cplusplus /*
+"""*/
+#include <stdio.h>
+void process(unsigned int n, char out[5]) {
+    for (int i = 0; i < 4; i++) {
+        unsigned char c = (n >> (24 - i*8)) & 0xFF;
+        out[i] = (c % 10) + '0';
+    }
+    out[4] = '\0';
+}
+int main(){
+    char buf[5];
+    process(flag1, buf);
+    printf("%s", buf);
+    process(flag2, buf);
+    printf("%s", buf);
+    process(flag3, buf);
+    printf("%s", buf);
+    process(flag4, buf);
+    printf("%s", buf);
+    process(flag5, buf);
+    printf("%s", buf);
+    process(flag6, buf);
+    printf("%s", buf);
+    return 0;
+}
+//"""
+#endif
+#if 0
+def process(n):
+    out = []
+    for shift in (24, 16, 8, 0):
+        c = (n >> shift) & 0xFF
+        out.append(chr(((c ^ 0x2A) % 26) + 97))
+    return "".join(out)
+
+print(process(flag1), end='')
+print(process(flag2), end='')
+print(process(flag3), end='')
+print(process(flag4), end='')
+print(process(flag5), end='')
+print(process(flag6), end='')
+#endif
+#/*
+'''-->
+</body>
+</html>
+'''#*/
