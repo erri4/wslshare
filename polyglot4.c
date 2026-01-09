@@ -27,14 +27,23 @@
     </style>
     <!--
 '''#*/
-#include <stdio.h>
-#if __cplusplus
-#define str int main(){printf("hello from c++"); /*c++ goes here*/ return 0;}
-str
+#if __cplusplus /*
+"""*/
+#include <iostream>
+int main(){
+    std::cout << "hello from c++";
+    return 0;
+}
+//"""
 #endif
-#ifndef __cplusplus
-#define str int main(){printf("hullo from c"); /*c goes here*/ return 0;}
-str
+#ifndef __cplusplus /*
+"""*/
+#include <stdio.h>
+int main(){
+    printf("hullo from c");
+    return 0;
+}
+//"""
 #endif
 #if 0
 print('hia from python')
