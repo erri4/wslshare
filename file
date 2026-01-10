@@ -62,7 +62,6 @@ flag6 = 877474685//1;"""
 ;
 //</script><!--
 /*-->
-            <!-- html goes here -->
             <script>
                 function decryptInt(n) {
                     let chars = [];
