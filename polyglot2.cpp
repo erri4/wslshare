@@ -3,7 +3,7 @@ __randomname = 1 // 1; '''
 ;
 #include <iostream>
 int main(){
-    std::cout << "hello"; 
+    std::cout << "hello";
     // cpp goes here
     return 0;
 }
