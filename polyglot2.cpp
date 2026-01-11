@@ -1,6 +1,14 @@
+int
+__randomname = 1 // 1; '''
+;
 #include <iostream>
-#define str int main(){std::cout << "hello"; return 0;}
-str
+int main(){
+    std::cout << "hello"; 
+    // cpp goes here
+    return 0;
+}
+// '''
 #if 0
 print('hi')
+# python goes here
 #endif
