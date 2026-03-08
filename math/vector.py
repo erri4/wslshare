@@ -178,6 +178,9 @@ class Vector:
     def __neg__(self):
         return self * -1
     
+    def __pos__(self):
+        return Vector(self)
+    
     def __invert__(self) -> "Vector":
         return self / abs(self)
 
@@ -190,6 +193,3 @@ class DimensionError(Exception): pass
 def readVector() -> Vector:
     vec = tuple([int(x) for x in input().split()])
     return Vector(vec)
-
-vec1 = readVector()
-print(~vec1)

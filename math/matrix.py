@@ -180,7 +180,7 @@ class Matrix:
         return self * -1
     
     def __pos__(self):
-        return self
+        return Matrix(self)
     
     def T(self):
         return Matrix(list(map(list, zip(*self.mat))))
@@ -201,6 +201,3 @@ def readMatrix() -> Matrix:
             break
 
     return Matrix(mat)
-
-mat1 = readMatrix()
-print(mat1**-1)
