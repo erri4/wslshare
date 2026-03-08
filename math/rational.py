@@ -99,7 +99,7 @@ class Rational:
             return Rational(other * self.q, self.p)
         return Rational.from_float(other) / self
     
-    def __radd__(self, other: Number): 
+    def __radd__(self, other: Number):
         if type(other) is Rational:
             return Rational(self.p*other.q + other.p*self.q, self.q*other.q)
         if type(other) is int:
