@@ -3,6 +3,8 @@ import math
 RawVector = tuple[int, int, int] | tuple[int, int]
 
 class Vector:
+    point: RawVector
+
     def __init__(self, *args):
         if len(args) == 1:
             if isinstance(args[0], tuple):
@@ -33,7 +35,7 @@ class Vector:
     def __add__(self, other: "Vector | RawVector"):
         if isinstance(other, Vector):
             if self.dim == other.dim:
-                return Vector((self.x + other.x, self.y + self.y)) if self.dim == 2 else Vector((self.x + other.x, self.y + other.y, self[2] + other[2]))
+                return Vector((self.x + other.x, self.y + other.y)) if self.dim == 2 else Vector((self.x + other.x, self.y + other.y, self[2] + other[2]))
             else: raise DimensionError("Cannot add vectors: vectors has to be the same dimensions")
         if isinstance(other, tuple):
             if all([isinstance(x, int) for x in other]):
@@ -48,12 +50,18 @@ class Vector:
                     return Vector((self.x + other[0], self.y + other[1])) if self.dim == 2 else Vector((self.x + other[0], self.y + other[1], self[2] + other[2]))
                 else: raise DimensionError("Cannot add vectors: vectors has to be the same dimensions")
 
+    def __sub__(self, other: "Vector | RawVector"):
+        return self + (-Vector(other))
+    
+    def __rsub__(self, other: RawVector):
+        return -self + other
+
     def __mul__(self, other: "Vector | RawVector | int"):
         if isinstance(other, int):
             return Vector(tuple([x * other for x in self.point]))
         if isinstance(other, float):
-            if int(other) == other: other = int(other)
-            return Vector(tuple([x * other for x in self.point]))
+            if round(other) == other: other = int(other)
+            return Vector(tuple([round(x * other, 7) for x in self.point]))
         if isinstance(other, Vector):
             if self.dim == other.dim:
                 return self.x * other.x + self.y * other.y + (0 if self.dim == 2 else (self.z * other.z))
@@ -167,12 +175,15 @@ class Vector:
         self.point = (norm * math.cos(value), norm * math.sin(value))
 
     def __abs__(self):
-        if self.dim == 2: norm = math.sqrt(self.x ** 2 + self.y ** 2)
-        else: norm = math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
-        if norm == int(norm): return int(norm)
+        if self.dim == 2:
+            norm = math.sqrt(self.x ** 2 + self.y ** 2)
+            if round(norm)**2 == self.x ** 2 + self.y ** 2: return round(norm)
+        else:
+            norm = math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+            if round(norm)**2 == self.x ** 2 + self.y ** 2 + self.z ** 2: return round(norm)
         return norm
 
-    def __xor__(self, other: "Vector | RawVector"):
+    def __or__(self, other: "Vector | RawVector"):
         return self.angle(other)
 
     def __neg__(self):

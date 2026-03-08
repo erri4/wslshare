@@ -13,9 +13,9 @@ class Matrix:
             row += [0] * (mx - len(row))
         for i in range(len(mat)):
             for j in range(len(mat[0])):
-                if int(mat[i][j]) == mat[i][j]:
-                    mat[i][j] = int(mat[i][j])
-        self.row = len(mat)
+                if round(mat[i][j]) == mat[i][j]:
+                    mat[i][j] = round(mat[i][j])
+        self.mat = mat
 
     @classmethod
     def Id(cls, n: int):
@@ -125,7 +125,7 @@ class Matrix:
         if swaps % 2:
             det = -det
 
-        return int(det) if det == int(det) else det
+        return round(det) if det == round(det) else det
     
     def __invert__(self):
         if self.row != self.col: raise MatrixDimensionsError("Cannot find inverse: matrix must be a square")
@@ -144,8 +144,8 @@ class Matrix:
 
             for j in range(2*self.row):
                 aug[i][j] /= pivot
-                if int(aug[i][j]) == aug[i][j]:
-                    aug[i][j] = int(aug[i][j])
+                if round(aug[i][j])*pivot == aug[i][j]*pivot:
+                    aug[i][j] = round(aug[i][j])
 
             for r in range(self.row):
                 if r != i:

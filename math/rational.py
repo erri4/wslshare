@@ -1,5 +1,4 @@
 from typing import TypeAlias
-import math
 
 Number: TypeAlias = "Rational | int | float"
 
@@ -182,6 +181,3 @@ class Rational:
 def readRational() -> Rational:
     p, q = [int(x.strip()) for x in input().split('/')]
     return Rational(p, q)
-
-rat1 = readRational()
-print(64 ** rat1)
