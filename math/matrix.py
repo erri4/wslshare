@@ -189,15 +189,3 @@ class Matrix:
         return self.det()
     
 class MatrixDimensionsError(Exception): pass
-
-def readMatrix() -> Matrix:
-    mat = []
-    while True:
-        try:
-            row = [int(x) for x in input().split()]
-            if row == []: break
-            mat.append(row)
-        except ValueError:
-            break
-
-    return Matrix(mat)

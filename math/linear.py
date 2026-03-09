@@ -1,6 +1,6 @@
-from matrix import Matrix, MatrixDimensionsError, readMatrix
-from vector import Vector, DimensionError, readVector
-from rational import Rational, readRational
+from matrix import Matrix, MatrixDimensionsError
+from vector import Vector, DimensionError
+from rational import Rational
 from typing import Callable
 import re
 import math
@@ -23,9 +23,7 @@ def dim(x: Matrix | Vector):
     if isinstance(x, Matrix):
         return Vector(x.col, x.row)
 
-env: dict[str, Vector | Matrix | Rational | int | float, Callable] = {"det": det, "Det": det, "ang": ang, "norm": norm, "dim": dim, "sin": math.sin, "arcsin": math.asin, "cos": math.cos, "arccos": math.acos, "tan": math.tan, "arctan": math.atan, "sqrt": math.sqrt, "e": math.e, "pi": math.pi, "Vector": Vector, "Matrix": Matrix, "Rational": Rational}
-
-import re
+env: dict[str, Vector | Matrix | Rational | int | float, Callable] = {"det": det, "Det": det, "ang": ang, "norm": norm, "dim": dim, "sin": math.sin, "arcsin": math.asin, "cos": math.cos, "arccos": math.acos, "tan": math.tan, "arctan": math.atan, "sqrt": math.sqrt, "e": math.e, "pi": math.pi, "Vector": Vector, "Matrix": Matrix, "Rational": Rational, "Id": Matrix.Id}
 
 def smrtsplt(s: str):
     args = []
@@ -43,6 +41,36 @@ def smrtsplt(s: str):
 
     args.append(s[start:].strip())
     return args
+
+
+def readVector(env: dict | None = None) -> Vector:
+    if env is None:
+        vec = tuple([int(x.strip()) for x in input().split()])
+    else:
+        vec = tuple([eval(pythonize(x.strip()), env) for x in input().split()])
+    return Vector(vec)
+
+def readRational(env: dict | None = None) -> Rational:
+    if env is None:
+        p, q = [int(x.strip()) for x in input().split('/')]
+    else:
+        p, q = [eval(pythonize(x.strip()), env) for x in input().split('/')]
+    return Rational(p, q)
+
+def readMatrix(env: dict | None = None) -> Matrix:
+    mat = []
+    while True:
+        try:
+            if env is None:
+                row = [int(x) for x in input().split()]
+            else:
+                row = [eval(pythonize(x), env) for x in input().split()]
+            if row == []: break
+            mat.append(row)
+        except ValueError:
+            break
+
+    return Matrix(mat)
 
 def pythonize(expr: str):
     expr = expr.replace('x', '@').replace('^T', '.T()').replace('^', '**').replace('\\/', '//').replace('/\\', '//')
@@ -68,17 +96,17 @@ while True:
             if name == 'x': raise SyntaxError("x is a saved name")
             value = expr.split('=')[1].strip()
             if value[0] == '(' and value[-1] == ')' and ',' in value:
-                value = Vector(tuple([int(x.strip()) for x in value[1:-1].split(',')]))
+                value = Vector(tuple([eval(pythonize(x.strip()), env) for x in value[1:-1].split(',')]))
             elif '/' in value:
                 p, q = [int(x.strip()) for x in value.split('/')]
                 value = Rational(p, q)
             elif value == 'Rational': value = readRational()
-            elif value == 'Vector': value = readVector()
+            elif value == 'Vector': value = readVector(env)
             elif value == 'Matrix': value = readMatrix()
-            else: value = eval(pythonize(value))
+            else: value = eval(pythonize(value), env)
             env[name] = value
         elif expr != '':
             expr = pythonize(expr)
             print(eval(expr, env))
-    except (MatrixDimensionsError, DimensionError, ZeroDivisionError, ArithmeticError, Exception) as e:
-        print(e)
+    except (MatrixDimensionsError, DimensionError, ZeroDivisionError, ArithmeticError) as e:
+        print(f'\033[91m{e}\033[0m')

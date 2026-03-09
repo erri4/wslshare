@@ -1,3 +1,4 @@
+from rational import Rational
 import math
 
 RawVector = tuple[int, int, int] | tuple[int, int]
@@ -15,10 +16,10 @@ class Vector:
             if isinstance(args[0], Vector):
                 self.point = args[0].point
         elif len(args) == 2:
-            if isinstance(args[0], int) and isinstance(args[1], int):
+            if isinstance(args[0], (int, float, Rational)) and isinstance(args[1], (int, float, Rational)):
                 self.point = args
         elif len(args) == 3:
-            if isinstance(args[0], int) and isinstance(args[1], int) and isinstance(args[2], int):
+            if isinstance(args[0], (int, float, Rational)) and isinstance(args[1], (int, float, Rational)) and isinstance(args[2], (int, float, Rational)):
                 self.point = args
         else:
             raise DimensionError("Vector must be 2D or 3D")
@@ -200,7 +201,3 @@ class Vector:
 
 
 class DimensionError(Exception): pass
-
-def readVector() -> Vector:
-    vec = tuple([int(x) for x in input().split()])
-    return Vector(vec)

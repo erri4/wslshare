@@ -177,7 +177,3 @@ class Rational:
     
     def __round__(self, n: int):
         return round(self.to_float(), n)
-
-def readRational() -> Rational:
-    p, q = [int(x.strip()) for x in input().split('/')]
-    return Rational(p, q)
