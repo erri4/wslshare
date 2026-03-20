@@ -100,9 +100,9 @@ while True:
             elif '/' in value:
                 p, q = [int(x.strip()) for x in value.split('/')]
                 value = Rational(p, q)
-            elif value == 'Rational': value = readRational()
+            elif value == 'Rational': value = readRational(env)
             elif value == 'Vector': value = readVector(env)
-            elif value == 'Matrix': value = readMatrix()
+            elif value == 'Matrix': value = readMatrix(env)
             else: value = eval(pythonize(value), env)
             env[name] = value
         elif expr != '':
