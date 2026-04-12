@@ -138,15 +138,14 @@ def main():
     parser = argparse.ArgumentParser(description="Brainfuck interpreter/compiler.")
     parser.add_argument("script", help="Path to the Brainfuck script to run")
 
-    parser.add_argument("--compile", action="store_true", help="Compile program")
-    parser.add_argument("-e", action="store_true", help="Compile program")
+    parser.add_argument("--compile", '-c', action="store_true", help="Compile program")
     parser.add_argument("--debug", action="store_true", help="Debug")
 
     args = parser.parse_args()
 
     with open(args.script) as f:
         script = optimize(parse(f.read(), args.debug))
-    if args.compile or args.e:
+    if args.compile:
         compile(script, args.debug, args.script)
     else:
         interpret(script, args.debug)
