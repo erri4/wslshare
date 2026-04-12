@@ -1,4 +1,4 @@
-#/*
+#/*[
 '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,13 +25,14 @@
             height: 100%;
         }
     </style>
-    <!--
+    <!]>----->-[>++<-----]>.[-<+<+>>]<<.>++.[-]<[-]<[-]-[+>+[+<]>+]>-.[-]>-[-[-<]>>+<]>-.[-<+>>+<]>[-<<+>>]<<++.++++.--[--<+>]<[->+<]>-.[-][BF goes here][-][
 '''#*/
 #if __cplusplus /*
 """*/
 #include <iostream>
 int main(){
     std::cout << "hello from c++";
+    /*C++ goes here*/
     return 0;
 }
 //"""
@@ -41,6 +42,7 @@ int main(){
 #include <stdio.h>
 int main(){
     printf("hullo from c");
+    /*C goes here*/
     return 0;
 }
 //"""
@@ -69,4 +71,4 @@ print('hia from python')
     " loading="eager"></iframe>
 </body>
 </html>
-'''#*/
+]'''#*/
