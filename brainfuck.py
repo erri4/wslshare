@@ -276,37 +276,21 @@ def compile(script: list[str], debug: bool = False, file: str = ''):
 
 def interpret(script: list[str], debug: bool = False):
     mem = [0]
-    inpt_stack = []
-
-    def get_next(script: str, pos: int):
-        i = pos + 1
-        depth = 1
-        try:
-            while depth > 0:
-                if script[i] == '[':
-                    depth += 1
-                if script[i] == ']':
-                    depth -= 1
-                i += 1
-        except IndexError:
-            raise SyntaxError("Unmatched '['")
-        return i
-
-    def get_prev(script: str, pos: int):
-        i = pos - 1
-        depth = 1
-        try:
-            while depth > 0:
-                if script[i] == '[':
-                    depth -= 1
-                if script[i] == ']':
-                    depth += 1
-                i -= 1
-        except IndexError:
-            raise SyntaxError("Unmatched ']'")
-        return i + 2
-
     
+    match = {}
+    temp = []
+    for idx, c in enumerate(script):
+        if c == '[':
+            temp.append(idx)
+        elif c == ']':
+            try:
+                j = temp.pop()
+            except IndexError:
+                raise SyntaxError(f'Unmatched ]')
+            match[idx] = j
+            match[j] = idx
+    if len(temp):
+        raise SyntaxError(f'Unmatched {script[temp[0]]}')
     ptr = 0
     i = 0
     while i < len(script):
@@ -316,14 +300,12 @@ def interpret(script: list[str], debug: bool = False):
         if token == '-':
             mem[ptr] -= 1
         if token == '[':
-            j = get_next(script, i)
             if mem[ptr] == 0:
-                i = j
+                i = match[i]
                 continue
         if token == ']':
-            j = get_prev(script, i)
             if mem[ptr] != 0:
-                i = j
+                i = match[i]
                 continue
         if token == ',':
             ch = sys.stdin.read(1)
