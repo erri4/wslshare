@@ -4,6 +4,7 @@ import argparse
 import re
 import sys
 from itertools import groupby
+from math import gcd
 
 # nuitka --onefile --standalone --follow-imports --windows-console-mode=force ./brainfuck.py
 def parse(code: str, debug: bool = False):
@@ -274,9 +275,23 @@ def compile(script: list[str], debug: bool = False, file: str = ''):
     os.remove(os.path.basename(os.path.splitext(file)[0]) + '.c')
 
 
-def interpret(script: list[str], debug: bool = False):
-    mem = [0]
+def find_k(n, m):
+    d = gcd(256, m)
     
+    if n % d != 0:
+        return None
+    
+    n_ = n // d
+    m_ = m // d
+    a_ = 256 // d
+    
+    inv = pow(a_, -1, m_)
+    
+    k0 = (-n_ * inv) % m_
+    return k0
+
+
+def interpret(script: list[str], debug: bool = False):
     match = {}
     temp = []
     for idx, c in enumerate(script):
@@ -291,6 +306,8 @@ def interpret(script: list[str], debug: bool = False):
             match[j] = idx
     if len(temp):
         raise SyntaxError(f'Unmatched {script[temp[0]]}')
+    
+    mem = [0]
     ptr = 0
     i = 0
     while i < len(script):
@@ -365,39 +382,117 @@ def interpret(script: list[str], debug: bool = False):
                 case ['-', '>', '+', '<']:
                     while ptr + token[1][1] >= len(mem):
                         mem.append(0)
-                    mem[ptr + token[1][1]] += mem[ptr] * token[2][1] // token[0][1]
-                    mem[ptr + token[1][1]] %= 256
-                    mem[ptr] = 0
+                    k = find_k(mem[ptr], token[0][1])
+                    if k is None:
+                        while mem[ptr]:
+                            mem[ptr] -= token[0][1]
+                            mem[ptr] %= 256
+                            mem[ptr + token[1][1]] += token[2][1]
+                            mem[ptr + token[1][1]] %= 256
+                    else:
+                        mem[ptr] += 256 * k
+                        mem[ptr + token[1][1]] += mem[ptr] * token[2][1] // token[0][1]
+                        mem[ptr + token[1][1]] %= 256
+                        mem[ptr] = 0
                 case ['>', '+', '<', '-']:
                     while ptr + token[0][1] >= len(mem):
                         mem.append(0)
-                    mem[ptr + token[0][1]] += mem[ptr] * token[1][1] // token[3][1]
-                    mem[ptr + token[0][1]] %= 256
-                    mem[ptr] = 0
+                    k = find_k(mem[ptr], token[3][1])
+                    if k is None:
+                        while mem[ptr]:
+                            mem[ptr] -= token[3][1]
+                            mem[ptr] %= 256
+                            mem[ptr + token[0][1]] += token[1][1]
+                            mem[ptr + token[0][1]] %= 256
+                    else:
+                        mem[ptr] += 256 * k
+                        mem[ptr + token[0][1]] += mem[ptr] * token[1][1] // token[3][1]
+                        mem[ptr + token[0][1]] %= 256
+                        mem[ptr] = 0
                 case ['<', '+', '>', '-']:
-                    mem[ptr - token[0][1]] += mem[ptr] * token[1][1] // token[3][1]
-                    mem[ptr - token[0][1]] %= 256
-                    mem[ptr] = 0
+                    k = find_k(mem[ptr], token[3][1])
+                    if k is None:
+                        while mem[ptr]:
+                            mem[ptr] -= token[3][1]
+                            mem[ptr] %= 256
+                            mem[ptr - token[0][1]] += token[1][1]
+                            mem[ptr - token[0][1]] %= 256
+                    else:
+                        mem[ptr] += 256 * k
+                        mem[ptr - token[0][1]] += mem[ptr] * token[1][1] // token[3][1]
+                        mem[ptr - token[0][1]] %= 256
+                        mem[ptr] = 0
                 case ['-', '<', '+', '>']:
-                    mem[ptr - token[1][1]] += mem[ptr] * token[2][1] // token[0][1]
-                    mem[ptr - token[1][1]] %= 256
-                    mem[ptr] = 0
+                    k = find_k(mem[ptr], token[0][1])
+                    if k is None:
+                        while mem[ptr]:
+                            mem[ptr] -= token[0][1]
+                            mem[ptr] %= 256
+                            mem[ptr - token[1][1]] += token[2][1]
+                            mem[ptr - token[1][1]] %= 256
+                    else:
+                        mem[ptr] += 256 * k
+                        mem[ptr - token[1][1]] += mem[ptr] * token[2][1] // token[0][1]
+                        mem[ptr - token[1][1]] %= 256
+                        mem[ptr] = 0
                 case ['+', '>', '-', '<']:
                     while ptr + token[1][1] >= len(mem):
                         mem.append(0)
-                    mem[ptr] += mem[ptr + token[1][1]] * token[0][1] // token[2][1]
-                    mem[ptr + token[1][1]] = 0
+                    k = find_k(mem[ptr + token[1][1]], token[2][1])
+                    if k is None:
+                        while mem[ptr + token[1][1]]:
+                            mem[ptr + token[1][1]] -= token[2][1]
+                            mem[ptr + token[1][1]] %= 256
+                            mem[ptr] += token[0][1]
+                            mem[ptr] %= 256
+                    else:
+                        mem[ptr + token[1][1]] += 256 * k
+                        mem[ptr] += mem[ptr + token[1][1]] * token[0][1] // token[2][1]
+                        mem[ptr] %= 256
+                        mem[ptr + token[1][1]] = 0
                 case ['>', '-', '<', '+']:
                     while ptr + token[1][1] >= len(mem):
                         mem.append(0)
-                    mem[ptr] += mem[ptr + token[0][1]] * token[3][1] // token[1][1]
-                    mem[ptr + token[0][1]] = 0
+                    k = find_k(mem[ptr + token[0][1]], token[1][1])
+                    if k is None:
+                        while mem[ptr + token[0][1]]:
+                            mem[ptr + token[0][1]] -= token[1][1]
+                            mem[ptr + token[0][1]] %= 256
+                            mem[ptr] += token[3][1]
+                            mem[ptr] %= 256
+                    else:
+                        mem[ptr + token[0][1]] += 256 * k
+                        mem[ptr] += mem[ptr + token[0][1]] * token[3][1] // token[1][1]
+                        mem[ptr] %= 256
+                        mem[ptr + token[0][1]] = 0
                 case ['<', '-', '>', '+']:
-                    mem[ptr] += mem[ptr - token[0][1]] * token[3][1] // token[1][1]
-                    mem[ptr - token[0][1]] = 0
+                    while ptr + token[1][1] >= len(mem):
+                        mem.append(0)
+                    k = find_k(mem[ptr - token[0][1]], token[1][1])
+                    if k is None:
+                        while mem[ptr - token[0][1]]:
+                            mem[ptr - token[0][1]] -= token[1][1]
+                            mem[ptr - token[0][1]] %= 256
+                            mem[ptr] += token[3][1]
+                            mem[ptr] %= 256
+                    else:
+                        mem[ptr - token[0][1]] += 256 * k
+                        mem[ptr] += mem[ptr - token[0][1]] * token[3][1] // token[1][1]
+                        mem[ptr] %= 256
+                        mem[ptr - token[0][1]] = 0
                 case ['+', '<', '-', '>']:
-                    mem[ptr] += mem[ptr - token[1][1]] * token[0][1] // token[2][1]
-                    mem[ptr - token[1][1]] = 0
+                    k = find_k(mem[ptr + token[1][1]], token[2][1])
+                    if k is None:
+                        while mem[ptr - token[1][1]]:
+                            mem[ptr - token[1][1]] -= token[2][1]
+                            mem[ptr - token[1][1]] %= 256
+                            mem[ptr] += token[0][1]
+                            mem[ptr] %= 256
+                    else:
+                        mem[ptr - token[1][1]] += 256 * k
+                        mem[ptr] += mem[ptr - token[1][1]] * token[0][1] // token[2][1]
+                        mem[ptr] %= 256
+                        mem[ptr - token[1][1]] = 0
         if token == '#' and debug:
             print(mem, end='')
         if token == '!' and debug:
