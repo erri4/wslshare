@@ -1,86 +1,192 @@
-import sys
 import os
-import subprocess
-token_map = {
-    '>': "step_fwd",
-    '<': "step_bk",
-    '+': "add 1",
-    '-': "add -1",
-    '.': "out",
-    ';': "outint",
-    ',': "in",
-    '[': "jmp_if_zero",
-    ']': "jmp_if_nonzero",
-    '#': "debug",
-    '!': "debug",
-}
- 
-def parse(code):
-    valid_commands = {'>', '<', '+', '-', '.', ',', '[', ']', ';', '#', '!'}
+import argparse
+import re
+from itertools import groupby
+
+# nuitka --onefile --standalone --follow-imports --windows-console-mode=force ./brainfuck.py
+def parse(code: str, debug: bool = False):
+    valid_commands = {'>', '<', '+', '-', '.', ',', '[', ']', ';', '#', '!'} if debug else {'>', '<', '+', '-', '.', ',', '[', ']', ';'}
     return ''.join([char for char in code if char in valid_commands])
- 
-def tokenize(parsed_code):
-    return list(parsed_code)
 
-def compile_to_c(tokens):
-    c_program = []
-    indent_level = 1  
-    
-    def indent():
-        return "    " * indent_level
-    
-   
-    c_program.append("#include <stdio.h>")
-    c_program.append("int main() {")
-    c_program.append("    unsigned char memory[30000] = {0};")
-    c_program.append("    int used = 0;")
-    c_program.append("    unsigned char *pointer = memory;")
- 
-   
-    for token in tokens:
-        if token == '>':
-            c_program.append(indent() + f"pointer++;/* OP {token_map[token]}*/")
-            c_program.append(indent() + "used++;")
-        elif token == '<':
-            c_program.append(indent() + f"pointer--;/* OP {token_map[token]}*/")
-        elif token == '+':
-            c_program.append(indent() + f"(*pointer)++;/* OP {token_map[token]}*/")
-        elif token == '-':
-            c_program.append(indent() + f"(*pointer)--;/* OP {token_map[token]}*/")
-        elif token == '.':
-            c_program.append(indent() +f"putchar(*pointer);/* OP {token_map[token]}*/")
-        elif token == ';':
-            c_program.append(indent() +f'printf("%d", *pointer);/* OP {token_map[token]}*/')
-        elif token == ',':
-            c_program.append(indent() + f"*pointer = getchar();/* OP {token_map[token]}*/")
-        elif token == '[':
-            c_program.append(indent() + "/* OP JZ*/while (*pointer) {")
-            indent_level += 1
-        elif token == ']':
-            indent_level -= 1
-            c_program.append(indent() + "}/* OP JNZ*/")
-        elif token == '#' and '--debug' in sys.argv:
-            c_program.append(indent() + "printf(\"[\");")
-            c_program.append(indent() + "for(int i = 0; i < used; i++) {")
-            c_program.append(indent() + "    printf(\"%u, \", memory[i]);")
-            c_program.append(indent() + "}")
-            c_program.append(indent() + "printf(\"%u]\", memory[used]);")
-        elif token == '!' and '--debug' in sys.argv:
-            c_program.append(indent() + "printf(\"%u\", pointer - memory);")
-    
-   
-    c_program.append("    return 0;")
-    c_program.append("}")
-    
-    return "\n".join(c_program)
- 
- 
-def brainfuck_to_c(code):
-    parsed_code = parse(code)
-    tokens = tokenize(parsed_code)
-    return compile_to_c(tokens)
 
-with open(sys.argv[1],'r') as f: brainfuck_code = f.read()    
-c_output = brainfuck_to_c(brainfuck_code)
-with open(os.path.basename(os.path.splitext(sys.argv[1])[0]) + '.c',"w") as f:
-    f.write(c_output)
+def is_match(window: list[tuple[str, int] | str]):
+    ops = [(w[0] if isinstance(w, tuple) else w) for w in window]
+    offset = 0
+    for x in window:
+        if isinstance(x, tuple):
+            if x[0] == '>':
+                offset += x[1]
+            if x[0] == '<':
+                offset -= x[1]
+    
+    return ops in [
+        ['>', '+', '<'],
+        ['<', '+', '>'],
+        ['>', '-', '<'],
+        ['<', '-', '>'],
+        ['<', ',', '>'],
+        ['>', ',', '<'],
+        ['<', '.', '>'],
+        ['>', '.', '<'],
+        ['<', 'c', '>'],
+        ['>', 'c', '<'],
+        ['>', ';', '<'],
+        ['<', ';', '>'],
+    ] and offset == 0
+
+
+def replace_pattern2(lst: list[tuple[str, int] | str]):
+    i = 0
+    result = []
+    
+    while i < len(lst):
+        window = lst[i:i+3]
+        
+        if len(window) == 3 and is_match(window):
+            result.append(('off', window[0][1] if window[0][0] == '>' else -window[0][1], (window[1][0] if isinstance(window[1], tuple) else window[1], window[1][1] if isinstance(window[1], tuple) else 1)))
+            i += 3
+        else:
+            result.append(lst[i])
+            i += 1
+    
+    return result
+
+
+def optimize(script: str):
+    replacements = {
+        '[-]': 'c',
+        '[+]': 'c',
+        '[<]': 'l',
+        '[>]': 'r',
+        '<>': '',
+        '><': '',
+        '+-': '',
+        '-+': '',
+        }
+    while '<>' in script or '><' in script or '+-' in script or '-+' in script:
+        pattern = re.compile("|".join(re.escape(k) for k in replacements))
+        script = pattern.sub(lambda m: replacements[m.group(0)], script)
+    pattern = re.compile("|".join(re.escape(k) for k in replacements))
+    script = pattern.sub(lambda m: replacements[m.group(0)], script)
+    script = list(script)
+
+    compressed = []
+    
+    for char, group in groupby(script):
+        group_list = list(group)
+        count = len(group_list)
+        
+        if char in "><+-" and count > 1:
+            compressed.append((char, count))
+        else:
+            for _ in range(count):
+                compressed.append((char, 1) if char not in {',', '.', '[', ']', 'c', ';', '#', '!', 'l', 'r'} else char)
+    compressed = replace_pattern2(compressed)
+    return compressed
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Brainfuck interpreter/compiler.")
+    parser.add_argument("script", help="Path to the Brainfuck script to run")
+
+    parser.add_argument("--debug", action="store_true", help="Debug")
+
+    args = parser.parse_args()
+
+    with open(args.script) as f:
+        script = optimize(parse(f.read(), args.debug))
+    compile(script, args.debug, args.script)
+    
+
+def compile(script: list[str], debug: bool = False, file: str = ''):
+    def compile_to_c(tokens: list[str]):
+        c_program = []
+        indent_level = 1  
+        
+        def indent():
+            return "    " * indent_level
+        
+    
+        c_program.append("#include <stdio.h>")
+        c_program.append("int main() {")
+        c_program.append("    unsigned char mem[65536] = {0};")
+        c_program.append("    int used = 0;")
+        c_program.append("    unsigned char *pointer = mem;")
+    
+    
+        for token in tokens:
+            if token == '>':
+                c_program.append(indent() + f"pointer++;")
+                c_program.append(indent() + "if (pointer - mem > used) used++;")
+            elif token == '<':
+                c_program.append(indent() + f"pointer--;")
+            elif token == '+':
+                c_program.append(indent() + f"(*pointer)++;")
+            elif token == '-':
+                c_program.append(indent() + f"(*pointer)--;")
+            elif token == '.':
+                c_program.append(indent() +f"putchar(*pointer);")
+            elif token == ';':
+                c_program.append(indent() + f'printf("%d", *pointer);')
+            elif token == ',':
+                c_program.append(indent() + f"(*pointer) = getchar();")
+            elif token == '[':
+                c_program.append(indent() + "while (*pointer) {")
+                indent_level += 1
+            elif token == ']':
+                indent_level -= 1
+                c_program.append(indent() + "}")
+            elif token == 'c':
+                c_program.append(indent() + '(*pointer) = 0;')
+            elif token == 'r':
+                c_program.append(indent() + "while (*pointer) {pointer++; if (pointer - mem > used) used++;}")
+            elif token == 'l':
+                c_program.append(indent() + "while (*pointer) {pointer--;}")
+            elif len(token) == 2:
+                if token[0] == '+':
+                    c_program.append(indent() + f'(*pointer) += {token[1]};')
+                if token[0] == '-':
+                    c_program.append(indent() + f'(*pointer) -= {token[1]};')
+                if token[0] == '>':
+                    c_program.append(indent() + f'pointer += {token[1]};')
+                    c_program.append(indent() + "if (pointer - mem > used) used = pointer - mem;")
+                if token[0] == '<':
+                    c_program.append(indent() + f'pointer -= {token[1]};')
+            elif len(token) == 3:
+                if token[0] == 'off':
+                    c_program.append(indent() + f"if (pointer + {token[1]} - mem > used) used = pointer - mem;")
+                    match token[2][0]:
+                        case '+':
+                            c_program.append(indent() + f'*(pointer + {token[1]}) += {token[2][1]};')
+                        case '-':
+                            c_program.append(indent() + f'*(pointer + {token[1]}) -= {token[2][1]};')
+                        case ',':
+                            c_program.append(indent() + f'*(pointer + {token[1]}) = getchar();')
+                        case '.':
+                            c_program.append(indent() + f'putchar(*(pointer + {token[1]}));')
+                        case 'c':
+                            c_program.append(indent() + f'*(pointer + {token[1]}) = 0;')
+                        case ';':
+                            c_program.append(indent() + f'printf("%d", *(pointer + {token[1]}));')
+            elif token == '#' and debug:
+                c_program.append(indent() + "printf(\"[\");")
+                c_program.append(indent() + "for(int i = 0; i < used; i++) {")
+                c_program.append(indent() + "    printf(\"%u, \", mem[i]);")
+                c_program.append(indent() + "}")
+                c_program.append(indent() + "printf(\"%u]\", mem[used]);")
+            elif token == '!' and debug:
+                c_program.append(indent() + "printf(\"%u\", pointer - mem);")
+        
+    
+        c_program.append("    return 0;")
+        c_program.append("}")
+        
+        return "\n".join(c_program)
+    
+    c_output = compile_to_c(script)
+    with open(os.path.basename(os.path.splitext(file)[0]) + '.c',"w") as f:
+        f.write(c_output)
+
+
+if __name__ == '__main__':
+    main()

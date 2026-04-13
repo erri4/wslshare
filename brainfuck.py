@@ -8,7 +8,7 @@ from math import gcd
 
 # nuitka --onefile --standalone --follow-imports --windows-console-mode=force ./brainfuck.py
 def parse(code: str, debug: bool = False):
-    valid_commands = {'>', '<', '+', '-', '.', ',', '[', ']', ';', '#', '!'} if debug else {'>', '<', '+', '-', '.', ',', '[', ']', ';', '#', '!'}
+    valid_commands = {'>', '<', '+', '-', '.', ',', '[', ']', ';', '#', '!'} if debug else {'>', '<', '+', '-', '.', ',', '[', ']', ';'}
     return ''.join([char for char in code if char in valid_commands])
 
 
@@ -101,7 +101,7 @@ def replace_pattern2(lst: list[tuple[str, int] | str]):
     return result
 
 
-def optimize(script: str):
+def optimize(script: str, compileQ: bool = False):
     replacements = {
         '[-]': 'c',
         '[+]': 'c',
@@ -130,7 +130,8 @@ def optimize(script: str):
         else:
             for _ in range(count):
                 compressed.append((char, 1) if char not in {',', '.', '[', ']', 'c', ';', '#', '!', 'l', 'r'} else char)
-    compressed = replace_patterns(compressed)
+    if not compileQ:
+        compressed = replace_patterns(compressed)
     compressed = replace_pattern2(compressed)
     return compressed
 
@@ -145,7 +146,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.script) as f:
-        script = optimize(parse(f.read(), args.debug))
+        script = optimize(parse(f.read(), args.debug), args.compile)
     if args.compile:
         compile(script, args.debug, args.script)
     else:
@@ -193,10 +194,9 @@ def compile(script: list[str], debug: bool = False, file: str = ''):
             elif token == 'c':
                 c_program.append(indent() + '(*pointer) = 0;')
             elif token == 'r':
-                c_program.append(indent() + 'pointer += (long)(memchr(mem + pointer, 0, sizeof(mem)) - (void *)(mem + pointer));')
-                c_program.append(indent() + "if (pointer - mem > used) used = pointer - mem;")
+                c_program.append(indent() + "while (*pointer) {pointer++; if (pointer - mem > used) used++;}")
             elif token == 'l':
-                c_program.append(indent() + 'pointer -= (long)((void *)(mem + pointer) - memrchr(mem, 0, pointer + 1));')
+                c_program.append(indent() + "while (*pointer) {pointer--;}")
             elif len(token) == 2:
                 if token[0] == '+':
                     c_program.append(indent() + f'(*pointer) += {token[1]};')
@@ -223,36 +223,6 @@ def compile(script: list[str], debug: bool = False, file: str = ''):
                             c_program.append(indent() + f'*(pointer + {token[1]}) = 0;')
                         case ';':
                             c_program.append(indent() + f'printf("%d", *(pointer + {token[1]}));')
-            elif len(token) == 4:
-                match [x[0] for x in token if isinstance(x, tuple)]:
-                    case ['-', '>', '+', '<']:
-                        c_program.append(indent() + f'*(pointer + {token[1][1]}) += (*pointer) * {token[2][1] // token[0][1]};')
-                        c_program.append(indent() + f"if (pointer + {token[1][1]} - mem > used) used = pointer - mem;")
-                        c_program.append(indent() + '(*pointer) = 0;')
-                    case ['>', '+', '<', '-']:
-                        c_program.append(indent() + f'*(pointer + {token[0][1]}) += (*pointer) * {token[1][1] // token[3][1]};')
-                        c_program.append(indent() + f"if (pointer + {token[0][1]} - mem > used) used = pointer - mem;")
-                        c_program.append(indent() + '(*pointer) = 0;')
-                    case ['<', '+', '>', '-']:
-                        c_program.append(indent() + f'*(pointer - {token[0][1]}) += (*pointer) * {token[1][1] // token[3][1]};')
-                        c_program.append(indent() + '(*pointer) = 0;')
-                    case ['-', '<', '+', '>']:
-                        c_program.append(indent() + f'*(pointer - {token[1][1]}) += (*pointer) * {token[2][1] // token[0][1]};')
-                        c_program.append(indent() + '(*pointer) = 0;')
-                    case ['+', '>', '-', '<']:
-                        c_program.append(indent() + f'(*pointer) += *(pointer + {token[1][1]}) * {token[0][1] // token[2][1]};')
-                        c_program.append(indent() + f"if (pointer + {token[1][1]} - mem > used) used = pointer - mem;")
-                        c_program.append(indent() + f'*(pointer + {token[1][1]}) = 0;')
-                    case ['>', '-', '<', '+']:
-                        c_program.append(indent() + f'(*pointer) += *(pointer + {token[0][1]}) * {token[3][1] // token[1][1]};')
-                        c_program.append(indent() + f"if (pointer + {token[0][1]} - mem > used) used = pointer - mem;")
-                        c_program.append(indent() + f'*(pointer + {token[0][1]}) = 0;')
-                    case ['<', '-', '>', '+']:
-                        c_program.append(indent() + f'(*pointer) += *(pointer - {token[0][1]}) * {token[3][1] // token[1][1]};')
-                        c_program.append(indent() + f'(*pointer - {token[0][1]}) = 0;')
-                    case ['+', '<', '-', '>']:
-                        c_program.append(indent() + f'(*pointer) += *(pointer - {token[1][1]}) * {token[0][1] // token[2][1]};')
-                        c_program.append(indent() + f'*(pointer - {token[1][1]}) = 0;')
             elif token == '#' and debug:
                 c_program.append(indent() + "printf(\"[\");")
                 c_program.append(indent() + "for(int i = 0; i < used; i++) {")
