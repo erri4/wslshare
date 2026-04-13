@@ -319,11 +319,9 @@ def interpret(script: list[str], debug: bool = False):
         if token == '[':
             if mem[ptr] == 0:
                 i = match[i]
-                continue
         if token == ']':
             if mem[ptr] != 0:
                 i = match[i]
-                continue
         if token == ',':
             ch = sys.stdin.read(1)
             if ch == "":
