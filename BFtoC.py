@@ -99,6 +99,23 @@ def replace_pattern2(lst: list[tuple[str, int] | str]):
 
 
 def optimize(script: str):
+    script = list(script)
+    i = 0
+    while i < len(script) - 1:
+        if script[i] == ']' and script[i + 1] == '[':
+            j = i + 1
+            depth = 1
+            while depth > 0 and j < len(script):
+                j += 1
+                if script[j] == '[':
+                    depth += 1
+                if script[j] == ']':
+                    depth -= 1
+            if depth == 0 and j < len(script):
+                del script[i+1:j + 1]
+        else:
+            i += 1
+    script = ''.join(script)
     replacements = {
         '[-]': 'c',
         '[+]': 'c',
