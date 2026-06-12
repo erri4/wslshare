@@ -1,0 +1,106 @@
+
+% Always typeset math in display style
+\everymath{\displaystyle}
+
+% Standard mathematical typesetting packages
+\usepackage[T1]{fontenc}
+\usepackage{amsthm, amsmath, amssymb}
+\usepackage[fixamsmath]{mathtools}  % Extension to amsmath
+\usepackage[cal=cm, scr=rsfs, frak=euler, bb=ams]{mathalpha}
+\usepackage{lmodern}
+
+% Symbol and utility packages
+\usepackage{cancel}
+\usepackage[nointegrals]{wasysym}
+
+% Extras
+\usepackage{physics}  % Lots of useful shortcuts and macros
+\usepackage{quiver}  % For drawing commutative diagrams easily
+\usepackage{hwemoji}  % Support Unicode emojis
+\DeclareUnicodeCharacter{FE0E}{}
+\DeclareUnicodeCharacter{FE0F}{}
+
+% Common shortcuts
+\def\mbb#1{\mathbb{#1}}
+\def\mfk#1{\mathfrak{#1}}
+\def\bN{\mbb{N}}
+\def\bC{\mbb{C}}
+\def\bR{\mbb{R}}
+\def\bQ{\mbb{Q}}
+\def\bZ{\mbb{Z}}
+
+% Sometimes helpful macros
+
+% Some standard theorem definitions
+\newtheorem{Theorem}{Theorem}
+\newtheorem{Proposition}{Theorem}
+\newtheorem{Lemma}[Theorem]{Lemma}
+\newtheorem{Corollary}[Theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{Definition}[Theorem]{Definition}
+
+\renewcommand{\div}{\divisionsymbol}
+\newcommand{\notimplies}{\;\not\!\!\!\implies}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\C}{\mathbb C}
+\renewcommand{\P}{\mathbb P}
+\newtheorem{Hypothesis}[Theorem]{Hypothesis}
+\newtheorem{Conjecture}[Theorem]{Conjecture}
+\def\range{\mathrel{\big|}}
+\def\scht{\mathrel{\big|}}
+\def\st{\text{ such that}\colon}
+\def\varasymp{\rotatebox{90}{)|(}}
+\renewcommand{\Im}{\imaginary}
+\renewcommand{\Re}{\real}
+\def\mcl#1{\mathcal{#1}}
+\DeclareMathOperator{\cis}{cis}
+\def\cbrt{\sqrt[3]}
+\usetikzlibrary{arrows}
+\definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1.}
+\definecolor{wewdxt}{rgb}{0.43137254901960786,0.42745098039215684,0.45098039215686275}
+\DeclareMathOperator\sgn{sgn}
+\usepackage{esvect}
+\def\overb#1#2{\overset {#1} {\overbrace{#2}}}
+\def\underb#1#2{\underset {#1} {\underbrace{#2}}}
+\definecolor{xdxdff}{rgb}{0.49019607843137253,0.49019607843137253,1.}
+\def\*{\cdot}
+\def\floor#1{\left\lfloor{#1}\right\rfloor}
+\def\ceil#1{\left\lceil{#1}\right\rceil}
+\def\mscr#1{\mathscr{#1}}
+\def\mbf#1{\mathbf{#1}}
+\def\mrl#1{\mathrl{#1}}
+\def\mrm#1{\mathrm{#1}}
+\def\op#1{\operatorname{#1}}
+\def\A{\mbb A}
+\def\Adef{\A=\{x\in\R\scht \exists P\in\Z[x]\colon P(x)=0\}}
+\def\mop#1{\mathop{#1}}
+\def\mnormal#1{\mathnormal{#1}}
+\def\mit#1{\mathit{#1}}
+\def\msf#1{\mathsf{#1}}
+\def\mtt#1{\mathtt{#1}}
+\def\O{\mcl O}
+\def\brac#1{\left({#1}\right)}
+\def\cbrac#1{\left\{{#1}\right\}}
+\def\rbrac#1{\left[{#1}\right]}
+\def\abrac#1{\left\langle{#1}\right\rangle}
+\def\Ps{\mcl P}
+\newcommand{\rp}{\right)}
+\newcommand{\lp}{\left(}
+\newcommand{\rb}{\right]}
+\newcommand{\lb}{\left[}
+\newcommand{\ra}{\right\rangle}
+\newcommand{\la}{\left\langle}
+\newcommand{\rc}{\right\{}
+\newcommand{\lc}{\left\{}
+\newcommand{\eps}{\varepsilon}
+
+\DeclareMathOperator\Id{Id}
+\usepackage{siunitx}
+\def\inv#1{\frac 1 {#1}}
+\def\isum{\sum^{\infty}}
+\def\iprod{\prod^{\infty}}
+\def\infint{\int^{\infty}}

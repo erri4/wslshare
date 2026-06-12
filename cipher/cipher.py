@@ -1,4 +1,4 @@
-from BetterLinkedLists import *
+from BetterLinkedLists import DoubleLoopedLinkedList, tools
 import string
 import sys
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     text = list(text.lower())
 
     for i in range(len(text)):
-        text[i] = linkedlisttools.jump(letters, text[i],  (-1 if decode else 1) * jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
+        text[i] = tools.jump(letters, text[i],  (-1 if decode else 1) * jkeyvalue.data * dkeyvalue.data).data if text[i] in string.ascii_lowercase else text[i]
         jkeyvalue = jkeyvalue.next
         dkeyvalue = dkeyvalue.next
 
