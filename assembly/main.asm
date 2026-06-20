@@ -168,9 +168,7 @@ _start:
         jge badinp
         mov rdi, rbx
     run:
-        call breakpoint
         call fact
-        call breakpoint
         call print
     call exit
     badinp:
