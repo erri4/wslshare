@@ -28,5 +28,48 @@ def mexseq():
         sm += 1/t(i)
     print(sm)
 
+## fibonacci
+
+class Qsqrt5:
+    a: int
+    b: int
+
+    def __init__(self, a: int, b: int = 0):
+        self.a = a
+        self.b = b
+    
+    def __mul__(self, other: "Qsqrt5"):
+        return Qsqrt5(self.a * other.a + 5 * self.b * other.b, self.a * other.b + self.b * other.a)
+
+    def __repr__(self):
+        if self.a and self.b:
+            return f'{repr(self.a)} + sqrt5 * {repr(self.b)}'
+        if self.b:
+            return f'sqrt5 * {repr(self.b)}'
+        return repr(self.a)
+
+    def __eq__(self, other: "Qsqrt5"):
+        return self.a == other.a and self.b == other.b
+
+    def __sub__(self, other: "Qsqrt5"):
+        return Qsqrt5(self.a - other.a, self.b - other.b)
+
+def fastpow(a: Qsqrt5 | int, n: int):
+    b = [int(c) for c in bin(n)[2:]]
+    b.reverse()
+    powsa = [a]
+    for i in range(1, len(b)):
+        powsa.append(powsa[i - 1] * powsa[i - 1])
+    res = type(a)(1)
+    for i in range(len(powsa)):
+        if b[i]:
+            res *= powsa[i]
+    return res
+
+def fibonacci(n: int):
+    phi = Qsqrt5(1, 1)
+    psi = Qsqrt5(1, -1)
+    return (fastpow(phi, n) - fastpow(psi, n)).b // fastpow(2, n)
+
 if __name__ == '__main__':
-    mexseq()
+    print(fibonacci(100))
