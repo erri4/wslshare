@@ -1,8 +1,13 @@
 import datetime
 import requests
+import sys
+
+offset = 1
+if len(sys.argv) > 1:
+    offset = int(sys.argv[1])
 
 url = bytes.fromhex('7777772e6e7974696d65732e636f6d2f7376632f').decode()
-date = str(datetime.date(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day + 1))
+date = str(datetime.date(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day + offset))
 w = f"https://{url}{bytes.fromhex('574f52444c45').decode().lower()}/v2/" + date + ".json"
 c = f"https://{url}{bytes.fromhex('434f4e4e454354494f4e53').decode().lower()}/v2/" + date + ".json"
 
