@@ -11,8 +11,11 @@ scanners/__pycache__/
 udp/__pycache__/
 virus/__pycache__/
 mobile app/
+node_modules/
 !mobile app/digital_cal/lib/main.dart
 *.png
 *.txt
+*.json
 test.*
+.*
 req.html

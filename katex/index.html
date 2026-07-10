@@ -3,34 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaTeX</title>
+    <title>LaTeX to Base64</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js"></script>
     <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
         #LaTeX {
-            border: none;
+            border: 1px solid #ccc;
             outline: none;
-            padding: 5px;
+            padding: 10px;
+            font-family: monospace;
+            min-height: 40px;
+            margin-bottom: 10px;
+        }
+        #output {
+            padding: 15px;
+            display: inline-block;
+            min-width: 100px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="LaTeX" onkeyup="
-        const el = document.getElementById('output');
-            try {
-                el.innerHTML = katex.renderToString(this.textContent.trim(), {displayMode: true});
-            }
-            catch(e){}
-        " contenteditable>\int_0^\infty e^{-x^2}dx = \frac{\sqrt{\pi}}{2}</div>
     <div id="output"></div>
-
     <script>
         window.onload = () => {
             const el = document.getElementById('output');
+            el.innerText = new URLSearchParams(window.location.search).get('latex');
             try {
-                el.innerHTML = katex.renderToString(document.getElementById("LaTeX").textContent.trim(), {displayMode: true});
+                el.innerHTML = katex.renderToString(document.getElementById("output").textContent.trim(), {displayMode: true});
+            } catch(e){}
+
+            async function logBase64Image() {
+                const outputDiv = document.getElementById('output');
+                
+                try {
+                    const dataUrl = await htmlToImage.toPng(outputDiv, { 
+                        backgroundColor: '#ffffff',
+                        pixelRatio: 2
+                    });
+
+                    img = document.createElement('img');
+                    img.src = dataUrl;
+                    document.body.innerHTML = '';
+                    document.body.appendChild(img);
+                } catch (error) {
+                    console.error("Oops, something went wrong during image conversion!", error);
+                }
             }
-            catch(e){}
+            logBase64Image();
         };
     </script>
 </body>
