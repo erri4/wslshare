@@ -37,31 +37,31 @@
     <div id="output"></div>
     <script>
         window.onload = () => {
-            const el = document.getElementById('output');
-            el.innerText = new URLSearchParams(window.location.search).get('latex');
+        const el = document.getElementById('output');
+        el.innerText = new URLSearchParams(window.location.search).get('latex');
+        try {
+            el.innerHTML = katex.renderToString(document.getElementById("output").textContent.trim(), {displayMode: true});
+        } catch(e){}
+
+        async function logBase64Image() {
+            const outputDiv = document.getElementById('output');
+            
             try {
-                el.innerHTML = katex.renderToString(document.getElementById("output").textContent.trim(), {displayMode: true});
-            } catch(e){}
+                const dataUrl = await htmlToImage.toPng(outputDiv, { 
+                    backgroundColor: '#ffffff',
+                    pixelRatio: 2
+                });
 
-            async function logBase64Image() {
-                const outputDiv = document.getElementById('output');
+                const base64String = dataUrl.split(',')[1];
                 
-                try {
-                    const dataUrl = await htmlToImage.toPng(outputDiv, { 
-                        backgroundColor: '#ffffff',
-                        pixelRatio: 2
-                    });
+                window.renderedBase64 = base64String;
 
-                    img = document.createElement('img');
-                    img.src = dataUrl;
-                    document.body.innerHTML = '';
-                    document.body.appendChild(img);
-                } catch (error) {
-                    console.error("Oops, something went wrong during image conversion!", error);
-                }
+            } catch (error) {
+                console.error("Oops, something went wrong during image conversion!", error);
             }
-            logBase64Image();
-        };
+        }
+        logBase64Image();
+    };
     </script>
 </body>
 </html>
