@@ -1,3 +1,5 @@
+from vector import Vector
+
 RawMatrix = list[list[int]]
 
 class Matrix:
@@ -15,7 +17,7 @@ class Matrix:
             for j in range(len(mat[0])):
                 if round(mat[i][j]) == mat[i][j]:
                     mat[i][j] = round(mat[i][j])
-        self.mat = mat
+        self.mat = list(mat)
 
     @classmethod
     def Id(cls, n: int):
@@ -54,7 +56,7 @@ class Matrix:
                 mat[i].append(self[i][j] - other[i][j])
         return Matrix(mat)
     
-    def __mul__(self, other: "Matrix | int"):
+    def __mul__(self, other: "Vector | Matrix | int"):
         if isinstance(other, int):
             return Matrix([[(x * other) for x in row] for row in self.mat])
         if isinstance(other, Matrix):
@@ -65,10 +67,14 @@ class Matrix:
                 for j in range(other.col):
                     mat[i][j] = sum(self[i][k] * other[k][j] for k in range(self.col))
             return Matrix(mat)
+        if isinstance(other, Vector):
+            mult: Matrix = self * Matrix([list(other.point)]).T()
+            vec = [mult.mat[i][0] for i in range(len(mult.mat))]
+            return Vector(vec)
         raise TypeError
     
-    def __rmul__(self, other: int):
-        if not isinstance(other, int): raise TypeError
+    def __rmul__(self, other: int | Vector):
+        if (not isinstance(other, int)) and (not isinstance(other, Vector)): raise TypeError
         return self * other
     
     def __eq__(self, other: "Matrix | RawMatrix"):

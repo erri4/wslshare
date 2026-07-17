@@ -8,13 +8,15 @@ class Vector:
 
     def __init__(self, *args):
         if len(args) == 1:
-            if isinstance(args[0], tuple):
+            if isinstance(args[0], tuple) or isinstance(args[0], list):
                 if len(args[0]) in (2, 3):
-                    self.point = args[0]
+                    self.point = tuple(args[0])
                 else:
                     raise DimensionError("Vector must be 2D or 3D")
-            if isinstance(args[0], Vector):
+            elif isinstance(args[0], Vector):
                 self.point = args[0].point
+            else:
+                raise TypeError
         elif len(args) == 2:
             if isinstance(args[0], (int, float, Rational)) and isinstance(args[1], (int, float, Rational)):
                 self.point = args
@@ -72,6 +74,9 @@ class Vector:
                 if len(other) == self.dim:
                     return self.x * other[0] + self.y * other[1] + (0 if self.dim == 2 else (self.z * other[2]))
                 raise DimensionError("Cannot dot product vectors: vectors has to be the same dimensions")
+        if type(other).__name__ == 'Matrix':
+            return type(other)([list(self.point)]).T() * other
+        raise TypeError
 
     def __rmul__(self, other: "RawVector | int"):
         return self * other

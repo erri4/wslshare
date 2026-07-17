@@ -73,7 +73,7 @@ def readMatrix(env: dict | None = None) -> Matrix:
     return Matrix(mat)
 
 def pythonize(expr: str):
-    expr = expr.replace('x', '@').replace('^T', '.T()').replace('^', '**').replace('\\/', '//').replace('/\\', '//')
+    expr = expr.replace(' x ', '@').replace('^T', '.T()').replace('^', '**').replace('\\/', '//').replace('/\\', '//')
     pattern = re.compile(r'(?<![A-Za-z0-9_])\(([^,()]+),\s*([^,()]+)(?:,\s*([^,()]+))?\)')
     def repl(m: re.Match[str]):
         items = [g.strip() for g in m.groups() if g]
@@ -108,5 +108,5 @@ while True:
         elif expr != '':
             expr = pythonize(expr)
             print(eval(expr, env))
-    except (MatrixDimensionsError, DimensionError, ZeroDivisionError, ArithmeticError) as e:
+    except Exception as e:
         print(f'\033[91m{e}\033[0m')
