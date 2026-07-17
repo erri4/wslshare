@@ -82,6 +82,7 @@ client.on('message_create', async (msg) => {
 
     if (command === 'pa'){
         if (preambles === undefined) preambles = await readJsonData();
+        if (!preambles) preambles = {};
         if (preambles[msg.author] === undefined) preambles[msg.author] = '';
         preambles[msg.author] += ` ${args.join(' ')}`;
         await msg.reply(`Current preamble:\n${preambles[msg.author]}`);
@@ -90,6 +91,7 @@ client.on('message_create', async (msg) => {
 
     if (command === 'rp'){
         if (preambles === undefined) preambles = await readJsonData();
+        if (!preambles) preambles = {};
         preambles[msg.author] = '';
         await msg.reply(`Current preamble:\n${preambles[msg.author]}`);
         await writeJsonData(preambles);
@@ -97,6 +99,7 @@ client.on('message_create', async (msg) => {
 
     if (command === 'm'){
         if (preambles === undefined) preambles = await readJsonData();
+        if (!preambles) preambles = {};
         if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) msg.reply('I am not gay. You are!');
         if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) return;
         if (chat.id.user !== '120363424342605725') return;
@@ -135,6 +138,7 @@ client.on('message_create', async (msg) => {
 
     if (command === 'ms'){
         if (preambles === undefined) preambles = await readJsonData();
+        if (!preambles) preambles = {};
         if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) msg.reply('I am not gay. You are!');
         if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) return;
         if (chat.id.user !== '120363424342605725') return;
@@ -186,6 +190,7 @@ client.on('message_create', async (msg) => {
 
             if (participants.length <= BATCH_SIZE) {
                 const mentions = participants.map(p => p.id._serialized);
+                console.log({ mentions });
                 await chat.sendMessage('נפסלתי', { mentions });
             } else {
                 for (let i = 0; i < participants.length; i += BATCH_SIZE) {
@@ -219,6 +224,21 @@ client.on('message_create', async (msg) => {
             } else {
                 await msg.reply('That quoted message isn\'t a sticker or an image.');
             }
+        } catch (err) {
+            console.error('!steal failed:', err);
+            await msg.reply('Something went wrong grabbing that sticker (or image).');
+        }
+        return;
+    }
+
+    if (command === 'test'){
+        if (!msg.hasQuotedMsg) {
+            await msg.reply('Reply to a sticker or image with !steal to grab it.');
+            return;
+        }
+        try {
+            const quotedMsg = await msg.getQuotedMessage();
+            quotedMsg.reply('hihihi');
         } catch (err) {
             console.error('!steal failed:', err);
             await msg.reply('Something went wrong grabbing that sticker (or image).');
