@@ -71,5 +71,14 @@ def fibonacci(n: int):
     psi = Qsqrt5(1, -1)
     return (fastpow(phi, n) - fastpow(psi, n)).b // fastpow(2, n)
 
+def collatz(n: int, first: str = ''):
+    print(n, first)
+    if n <= 1: return
+    if n % 2 == 0:
+        collatz(n // 2, first)
+    else:
+        collatz(3 * n + 1, first)
+
 if __name__ == '__main__':
-    print(fibonacci(100))
+    for n in range(1000):
+        collatz(n, str(n))

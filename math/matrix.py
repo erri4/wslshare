@@ -74,7 +74,7 @@ class Matrix:
         raise TypeError
     
     def __rmul__(self, other: int | Vector):
-        if (not isinstance(other, int)) and (not isinstance(other, Vector)): raise TypeError
+        if not isinstance(other, int): raise TypeError
         return self * other
     
     def __eq__(self, other: "Matrix | RawMatrix"):

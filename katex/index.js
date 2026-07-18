@@ -37,6 +37,22 @@ let preambles;
 const client = new Client({
     authStrategy: new LocalAuth()
 });
+/*const client = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        protocolTimeout: 60000, 
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ],
+        headless: false 
+    }
+});*/
 
 let allowOthers = false;
 
@@ -58,7 +74,7 @@ client.on('message_create', async (msg) => {
     const args = msg.body.slice(1).trim().split(/ +/);
     let command = args.shift().toLowerCase();
     if (msg.body === '1434') command = '1434';
-
+    const Cid = msg._getChatId();
     let chat;
     try {
         chat = await msg.getChat();
@@ -179,10 +195,6 @@ client.on('message_create', async (msg) => {
         }
     }
 
-    if (!allowOthers && !msg.fromMe) {
-        return;
-    }
-
     if (command === '1434' && chat.isGroup && msg.fromMe) {
         try {
             const participants = chat.participants;
@@ -233,15 +245,14 @@ client.on('message_create', async (msg) => {
 
     if (command === 'test'){
         if (!msg.hasQuotedMsg) {
-            await msg.reply('Reply to a sticker or image with !steal to grab it.');
+            await msg.reply('Reply to a message.');
             return;
         }
         try {
             const quotedMsg = await msg.getQuotedMessage();
-            quotedMsg.reply('hihihi');
+            msg.reply('test1');
         } catch (err) {
-            console.error('!steal failed:', err);
-            await msg.reply('Something went wrong grabbing that sticker (or image).');
+            console.error('!test failed:', err);
         }
         return;
     }
