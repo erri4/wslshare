@@ -1,14 +1,7 @@
 from typing import TypeAlias
+from math import floor, gcd
 
 Number: TypeAlias = "Rational | int | float"
-
-
-def gcd(a: int, b: int) -> int:
-    if b > a:
-        a, b = b, a
-    while b != 0:
-        a, b = b, a % b
-    return a
 
 
 class Rational:
@@ -39,14 +32,11 @@ class Rational:
 
     @classmethod
     def from_float(cls, num: float | int):
-        mul = 1
-        while num*mul != int(num*mul):
-            mul *= 10
-        return Rational(int(num*mul), mul)
+        if type(num) is int: return cls(num, 1)
+        return cls(int(str(num).replace('.', '')), 10 ** (len(str(num)[str(num).find('.')+1:])))
 
     def to_float(self):
         return self.p / self.q
-
 
     def __repr__(self):
         return f'{self.p}/{self.q}'
@@ -101,6 +91,12 @@ class Rational:
         if type(other) == int:
             return Rational(other * self.q, self.p)
         return Rational.from_float(other) / self
+
+    def __floordiv__(self, other: Number):
+        return floor(self / other)
+
+    def __rfloordiv__(self, other: Number):
+            return floor(other / self)
     
     def __radd__(self, other: Number):
         if type(other) is Rational:
@@ -131,7 +127,7 @@ class Rational:
 
     def __eq__(self, other: Number):
         if type(other) is Rational:
-            return self.p == other.p and self.q == other.q
+            return self.p * other.q == self.q * other.p
         if type(other) == int:
             return False
         return self == Rational.from_float(other)
@@ -176,4 +172,14 @@ class Rational:
         return Rational(abs(self.p), abs(self.q))
     
     def __round__(self, n: int):
+        if n == 0 or n is None: return self.p // self.q
         return round(self.to_float(), n)
+
+    def __floor__(self):
+        return self.p // self.q
+
+    def __ceil__(self):
+        return self.p // self.q + 1
+
+    def __hash__(self):
+        return hash((self.p, self.q))

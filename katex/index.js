@@ -5,6 +5,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const preamblePath = path.join(__dirname, 'preamble.json');
+const commands = ['test', '1434', 'ms', 'm', 'pa', 'rp', 'steal', 'toggle', 'top', 'spam'];
 
 async function writeJsonData(dataObject) {
     try {
@@ -32,6 +33,33 @@ async function readJsonData() {
     }
 }
 
+async function getParticipantNames(participants) {
+    try {
+        const contactPromises = participants.map(p => {
+            const idString = p.id._serialized;
+            return client.getContactById(idString);
+        });
+
+        const contacts = await Promise.all(contactPromises);
+
+        const participantDetails = contacts.map((contact, index) => {
+            return {
+                id: contact.id._serialized,
+                
+                name: contact.name || contact.pushname || "Unknown User",
+                
+                isAdmin: participants[index].isAdmin
+            };
+        });
+
+        return participantDetails;
+
+    } catch (err) {
+        console.error("Failed to fetch participant names:", err);
+        return [];
+    }
+}
+
 let preambles;
 
 const client = new Client({
@@ -55,25 +83,31 @@ const client = new Client({
 });*/
 
 let allowOthers = false;
+let spam = false;
 
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', () => {
-    console.log('Bot is running! Default: Only responding to YOU.');
+    console.log('Bot is running!');
 });
 
 client.on('message_create', async (msg) => {
+    msg.id._serialized = msg.id['$1'];
     if (msg.body !== '1434' && (!msg.body || !msg.body.startsWith('!'))) return;
-    if (msg.author === '160808038334605@lid'){
-        msg.reply("You are the gay here, feldy. Not me.");
-        return;
-    }
 
     const args = msg.body.slice(1).trim().split(/ +/);
     let command = args.shift().toLowerCase();
     if (msg.body === '1434') command = '1434';
+    if (msg.author === '160808038334605@lid' && commands.includes(command)){
+        msg.reply("You are the gay here, feldy. Not me.");
+        return;
+    }
+    if (msg.author === '266919399677957@lid' && commands.includes(command)){
+        msg.reply("Adi I'm not gay, stop doing what feldy does.");
+        return;
+    }
     const Cid = msg._getChatId();
     let chat;
     try {
@@ -143,7 +177,7 @@ client.on('message_create', async (msg) => {
             await browser.close();
             const media = new MessageMedia('image/png', base64Data, 'math.png');
 
-            await chat.sendMessage(media);
+            await msg.reply(media);
 
         } catch (err) {
             console.error('Headless rendering sequence failed:', err);
@@ -155,8 +189,10 @@ client.on('message_create', async (msg) => {
     if (command === 'ms'){
         if (preambles === undefined) preambles = await readJsonData();
         if (!preambles) preambles = {};
-        if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) msg.reply('I am not gay. You are!');
-        if (msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) return;
+        if (msg.body.toLowerCase().includes('בנים') || msg.body.toLowerCase().includes('אני') || msg.body.toLowerCase().includes('i') ||msg.body.toLowerCase().includes('boys') || msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) msg.reply('I am not gay. You are!');
+
+        if (msg.body.toLowerCase().includes('בנים') || msg.body.toLowerCase().includes('אני') || msg.body.toLowerCase().includes('i') ||msg.body.toLowerCase().includes('boys') || msg.body.toLowerCase().includes('gay') || msg.body.toLowerCase().includes('reef') || msg.body.includes('גיי') || msg.body.includes('ריף')) return;
+
         if (chat.id.user !== '120363424342605725') return;
         let formula = args.join(' ');
         if (preambles[msg.author] !== undefined) formula = preambles[msg.author] + ' ' + formula;
@@ -182,7 +218,7 @@ client.on('message_create', async (msg) => {
             await browser.close();
             const media = new MessageMedia('image/png', base64Data, 'math.png');
 
-            await chat.sendMessage(media, {
+            await msg.reply(media, {
                 sendMediaAsSticker: true,
                 stickerName: `${formula}`,
                 stickerAuthor: "Better LaTeX renderer"
@@ -195,6 +231,8 @@ client.on('message_create', async (msg) => {
         }
     }
 
+    if (!allowOthers && !msg.fromMe) return;
+
     if (command === '1434' && chat.isGroup && msg.fromMe) {
         try {
             const participants = chat.participants;
@@ -202,7 +240,6 @@ client.on('message_create', async (msg) => {
 
             if (participants.length <= BATCH_SIZE) {
                 const mentions = participants.map(p => p.id._serialized);
-                console.log({ mentions });
                 await chat.sendMessage('נפסלתי', { mentions });
             } else {
                 for (let i = 0; i < participants.length; i += BATCH_SIZE) {
@@ -243,6 +280,24 @@ client.on('message_create', async (msg) => {
         return;
     }
 
+    if (command === 'top'){
+        if (!msg.hasQuotedMsg) {
+            await msg.reply('Reply to a message to find the top of the chain.');
+            return;
+        }
+        let top = msg;
+        while (top.hasQuotedMsg){
+            try {
+                top = await top.getQuotedMessage();
+            } catch (err) {
+                console.error('!top failed:', err);
+                break;
+            }
+        }
+        top.reply("Here");
+        return;
+    }
+
     if (command === 'test'){
         if (!msg.hasQuotedMsg) {
             await msg.reply('Reply to a message.');
@@ -250,11 +305,18 @@ client.on('message_create', async (msg) => {
         }
         try {
             const quotedMsg = await msg.getQuotedMessage();
-            msg.reply('test1');
+            quotedMsg.reply('test1');
         } catch (err) {
             console.error('!test failed:', err);
         }
         return;
+    }
+
+    if (command === 'spam' && msg.fromMe){
+        spam = !spam;
+        while (spam){
+            await chat.sendMessage(args.join(' '));
+        }
     }
 });
 

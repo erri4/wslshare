@@ -1,37 +1,23 @@
-
-% Always typeset math in display style
 \everymath{\displaystyle}
 
-% Standard mathematical typesetting packages
 \usepackage[T1]{fontenc}
 \usepackage{amsthm, amsmath, amssymb}
-\usepackage[fixamsmath]{mathtools}  % Extension to amsmath
+\usepackage[fixamsmath]{mathtools}
 \usepackage[cal=cm, scr=rsfs, frak=euler, bb=ams]{mathalpha}
 \usepackage{lmodern}
 
-% Symbol and utility packages
 \usepackage{cancel}
 \usepackage[nointegrals]{wasysym}
 
-% Extras
-\usepackage{physics}  % Lots of useful shortcuts and macros
-\usepackage{quiver}  % For drawing commutative diagrams easily
-\usepackage{hwemoji}  % Support Unicode emojis
+\usepackage{physics}
+\usepackage{quiver}
+\usepackage{hwemoji}
 \DeclareUnicodeCharacter{FE0E}{}
 \DeclareUnicodeCharacter{FE0F}{}
 
-% Common shortcuts
 \def\mbb#1{\mathbb{#1}}
 \def\mfk#1{\mathfrak{#1}}
-\def\bN{\mbb{N}}
-\def\bC{\mbb{C}}
-\def\bR{\mbb{R}}
-\def\bQ{\mbb{Q}}
-\def\bZ{\mbb{Z}}
 
-% Sometimes helpful macros
-
-% Some standard theorem definitions
 \newtheorem{Theorem}{Theorem}
 \newtheorem{Proposition}{Theorem}
 \newtheorem{Lemma}[Theorem]{Lemma}
@@ -42,12 +28,6 @@
 
 \renewcommand{\div}{\divisionsymbol}
 \newcommand{\notimplies}{\;\not\!\!\!\implies}
-\newcommand{\R}{\mathbb R}
-\newcommand{\N}{\mathbb N}
-\newcommand{\Z}{\mathbb Z}
-\newcommand{\Q}{\mathbb Q}
-\newcommand{\C}{\mathbb C}
-\renewcommand{\P}{\mathbb P}
 \newtheorem{Hypothesis}[Theorem]{Hypothesis}
 \newtheorem{Conjecture}[Theorem]{Conjecture}
 \def\range{\mathrel{\big|}}
@@ -57,7 +37,7 @@
 \renewcommand{\Im}{\imaginary}
 \renewcommand{\Re}{\real}
 \def\mcl#1{\mathcal{#1}}
-\DeclareMathOperator{\cis}{cis}
+\DeclareMathOperator{\cis}{cis} % preamble theft from infinium
 \def\cbrt{\sqrt[3]}
 \usetikzlibrary{arrows}
 \definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1.}
@@ -75,8 +55,6 @@
 \def\mrl#1{\mathrl{#1}}
 \def\mrm#1{\mathrm{#1}}
 \def\op#1{\operatorname{#1}}
-\def\A{\mbb A}
-\def\Adef{\A=\{x\in\R\scht \exists P\in\Z[x]\colon P(x)=0\}}
 \def\mop#1{\mathop{#1}}
 \def\mnormal#1{\mathnormal{#1}}
 \def\mit#1{\mathit{#1}}
@@ -86,7 +64,7 @@
 \def\brac#1{\left({#1}\right)}
 \def\cbrac#1{\left\{{#1}\right\}}
 \def\rbrac#1{\left[{#1}\right]}
-\def\abrac#1{\left\langle{#1}\right\rangle}
+\def\abrac#1{\left\langle{#1}\right\rangle} % if there are any other pairs please leave a note
 \def\Ps{\mcl P}
 \newcommand{\rp}{\right)}
 \newcommand{\lp}{\left(}
@@ -95,7 +73,7 @@
 \newcommand{\ra}{\right\rangle}
 \newcommand{\la}{\left\langle}
 \newcommand{\rc}{\right\{}
-\newcommand{\lc}{\left\{}
+\newcommand{\lc}{\left\{} % my bad lol
 \newcommand{\eps}{\varepsilon}
 
 \DeclareMathOperator\Id{Id}
@@ -103,4 +81,64 @@
 \def\inv#1{\frac 1 {#1}}
 \def\isum{\sum^{\infty}}
 \def\iprod{\prod^{\infty}}
-\def\infint{\int^{\infty}}
+\usepackage{dsfont}
+\usepackage{bbm}
+\usepackage{stmaryrd}
+\def\mbbm#1{\mathbbm{#1}}
+\renewcommand\P{\mbbm P}
+\def\C{\mbbm C}
+\def\R{\mbbm R}
+\def\Q{\mbbm Q}
+\def\Z{\mbbm Z}
+\def\N{\mbbm N}
+\def\H{\mbbm H}
+\def\F{\mbbm F}
+\def\A{\mbbm A}
+\def\Adef{\A\coloneqq\left\{x\in\R\scht\exists P\in\Z[x]\colon P(x)=0\right\}}
+\def\Set{\mbf{Set}}
+\def\ord{\operatorname{ord}}
+\def\oo{\infty}
+\def\lxor{\oplus}
+\def\setxor{\Delta}
+\def\simdiff{\setxor}
+\def\fam{\mcl F}
+\usepackage{listings}
+\definecolor{nordbg}{HTML}{2E3440}
+\definecolor{nordfg}{HTML}{D8DEE9}
+\definecolor{nordcomment}{HTML}{616E88}
+\definecolor{nordblue}{HTML}{81A1C1}
+\definecolor{nordcyan}{HTML}{88C0D0}
+\definecolor{nordgreen}{HTML}{A3BE8C}
+\definecolor{nordpurple}{HTML}{B48EAD}
+\definecolor{nordyellow}{HTML}{EBCB8B}
+
+\lstdefinestyle{nord-latex}{
+    language=[LaTeX]TeX,
+    backgroundcolor=\color{nordbg},
+        basicstyle=\ttfamily\small\color{nordfg},
+    keywordstyle=\color{nordblue}\bfseries,
+    stringstyle=\color{nordgreen},
+    commentstyle=\color{nordcomment}\itshape,
+    identifierstyle=\color{nordcyan},
+    numberstyle=\tiny\color{nordpurple},
+    numbers=left,
+    numbersep=10pt,
+    showstringspaces=false,
+    tabsize=4,
+    breaklines=true,
+    keepspaces=true,
+    columns=fullflexible,
+    frame=single,
+    rulecolor=\color{nordcomment}
+}
+
+\lstnewenvironment{nordtex}
+  {\lstset{style=nord-latex}}
+  {}
+\def\Oct{\mbbm O}
+\def\modulo#1#2{\fpeval{#1-floor(#1/#2)*#2}}
+\def\T{\mathsf T}
+\def\i{\mrm i}
+\def\e{\mrm e}
+
+\usepackage{circuitikz}

@@ -10,6 +10,7 @@ TOKEN_SPEC = [
     ("EQ2", r"="),
     ("AND_SYM",     r"&&|&"),
     ("OR_SYM",      r"\|\||\|"),
+    ("OR_PLUS",      r"\+"),
     ("XOR_SYM",     r"\^"),
     ("NOT_SYM",     r"-"),
     ("TRUE_SYM",    r"1"),
@@ -29,6 +30,7 @@ SYMBOL_TOKEN_MAP = {
     "EQ2": ("IFF", None),
     "AND_SYM": ("AND", None),
     "OR_SYM": ("OR", None),
+    "OR_PLUS": ("OR", None),
     "XOR_SYM": ("XOR", None),
     "NOT_SYM": ("NOT", None),
     "TRUE_SYM": ("CONST", True),
@@ -251,17 +253,17 @@ def print_truth_table(texts: list[str], asts: list[BinOp], variables: list[str])
     print(f"\nExpressions: {', '.join(texts)}")
     print(f"Parsed as : {', '.join([repr(ast) for ast in asts])}\n")
 
-    header = ['x'] + variables + texts
+    header = ['Rw'] + variables + ['F']*len(texts)
     col_width = 1
     print(" | ".join(h.center(col_width) for h in header))
     print("-+-".join("-" * len(h) for h in header))
 
     for combo in itertools.product([False, True], repeat=len(variables)):
         env = dict(zip(variables, combo))
-        row = [str(int(''.join([str(int(bit)) for bit in combo]), 2))] + [str(int(v)).center(col_width) for v in combo]
+        row = [str(int(''.join([str(int(bit)) for bit in combo]), 2)) + ' '] + [str(int(v)).center(col_width) for v in combo]
         for text, ast in zip(texts, asts):
             result = ast.eval(env)
-            row += [str(int(result)).center(max(col_width, len(text)))]
+            row += [str(int(result)).center(max(col_width, len(text)//len(text)))]
         print(" | ".join(row))
 
 

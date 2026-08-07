@@ -1,0 +1,24 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.7.30)  30 JUL 2026 20:00
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**\frac 1 2
+
+! Emergency stop.
+ ...                                              
+                                                  
+<*> \frac 1 2
+             
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+ 
+Here is how much of TeX's memory you used:
+ 12 strings out of 467510
+ 397 string characters out of 5409280
+ 435365 words of memory out of 5000000
+ 29354 multiletter control sequences out of 15000+600000
+ 627721 words of font info for 40 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 15i,0n,20p,44b,20s stack positions out of 10000i,1000n,20000p,200000b,200000s
+!  ==> Fatal error occurred, no output PDF file produced!
