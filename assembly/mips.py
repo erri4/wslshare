@@ -30,6 +30,7 @@ if __name__ == '__main__':
     parser.add_argument("script", help="Path to the MIPS script to run")
     parser.add_argument("-pc", help="PC of first command in program",default=0,type=int)
     parser.add_argument("--compile", "-c", help="Compile the program",action="store_true")
+    parser.add_argument("--tocpp", "-tocpp", help="Transpile the program to C++",action="store_true")
     parser.add_argument("--load", help="Load a program to mem. PATH:ADDR",action="append",default=[],type=str)
 
     args = parser.parse_args()
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     with open(args.script) as f:
         script = f.read()
 
-    if args.compile:
+    if args.compile or args.tocpp:
         dct = {}
         for load in args.load:
             if type(load) is str: # for type hints
@@ -46,8 +47,10 @@ if __name__ == '__main__':
         cpp_output = mips2cpp(script, dct)
         with open(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp',"w") as f:
             f.write(cpp_output)
-        subprocess.run(f'g++ -o {os.path.basename(os.path.splitext(args.script)[0])} {os.path.basename(os.path.splitext(args.script)[0]) + '.cpp'}')
-        os.remove(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp')
+        if args.compile:
+            subprocess.run(f'g++ -o {os.path.basename(os.path.splitext(args.script)[0])} {os.path.basename(os.path.splitext(args.script)[0]) + '.cpp'}')
+        if not args.tocpp:
+            os.remove(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp')
     else:
         BTB = [1, 0]
 
