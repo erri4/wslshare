@@ -119,10 +119,12 @@ j CASENOP
 
 CASEINP:
 syscall R2, 1, 0
+# input
 j CASENOP
 
 CASEPR:
 syscall R2, 0, 0
+# print
 
 CASENOP:
 
