@@ -1,6 +1,7 @@
 from mips2cpp import mips2cpp
 import argparse
 import subprocess
+import sys
 import re
 import os
 
@@ -167,7 +168,7 @@ if __name__ == '__main__':
                         case 5:
                             print(readarr(regs[regify(arguments[0])], int(arguments[2])))
                         case 6:
-                            raise ValueError
+                            sys.exit(int(arguments[2]))
                         case 7:
                             print(readmem(regs[regify(arguments[0])] + int(arguments[2])))
             IC += 1

@@ -147,23 +147,24 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
             case 'syscall':
                 match int(arguments[1]):
                     case 0:
-                        res += f'cout << (char)({arguments[0]} + {arguments[2]})'
+                        res += f"cout << (char)({arguments[0]} + {arguments[2]}) << '\\n'"
                     case 1:
                         res += f'cin >> inp; {arguments[0]} = (int)inp + {arguments[2]}'
                     case 2:
-                        res += f'cout << (char)(readmem({arguments[0]}) + {arguments[2]})'
+                        res += f"cout << (char)(readmem({arguments[0]}) + {arguments[2]}) << '\\n'"
                     case 3:
                         res += 'cout'
                         for i in range(32):
-                            res += f' << R{i}'
+                            res += f" << R{i} << ' '"
+                        res += " << '\\n'"
                     case 4:
                         res += f'cout << {arguments[0]}'
                     case 5:
-                        res += f'for (int n : readarr({arguments[0]}, {arguments[2]})) cout << n << \' \''
+                        res += f"for (int n : readarr({arguments[0]}, {arguments[2]})) cout << n << ' ';\ncout << '\\n'"
                     case 6:
-                        res += 'cout << "Exit called. crashing\n"; return 1'
+                        res += f'return {arguments[2]}'
                     case 7:
-                        res += f'cout << (readmem({arguments[0]} + {arguments[2]}))'
+                        res += f"cout << (readmem({arguments[0]} + {arguments[2]})) << '\\n'"
 
         res += ';\n'
     jr += '''default:\\
