@@ -52,8 +52,6 @@ if __name__ == '__main__':
         if not args.tocpp:
             os.remove(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp')
     else:
-        BTB = [1, 0]
-
         pc: int = args.pc
         regs = [0]*32
         mem = [0] * 4096
@@ -70,7 +68,6 @@ if __name__ == '__main__':
                         b = rd[i:i+4]
                         writemem(addr + i, (ord(b[0]) << 24) | (ord(b[1]) << 16) | (ord(b[2]) << 8) | ord(b[3]))
 
-        BMP = 0
         IC = 0
         branch = 0
         jump = 0
@@ -132,38 +129,14 @@ if __name__ == '__main__':
                     writemem(regs[regify(arguments[1])] + imm, regs[regify(arguments[0])])
                 case 'beq':
                     branch += 1
-                    BMP += (regs[regify(arguments[0])] == regs[regify(arguments[1])]) != BTB[0]
                     if regs[regify(arguments[0])] == regs[regify(arguments[1])]:
                         pc = labels[arguments[2]] - 4
                         taken += 1
-                        match BTB:
-                            case [0, 0]: BTB = [0, 1]
-                            case [1, 0]: BTB = [1, 1]
-                            case [0, 1]: BTB = [1, 0]
-                            case [1, 1]: BTB = [1, 1]
-                    else:
-                        match BTB:
-                            case [0, 0]: BTB = [0, 0]
-                            case [1, 0]: BTB = [0, 1]
-                            case [0, 1]: BTB = [0, 0]
-                            case [1, 1]: BTB = [1, 0]
                 case 'bne':
                     branch += 1
-                    BMP += (regs[regify(arguments[0])] != regs[regify(arguments[1])]) != BTB[0]
                     if regs[regify(arguments[0])] != regs[regify(arguments[1])]:
                         pc = labels[arguments[2]] - 4
                         taken += 1
-                        match BTB:
-                            case [0, 0]: BTB = [0, 1]
-                            case [1, 0]: BTB = [1, 1]
-                            case [0, 1]: BTB = [1, 0]
-                            case [1, 1]: BTB = [1, 1]
-                    else:
-                        match BTB:
-                            case [0, 0]: BTB = [0, 0]
-                            case [1, 0]: BTB = [0, 1]
-                            case [0, 1]: BTB = [0, 0]
-                            case [1, 1]: BTB = [1, 0]
                 case 'slt':
                     regs[regify(arguments[0])] = int(regs[regify(arguments[1])] < regs[regify(arguments[2])])
                 case 'j':
