@@ -1,23 +1,36 @@
+% Always typeset math in display style
 \everymath{\displaystyle}
 
+% Standard mathematical typesetting packages
 \usepackage[T1]{fontenc}
 \usepackage{amsthm, amsmath, amssymb}
-\usepackage[fixamsmath]{mathtools}
+\usepackage[fixamsmath]{mathtools}  % Extension to amsmath
 \usepackage[cal=cm, scr=rsfs, frak=euler, bb=ams]{mathalpha}
 \usepackage{lmodern}
 
+% Symbol and utility packages
 \usepackage{cancel}
 \usepackage[nointegrals]{wasysym}
 
-\usepackage{physics}
-\usepackage{quiver}
-\usepackage{hwemoji}
+% Extras
+\usepackage{physics}  % Lots of useful shortcuts and macros
+\usepackage{quiver}  % For drawing commutative diagrams easily
+\usepackage{hwemoji}  % Support Unicode emojis
 \DeclareUnicodeCharacter{FE0E}{}
 \DeclareUnicodeCharacter{FE0F}{}
 
+% Common shortcuts
 \def\mbb#1{\mathbb{#1}}
 \def\mfk#1{\mathfrak{#1}}
+\def\bN{\mbb{N}}
+\def\bC{\mbb{C}}
+\def\bR{\mbb{R}}
+\def\bQ{\mbb{Q}}
+\def\bZ{\mbb{Z}}
 
+% Sometimes helpful macros
+
+% Some standard theorem definitions
 \newtheorem{Theorem}{Theorem}
 \newtheorem{Proposition}{Theorem}
 \newtheorem{Lemma}[Theorem]{Lemma}
@@ -32,7 +45,6 @@
 \newtheorem{Conjecture}[Theorem]{Conjecture}
 \def\range{\mathrel{\big|}}
 \def\scht{\mathrel{\big|}}
-\def\st{\text{ such that}\colon}
 \def\varasymp{\rotatebox{90}{)|(}}
 \renewcommand{\Im}{\imaginary}
 \renewcommand{\Re}{\real}
@@ -49,7 +61,7 @@
 \definecolor{xdxdff}{rgb}{0.49019607843137253,0.49019607843137253,1.}
 \def\*{\cdot}
 \def\floor#1{\left\lfloor{#1}\right\rfloor}
-\def\ceil#1{\left\lceil{#1}\right\rceil}
+\def\ceil#1{\left\lceil{#1}\right\rceil} % please accept this request, i removed original floor/ceil from my preamble
 \def\mscr#1{\mathscr{#1}}
 \def\mbf#1{\mathbf{#1}}
 \def\mrl#1{\mathrl{#1}}
@@ -115,7 +127,7 @@
 \lstdefinestyle{nord-latex}{
     language=[LaTeX]TeX,
     backgroundcolor=\color{nordbg},
-        basicstyle=\ttfamily\small\color{nordfg},
+    basicstyle=\ttfamily\small\color{nordfg},
     keywordstyle=\color{nordblue}\bfseries,
     stringstyle=\color{nordgreen},
     commentstyle=\color{nordcomment}\itshape,
@@ -140,32 +152,18 @@
 \def\T{\mathsf T}
 \def\i{\mrm i}
 \def\e{\mrm e}
-
 \usepackage{circuitikz}
-\usepackage{listings}
-\usepackage{xcolor}
-
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\lstdefinestyle{mipsstyle}{
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{blue}\bfseries,
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\small,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
-    showstringspaces=false,
-    showtabs=false,                  
-    tabsize=4,
-    keywords={add,addi,sub,subi,mul,div,lw,sw,la,li,move,and,andi,or,ori,xor,xori,sll,srl,beq,bne,slt,slti,j,jal,jr,syscall,nop}
-}
-\lstset{style=mipsstyle}
+\def\ellim{\operatorname*{\ell im}}
+\def\eqby#1{\stackrel{\text{#1}}{=}}
+\def\reflect#1{\reflectbox{$ #1 $}}
+\def\rotate#1#2{\rotatebox{#1}{$ #2 $}}
+\def\st{\text{ such that }} % sorry mods, mb
+\def\defto{\coloneqq}
+\def\True{\mbf{True}}
+\def\False{\mbf{False}}
+\def\iso{\cong}
+\def\mop#1{\mathop{#1}} \def\likelim#1{\mop{#1}}
+\def\opname{\operatorname}
+\def\set#1#2{\left\{#1\scht #2\right\}} \def\mbin#1{\mathbin{#1}} \def\lnand{\mbin{\overline\land}}
+\def\lnor{\mbin{\overline\lor}}
+\def\lxnor{\mbin{\overline\lxor}}
