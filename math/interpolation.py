@@ -1,6 +1,11 @@
-points: list[tuple[int | float, int | float]] = [(1, 6), (2, 12), (3, 20), (10, 14), (6.93463, 43.91536)]
+from rational import Rational
 
-def coeff(n: int | float) -> int | float:
+def flt(num: str) -> int | float:
+    if '.' in num:
+        return float(num)
+    return int(num)
+
+def coeff(n: int | float | Rational, points: list[tuple[int | float | Rational, int | float | Rational]]) -> int | float | Rational:
     a_n = None
     for pt in points:
         if pt[0] == n:
@@ -9,9 +14,9 @@ def coeff(n: int | float) -> int | float:
     for pt in points:
         if pt[0] != n:
             prod *= (n - pt[0])
-    return round(a_n / prod) if round(a_n / prod) == a_n / prod else a_n / prod
+    return Rational(a_n, prod)
 
-def vietta(roots: list[int | float], leading_coeff: int | float = 1):
+def vietta(roots: list[int | float | Rational], leading_coeff: int | float | Rational = 1):
     coeffs: list[int | float] = [1]
     for r in roots:
         new_coeffs = [0] * (len(coeffs) + 1)
@@ -24,49 +29,81 @@ def vietta(roots: list[int | float], leading_coeff: int | float = 1):
     coeffs.reverse()
     return coeffs
 
-def term(n: int | float) -> list[int | float]:
-    roots: list[int | float] = []
+def term(n: int | float | Rational, points: list[tuple[int | float | Rational, int | float | Rational]]) -> list[int | float | Rational]:
+    roots: list[int | float | Rational] = []
     for pt in points:
         if pt[0] != n:
             roots.append(pt[0])
-    return vietta(roots, coeff(n))
+    return vietta(roots, coeff(n, points))
     
-def sup(n: int):
+def sup(n: int) -> str:
+    if n <= 1: return ''
     sup = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
     return str(n).translate(sup)
 
-def all() -> list[int | float]:
-    coeffs: list[int | float] = list([0]*len(points))
+def allcoeffs(points: list[tuple[int | float | Rational, int | float | Rational]]) -> list[int | float | Rational]:
+    coeffs: list[int | float | Rational] = list([0]*len(points))
     for pt in points:
-        trm = term(pt[0])
+        trm = term(pt[0], points)
         for i in range(len(trm)):
             coeffs[i] += trm[i]
-    for i in range(len(coeffs)):
-        coeffs[i] = round(coeffs[i]) if coeffs[i] == round(coeffs[i]) else round(coeffs[i], 7)
     return coeffs
 
-def runpoly(x: int | float, polynomial: list[int | float]) -> int | float:
-    y: int | float = 0
+def runpoly(x: int | float | Rational, polynomial: list[int | float | Rational]) -> int | float | Rational:
+    y: int | float | Rational = 0
     for i in range(len(polynomial)):
         y += (polynomial[i]*pow(x, i))
-    return round(y) if round(y) == y else round(y, 7)
+    return round(y) if round(y) == y else y
 
-def print_polynomial(pol: list[int | float]) -> None:
-    res = ''
-    pol.reverse()
-    for i in range(len(pol) - 2):
-        if pol[i] != 0:
-            res += f'{pol[i] if pol[i] != 1 else ''}x{sup(len(pol) - i - 1)}+'
-    if pol[-2] != 0:
-        if pol[-1] != 0:
-            res += f'{pol[-2] if pol[-2] != 1 else ''}x+{pol[-1]}'
-        else:
-            res += f'{pol[-2] if pol[-2] != 1 else ''}x'
-    else:
-        if pol[-1] != 0:
-            res += f'{pol[-1]}'
+def print_polynomial(pol: list[int | float | Rational]) -> None:
+    res = repr(pol[-1]) + 'x' + sup(len(pol) - 1)
+    for i in range(len(pol) - 2, -1, -1):
+        if pol[i]:
+            res += ('+' if pol[i] > 0 else '') + repr(pol[i]) + ('x' if i > 0 else '') + sup(i)
     print(res)
 
-polynomial = all()
-print_polynomial(polynomial)
-print(runpoly(2, polynomial))
+def main():
+    points: list[tuple[int | float | Rational, int | float | Rational]] = []
+    print('Points: (x y, seperated by space or comma)')
+    inp = input()
+    while inp:
+        if ',' in inp:
+            x, y = inp.split(',')
+        else:
+            x, y = inp.split()
+        if '/' in x:
+            x = x.split('/')
+            x = Rational(flt(x[0].strip()), flt(x[1].strip()))
+        else:
+            x = flt(x.strip())
+        if '/' in y:
+            y = y.split('/')
+            y = Rational(flt(y[0].strip()), flt(y[1].strip()))
+        else:
+            y = flt(y.strip())
+        points.append((x, y))
+        inp = input()
+    polynomial = allcoeffs(points)
+    print_polynomial(polynomial)
+    evaluateQ = input('Want to evaluate? (y/n)')
+    if evaluateQ and evaluateQ[0] == 'y':
+        where = input('Where?')
+        if '/' in where:
+            where = where.split('/')
+            where = Rational(flt(where[0].strip()), flt(where[1].strip()))
+        else:
+            where = flt(where.strip())
+        print(runpoly(where, polynomial))
+        where = input()
+        while where:
+            if '/' in where:
+                where = where.split('/')
+                where = Rational(flt(where[0].strip()), flt(where[1].strip()))
+            else:
+                where = flt(where.strip())
+            print(runpoly(where, polynomial))
+            where = input()
+
+
+if __name__ == '__main__':
+    main()

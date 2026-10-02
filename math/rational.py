@@ -1,5 +1,5 @@
 from typing import TypeAlias
-from math import floor, gcd
+from math import floor, ceil, gcd
 
 Number: TypeAlias = "Rational | int | float"
 
@@ -9,11 +9,11 @@ class Rational:
 
     def __new__(cls, p: int, q: int): # p/q
         if q == 0:
-            raise ZeroDivisionError("division by zero")
-        if q < 0 and p < 0:
+            raise ZeroDivisionError("Division by zero")
+        if q < 0:
             q = -q
             p = -p
-        gdcpq = gcd(p, q)
+        gdcpq = gcd(abs(p), q)
         p /= gdcpq
         q /= gdcpq
         if q == 1:
@@ -24,7 +24,10 @@ class Rational:
     def __init__(self, p: int, q: int):
         if q == 0:
             raise ZeroDivisionError("division by zero")
-        gdcpq = gcd(p, q)
+        if q < 0:
+            q = -q
+            p = -p
+        gdcpq = gcd(abs(p), q)
         p /= gdcpq
         q /= gdcpq
         self.p = int(p)
@@ -171,15 +174,18 @@ class Rational:
     def __abs__(self):
         return Rational(abs(self.p), abs(self.q))
     
-    def __round__(self, n: int):
-        if n == 0 or n is None: return self.p // self.q
+    def __round__(self, n: int | None = None):
+        if n == 0 or n is None:
+            if abs(self - floor(self)) > abs(self - ceil(self)):
+                return ceil(self)
+            return floor(self)
         return round(self.to_float(), n)
 
     def __floor__(self):
         return self.p // self.q
 
     def __ceil__(self):
-        return self.p // self.q + 1
+        return self.p // self.q + 1 # self not in Z because of __new__
 
     def __hash__(self):
         return hash((self.p, self.q))
