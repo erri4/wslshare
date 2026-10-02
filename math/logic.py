@@ -251,7 +251,7 @@ def collect_variables(node, found=None):
 
 def print_truth_table(texts: list[str], asts: list[BinOp], variables: list[str]):
     print(f"\nExpressions: {', '.join(texts)}")
-    print(f"Parsed as : {', '.join([repr(ast) for ast in asts])}\n")
+    print(f"Parsed as: {', '.join([repr(ast) for ast in asts])}\n")
 
     header = ['Rw'] + variables + ['F']*len(texts)
     col_width = 1
