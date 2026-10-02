@@ -27,7 +27,15 @@ def readarr(start: int, length: int):
     return arr
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="MIPS interpreter.")
+    parser = argparse.ArgumentParser(description="MIPS assembly interpreter.", usage="""List of syscall functions:
+    syscall 0: print chr(rs + imm)
+    syscall 1: ord(input)+imm -> rs
+    syscall 2: print chr(mem[rs]+imm)
+    syscall 3: print regs
+    syscall 4: print rs
+    syscall 5: readarr(rs, imm)
+    syscall 6: exit with code imm
+    syscall 7: print mem[rs + imm]""")
     parser.add_argument("script", help="Path to the MIPS script to run")
     parser.add_argument("-pc", help="PC of first command in program",default=0,type=int)
     parser.add_argument("--compile", "-c", help="Compile the program",action="store_true")
@@ -158,7 +166,11 @@ if __name__ == '__main__':
                         case 0:
                             print(chr(regs[regify(arguments[0])] + int(arguments[2])),end='')
                         case 1:
-                            regs[regify(arguments[0])] = ord(input()) + int(arguments[2])
+                            ch = sys.stdin.read(1)
+                            if ch == "":
+                                regs[regify(arguments[0])] = int(arguments[2])
+                            else:
+                                regs[regify(arguments[0])] = ord(ch[0]) + int(arguments[2])
                         case 2:
                             print(chr(readmem(regs[regify(arguments[0])]) + int(arguments[2])),end='')
                         case 3:
@@ -166,7 +178,7 @@ if __name__ == '__main__':
                         case 4:
                             print(regs[regify(arguments[0])])
                         case 5:
-                            print(readarr(regs[regify(arguments[0])], int(arguments[2])))
+                            print(readarr(int(arguments[2]), regs[regify(arguments[0])]))
                         case 6:
                             sys.exit(int(arguments[2]))
                         case 7:
