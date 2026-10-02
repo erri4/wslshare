@@ -114,6 +114,10 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
                 res += f'{arguments[0]} = {arguments[1]} & {arguments[2]}'
             case 'or':
                 res += f'{arguments[0]} = {arguments[1]} | {arguments[2]}'
+            case 'xor':
+                res += f'{arguments[0]} = {arguments[1]} ^ {arguments[2]}'
+            case 'xori':
+                res += f'{arguments[0]} = {arguments[1]} ^ {imm}'
             case 'andi':
                 res += f'{arguments[0]} = {arguments[1]} & {imm}'
             case 'ori':

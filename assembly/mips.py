@@ -124,6 +124,10 @@ if __name__ == '__main__':
                     regs[regify(arguments[0])] = regs[regify(arguments[1])] & regs[regify(arguments[2])]
                 case 'or':
                     regs[regify(arguments[0])] = regs[regify(arguments[1])] | regs[regify(arguments[2])]
+                case 'xor':
+                    regs[regify(arguments[0])] = regs[regify(arguments[1])] ^ regs[regify(arguments[2])]
+                case 'xori':
+                    regs[regify(arguments[0])] = regs[regify(arguments[1])] ^ imm
                 case 'andi':
                     regs[regify(arguments[0])] = regs[regify(arguments[1])] & imm
                 case 'ori':
