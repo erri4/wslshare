@@ -34,7 +34,7 @@ if __name__ == '__main__':
     syscall 3: print regs
     syscall 4: print rs
     syscall 5: readarr(imm, rs)
-    syscall 6: exit with code imm
+    syscall 6: exit with code imm + rs
     syscall 7: print mem[rs + imm]""")
     parser.add_argument("script", help="Path to the MIPS script to run")
     parser.add_argument("-pc", help="PC of first command in program",default=0,type=int)
@@ -184,7 +184,7 @@ if __name__ == '__main__':
                         case 5:
                             print(readarr(imm, regs[regify(arguments[0])]))
                         case 6:
-                            sys.exit(imm)
+                            sys.exit(imm + regs[regify(arguments[0])])
                         case 7:
                             print(readmem(regs[regify(arguments[0])] + imm))
             IC += 1

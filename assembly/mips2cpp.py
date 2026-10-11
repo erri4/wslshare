@@ -151,11 +151,11 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
             case 'syscall':
                 match int(arguments[1]):
                     case 0:
-                        res += f"cout << (char)({arguments[0]} + {arguments[2]}) << '\\n'"
+                        res += f"cout << (char)({arguments[0]} + {imm}) << '\\n'"
                     case 1:
-                        res += f'cin >> inp; {arguments[0]} = (int)inp + {arguments[2]}'
+                        res += f'cin >> inp; {arguments[0]} = (int)inp + {imm}'
                     case 2:
-                        res += f"cout << (char)(readmem({arguments[0]}) + {arguments[2]}) << '\\n'"
+                        res += f"cout << (char)(readmem({arguments[0]}) + {imm}) << '\\n'"
                     case 3:
                         res += 'cout'
                         for i in range(32):
@@ -164,11 +164,11 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
                     case 4:
                         res += f'cout << {arguments[0]}'
                     case 5:
-                        res += f"for (int n : readarr({arguments[0]}, {arguments[2]})) cout << n << ' ';\ncout << '\\n'"
+                        res += f"for (int n : readarr({arguments[0]}, {imm})) cout << n << ' ';\ncout << '\\n'"
                     case 6:
                         res += f'return {imm} + {arguments[0]}'
                     case 7:
-                        res += f"cout << (readmem({arguments[0]} + {arguments[2]})) << '\\n'"
+                        res += f"cout << (readmem({arguments[0]} + {imm})) << '\\n'"
 
         res += ';\n'
     jr += '''default:\\
