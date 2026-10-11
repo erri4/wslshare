@@ -33,7 +33,7 @@ if __name__ == '__main__':
     syscall 2: print chr(mem[rs]+imm)
     syscall 3: print regs
     syscall 4: print rs
-    syscall 5: readarr(rs, imm)
+    syscall 5: readarr(imm, rs)
     syscall 6: exit with code imm
     syscall 7: print mem[rs + imm]""")
     parser.add_argument("script", help="Path to the MIPS script to run")
@@ -168,25 +168,25 @@ if __name__ == '__main__':
                 case 'syscall':
                     match int(arguments[1]):
                         case 0:
-                            print(chr(regs[regify(arguments[0])] + int(arguments[2])),end='')
+                            print(chr(regs[regify(arguments[0])] + imm),end='')
                         case 1:
                             ch = sys.stdin.read(1)
                             if ch == "":
-                                regs[regify(arguments[0])] = int(arguments[2])
+                                regs[regify(arguments[0])] = imm
                             else:
-                                regs[regify(arguments[0])] = ord(ch[0]) + int(arguments[2])
+                                regs[regify(arguments[0])] = ord(ch[0]) + imm
                         case 2:
-                            print(chr(readmem(regs[regify(arguments[0])]) + int(arguments[2])),end='')
+                            print(chr(readmem(regs[regify(arguments[0])]) + imm),end='')
                         case 3:
                             print(regs)
                         case 4:
                             print(regs[regify(arguments[0])])
                         case 5:
-                            print(readarr(int(arguments[2]), regs[regify(arguments[0])]))
+                            print(readarr(imm, regs[regify(arguments[0])]))
                         case 6:
-                            sys.exit(int(arguments[2]))
+                            sys.exit(imm)
                         case 7:
-                            print(readmem(regs[regify(arguments[0])] + int(arguments[2])))
+                            print(readmem(regs[regify(arguments[0])] + imm))
             IC += 1
             for i in range(len(regs)):
                 regs[i] = (regs[i] + 2**31) % 2**32 - 2**31

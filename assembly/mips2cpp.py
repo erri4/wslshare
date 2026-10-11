@@ -166,7 +166,7 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
                     case 5:
                         res += f"for (int n : readarr({arguments[0]}, {arguments[2]})) cout << n << ' ';\ncout << '\\n'"
                     case 6:
-                        res += f'return {arguments[2]}'
+                        res += f'return {imm} + {arguments[0]}'
                     case 7:
                         res += f"cout << (readmem({arguments[0]} + {arguments[2]})) << '\\n'"
 
