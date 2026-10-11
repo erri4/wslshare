@@ -1,4 +1,5 @@
 from rational import Rational
+from itertools import dropwhile
 
 def flt(num: str) -> int | float:
     if '.' in num:
@@ -47,7 +48,7 @@ def allcoeffs(points: list[tuple[int | float | Rational, int | float | Rational]
         trm = term(pt[0], points)
         for i in range(len(trm)):
             coeffs[i] += trm[i]
-    return coeffs
+    return list(reversed(list(dropwhile(lambda x: x == 0, reversed(coeffs)))))
 
 def runpoly(x: int | float | Rational, polynomial: list[int | float | Rational]) -> int | float | Rational:
     y: int | float | Rational = 0
@@ -55,11 +56,18 @@ def runpoly(x: int | float | Rational, polynomial: list[int | float | Rational])
         y += (polynomial[i]*pow(x, i))
     return round(y) if round(y) == y else y
 
+def coeffrepr(co: int | float | Rational, i: int):
+    if co == 0: return ''
+    if i == 0: return ('+' if co > 0 else '') + repr(co)
+    if co == 1: return '+x' + sup(i)
+    return ('+' if co > 0 else '') + repr(co) + 'x' + sup(i)
+
 def print_polynomial(pol: list[int | float | Rational]) -> None:
-    res = repr(pol[-1]) + 'x' + sup(len(pol) - 1)
+    res = coeffrepr(pol[-1], len(pol) - 1)
+    if res[0] == '+': res = res[1:]
     for i in range(len(pol) - 2, -1, -1):
         if pol[i]:
-            res += ('+' if pol[i] > 0 else '') + repr(pol[i]) + ('x' if i > 0 else '') + sup(i)
+            res += coeffrepr(pol[i], i)
     print(res)
 
 def main():
