@@ -1,5 +1,44 @@
 #/*[
-'''<!DOCTYPE html>
+'''
+addi R1, R0, 103
+syscall R1, 0, 0
+addi R1, R0, 114
+syscall R1, 0, 0
+addi R1, R0, 101
+syscall R1, 0, 0
+addi R1, R0, 101
+syscall R1, 0, 0
+addi R1, R0, 116
+syscall R1, 0, 0
+addi R1, R0, 105
+syscall R1, 0, 0
+addi R1, R0, 110
+syscall R1, 0, 0
+addi R1, R0, 103
+syscall R1, 0, 0
+addi R1, R0, 115
+syscall R1, 0, 0
+addi R1, R0, 44
+syscall R1, 0, 0
+addi R1, R0, 32
+syscall R1, 0, 0
+addi R1, R0, 105
+syscall R1, 0, 0
+addi R1, R0, 109
+syscall R1, 0, 0
+addi R1, R0, 32
+syscall R1, 0, 0
+addi R1, R0, 77
+syscall R1, 0, 0
+addi R1, R0, 73
+syscall R1, 0, 0
+addi R1, R0, 80
+syscall R1, 0, 0
+addi R1, R0, 83
+syscall R1, 0, 0
+# mips goes here
+syscall R0, 6, 0
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
