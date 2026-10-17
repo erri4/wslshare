@@ -260,6 +260,9 @@ class Polynomial:
             if binb[i]: c *= binc[i]
         return c
 
+    def __xor__(self, other: int):
+        return self ** other # for things like p = x^8 +123 + 5 +6 * x
+
     def derivative(self, order: int = 1) -> "Polynomial":
         if order == 0: return self
         if order < 0: return self.integral(-order)
@@ -284,6 +287,8 @@ class Polynomial:
                     new[i + 1] = self[i] / (i + 1)
             return Polynomial(new)
         return self.integral(order - 1).integral()
+
+x = Polynomial.Id()
 
 def flt(num: str) -> int | float:
     if '.' in num:
