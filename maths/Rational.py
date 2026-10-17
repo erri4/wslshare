@@ -185,7 +185,7 @@ class Rational:
         return self.p // self.q
 
     def __ceil__(self):
-        return self.p // self.q + 1 # self not in Z because of __new__
+        return self.p // self.q + 1
 
     def __hash__(self):
         return hash((self.p, self.q))

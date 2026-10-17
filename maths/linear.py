@@ -1,6 +1,6 @@
-from matrix import Matrix, MatrixDimensionsError
-from vector import Vector, DimensionError
-from rational import Rational
+from Matrix import Matrix, MatrixDimensionsError
+from Vector import Vector, DimensionError
+from Rational import Rational
 from typing import Callable
 import re
 import math

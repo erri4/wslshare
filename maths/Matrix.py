@@ -1,4 +1,4 @@
-from vector import Vector
+from Vector import Vector
 
 RawMatrix = list[list[int]]
 

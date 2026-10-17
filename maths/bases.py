@@ -1,4 +1,4 @@
-from rational import Rational
+from Rational import Rational
 from math import floor
 from string import ascii_uppercase, digits as digs
 chars = digs + ascii_uppercase
