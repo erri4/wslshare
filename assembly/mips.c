@@ -105,6 +105,10 @@ while ((bytesRead = fread(buffer, 1, 4, file1000)) > 0) {
     i += 4;
 }
 fclose(file1000);
+
+
+// Start of MIPS assembly (transpiled to C) code
+
 R1 = R0 + 0;
 //# ptr
 
@@ -279,4 +283,7 @@ ENDCASES1:
 jr(R31);
 
 END:
+
+
+//End of MIPS assembly code
 return 0;}

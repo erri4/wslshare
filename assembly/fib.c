@@ -81,6 +81,10 @@ int* readarr(int start, int length){
 }
 
 int main(){
+
+
+// Start of MIPS assembly (transpiled to C) code
+
 R1 = R0 + 0;
 R2 = R0 + 0;
 R3 = R0 + 0;
@@ -108,4 +112,7 @@ R2 = R2 + 1;
 if (R2 != R1) goto FIBLOOP;
 ENDFIB:
 printf("%d", R3);
+
+
+//End of MIPS assembly code
 return 0;}

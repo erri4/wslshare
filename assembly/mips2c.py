@@ -99,6 +99,8 @@ while ((bytesRead = fread(buffer, 1, 4, file''' + str(addr) + ''')) > 0) {
     i += 4;
 }\n'''
         res += f"fclose(file{addr});\n"
+
+    res += "\n\n// Start of MIPS assembly (transpiled to C) code\n\n"
     for command in script.splitlines():
         command = command.strip()
         if not command:
@@ -202,5 +204,5 @@ if (temp_arr_{ret} != NULL) {{
                 break;\\
         }\\
     }\n'''
-    res = jr + res + 'return 0;}'
+    res = jr + res + '\n\n//End of MIPS assembly code\nreturn 0;}'
     return res
