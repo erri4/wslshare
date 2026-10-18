@@ -4,6 +4,7 @@ import json
 import sys
 import socket
 import select
+from typing import TextIO
 
 from protocol import server_addr, pro_rd_msg, pro_wr_msg
 
@@ -18,6 +19,7 @@ def main():
     s = '\n'
     while not finished:
         rdables, _, _ = select.select(to_rd, [], [], 0.1)
+        rdables: list[socket.socket | TextIO]
         for rdable in rdables:
             if rdable == client:
                 from_server = pro_rd_msg(client)

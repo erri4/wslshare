@@ -1,14 +1,15 @@
+from socket import socket
 import struct
 
 msg_format = struct.Struct('!I')
 server_addr = ('127.0.0.1', 1337)
 
-def pro_wr_msg(s, msg):
+def pro_wr_msg(s: socket, msg):
     msg_len = len(msg)
     msg = msg_format.pack(msg_len) + msg
     s.sendall(msg)
 
-def pro_rd_msg(s):
+def pro_rd_msg(s: socket):
     metadata = s.recv(msg_format.size)
     if metadata == b'':
         return b''
