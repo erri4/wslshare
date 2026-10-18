@@ -13,39 +13,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 const int R0 = 0;
-int R1 = 0;
-int R2 = 0;
-int R3 = 0;
-int R4 = 0;
-int R5 = 0;
-int R6 = 0;
-int R7 = 0;
-int R8 = 0;
-int R9 = 0;
-int R10 = 0;
-int R11 = 0;
-int R12 = 0;
-int R13 = 0;
-int R14 = 0;
-int R15 = 0;
-int R16 = 0;
-int R17 = 0;
-int R18 = 0;
-int R19 = 0;
-int R20 = 0;
-int R21 = 0;
-int R22 = 0;
-int R23 = 0;
-int R24 = 0;
-int R25 = 0;
-int R26 = 0;
-int R27 = 0;
-int R28 = 0;
-int R29 = 0;
-int R30 = 0;
-int R31 = 0;
-char inp;
+int R1;
+int R2;
+int R3;
+int R4;
+int R5;
+int R6;
+int R7;
+int R8;
+int R9;
+int R10;
+int R11;
+int R12;
+int R13;
+int R14;
+int R15;
+int R16;
+int R17;
+int R18;
+int R19;
+int R20;
+int R21;
+int R22;
+int R23;
+int R24;
+int R25;
+int R26;
+int R27;
+int R28;
+int R29;
+int R30;
+int R31;
+char buffer[100];
+int idx = 0;
+int needs_input = 1;
 unsigned char mem[4096] = {0};
+
+int scan(){
+    if (needs_input){
+        scanf("%99s", buffer);
+        needs_input = 0;
+        idx = 0;
+    }
+    if (buffer[idx] == '\0' || idx == 100){
+        needs_input = 1;
+        return 0;
+    }
+    
+    char res = buffer[idx];
+    idx++;
+    
+    return (int)res;
+}
 
 int readmem(int addr){
     return ((int)mem[addr+0] << 24) | ((int)mem[addr+1] << 16) | ((int)mem[addr+2] << 8) | mem[addr+3];
@@ -210,7 +229,7 @@ R2 = readmem(R1 + 0);
 goto CASENOP;
 
 CASEINP:
-scanf(" %c", &inp); R2 = (int)inp + 0;
+R2 = scan() + 0;
 //# input
 goto CASENOP;
 
