@@ -119,6 +119,7 @@ j CASENOP
 
 CASEINP:
 syscall R2, 1, 0
+beq R2, R0, CASEINP
 # input
 j CASENOP
 

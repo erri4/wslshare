@@ -234,6 +234,7 @@ goto CASENOP;
 
 CASEINP:
 R2 = scan() + 0;
+if (R2 == R0) goto CASEINP;
 //# input
 goto CASENOP;
 
