@@ -1,4 +1,4 @@
-from mips2cpp import mips2cpp
+from mips2c import mips2c
 import argparse
 import subprocess
 import sys
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument("script", help="Path to the MIPS script to run")
     parser.add_argument("-pc", help="PC of first command in program",default=0,type=int)
     parser.add_argument("--compile", "-c", help="Compile the program",action="store_true")
-    parser.add_argument("--tocpp", "-tocpp", help="Transpile the program to C++",action="store_true")
+    parser.add_argument("--toc", "-toc", '-2c', help="Transpile the program to C++",action="store_true")
     parser.add_argument("--load", help="Load a program to mem. PATH:ADDR",action="append",default=[],type=str)
 
     args = parser.parse_args()
@@ -47,23 +47,24 @@ if __name__ == '__main__':
     with open(args.script) as f:
         script = f.read()
 
-    if args.compile or args.tocpp:
+    if args.compile or args.toc:
         dct = {}
         for load in args.load:
             if type(load) is str: # for type hints
                 file, addr = load.split(':')
                 dct[file] = int(addr)
-        cpp_output = mips2cpp(script, dct)
-        with open(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp',"w") as f:
-            f.write(cpp_output)
+        c_output = mips2c(script, dct)
+        with open(os.path.basename(os.path.splitext(args.script)[0]) + '.c',"w") as f:
+            f.write(c_output)
         if args.compile:
-            subprocess.run(f'g++ -o {os.path.basename(os.path.splitext(args.script)[0])} {os.path.basename(os.path.splitext(args.script)[0]) + '.cpp'}')
-        if not args.tocpp:
-            os.remove(os.path.basename(os.path.splitext(args.script)[0]) + '.cpp')
+            subprocess.run(f'gcc -o {os.path.basename(os.path.splitext(args.script)[0])} {os.path.basename(os.path.splitext(args.script)[0]) + '.c'}')
+        if not args.toc:
+            os.remove(os.path.basename(os.path.splitext(args.script)[0]) + '.c')
     else:
         pc: int = args.pc
         regs = [0]*32
         mem = [0] * 4096
+        inp = ''
 
         for load in args.load:
             if type(load) is str: # for type hints
@@ -170,11 +171,11 @@ if __name__ == '__main__':
                         case 0:
                             print(chr(regs[regify(arguments[0])] + imm),end='')
                         case 1:
-                            ch = sys.stdin.read(1)
-                            if ch == "":
-                                regs[regify(arguments[0])] = imm
-                            else:
-                                regs[regify(arguments[0])] = ord(ch[0]) + imm
+                            if inp == '':
+                                inp = input()
+                            inp += '\x00'
+                            regs[regify(arguments[0])] = ord(inp[0]) + imm
+                            inp = inp[1:]
                         case 2:
                             print(chr(readmem(regs[regify(arguments[0])]) + imm),end='')
                         case 3:

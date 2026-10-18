@@ -1,13 +1,13 @@
 import re
 import json
 
-def mips2cpp(script: str, files: dict[str, str | int]) -> str:
+def mips2c(script: str, files: dict[str, str | int]) -> str:
     ret = 0
     jr = '''#define jr(R) {\\
         switch (R){\\
             '''
-    res = '''#include <bits/stdc++.h>
-using namespace std;
+    res = '''#include <stdio.h>
+#include <stdlib.h>
 const int R0 = 0;
 int R1 = 0;
 int R2 = 0;
@@ -40,11 +40,30 @@ int R28 = 0;
 int R29 = 0;
 int R30 = 0;
 int R31 = 0;
-char inp;
-vector<int> mem(4096, 0);
+char buffer[100];
+int idx = 0;
+int needs_input = 1;
+unsigned char mem[4096] = {0};
+
+int scan(){
+    if (needs_input){
+        scanf("%99s", buffer);
+        needs_input = 0;
+        idx = 0;
+    }
+    if (buffer[idx] == '\\0' || idx == 100){
+        needs_input = 1;
+        return 0;
+    }
+    
+    char res = buffer[idx];
+    idx++;
+    
+    return (int)res;
+}
 
 int readmem(int addr){
-    return (mem[addr+0] << 24) | (mem[addr+1] << 16) | (mem[addr+2] << 8) | mem[addr+3];
+    return ((int)mem[addr+0] << 24) | ((int)mem[addr+1] << 16) | ((int)mem[addr+2] << 8) | mem[addr+3];
 }
 
 void writemem(int addr, int data){
@@ -54,30 +73,32 @@ void writemem(int addr, int data){
     mem[addr + 3] = data & 0xFF;
 }
 
-vector<int> readarr(int start, int length){
-    vector<int> arr;
+int* readarr(int start, int length){
+    int* arr = (int*)malloc(length * sizeof(int));
+    if (arr == NULL) return NULL;
     for (int i = 0; i < length; i++){
-        arr.push_back(readmem(start + i * 4));
+        arr[i] = readmem(start + i * 4);
     }
     return arr;
 }
 
 int main(){\n'''
     for file, addr in files.items():
-        res += f'ifstream file{addr}({json.dumps(file)});\n'
-        res += f'if (!file{addr})' + '{\ncout << "Unable to open file";\nreturn 1;\n}\n'
+        res += f'FILE* file{addr} = fopen({json.dumps(file)}, "rb");\n'
+        res += f'if (!file{addr})' + '{\nprintf("Unable to open file\\n");\nreturn 1;\n}\n'
         res += '''char buffer[5] = {'\\0', '\\0', '\\0', '\\0', '\\0'};
 
 int i = 0;
-while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount() > 0) {
-    writemem(''' + str(addr) + ''' + i, (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
+size_t bytesRead;
+while ((bytesRead = fread(buffer, 1, 4, file''' + str(addr) + ''')) > 0) {
+    writemem(''' + str(addr) + ''' + i, ((unsigned char)buffer[0] << 24) | ((unsigned char)buffer[1] << 16) | ((unsigned char)buffer[2] << 8) | (unsigned char)buffer[3]);
     buffer[0] = '\\0';
     buffer[1] = '\\0';
     buffer[2] = '\\0';
     buffer[3] = '\\0';
     i += 4;
 }\n'''
-        res += f'file{addr}.close();\n'
+        res += f"fclose(file{addr});\n"
     for command in script.splitlines():
         command = command.strip()
         if not command:
@@ -151,24 +172,30 @@ while (file''' + str(addr) + '.read(buffer, 4) || file' + str(addr) + '''.gcount
             case 'syscall':
                 match int(arguments[1]):
                     case 0:
-                        res += f"cout << (char)({arguments[0]} + {imm}) << '\\n'"
+                        res += f'printf("%c", (char)({arguments[0]} + {imm}))'
                     case 1:
-                        res += f'cin >> inp; {arguments[0]} = (int)inp + {imm}'
+                        res += f'{arguments[0]} = scan() + {imm}'
                     case 2:
-                        res += f"cout << (char)(readmem({arguments[0]}) + {imm}) << '\\n'"
+                        res += f'printf("%c", (char)(readmem({arguments[0]}) + {imm}))'
                     case 3:
-                        res += 'cout'
-                        for i in range(32):
-                            res += f" << R{i} << ' '"
-                        res += " << '\\n'"
+                        res += 'printf'
+                        fmt = " ".join(["%d"] * 32)
+                        args_list = ", ".join([f"R{i}" for i in range(32)])
+                        res += f'("{fmt}", {args_list})'
                     case 4:
-                        res += f'cout << {arguments[0]}'
+                        res += f'printf("%d", {arguments[0]})'
                     case 5:
-                        res += f"for (int n : readarr({arguments[0]}, {imm})) cout << n << ' ';\ncout << '\\n'"
+                        res += f"""int* temp_arr_{ret} = readarr({arguments[0]}, {imm});
+if (temp_arr_{ret} != NULL) {{
+    for (int idx_{ret} = 0; idx_{ret} < {imm}; idx_{ret}++) {{
+        printf("%d ", temp_arr_{ret}[idx_{ret}]);
+    }}
+    free(temp_arr_{ret});
+}}"""
                     case 6:
                         res += f'return {imm} + {arguments[0]}'
                     case 7:
-                        res += f"cout << (readmem({arguments[0]} + {imm})) << '\\n'"
+                        res += f'printf("%d", readmem({arguments[0]} + {imm}))'
 
         res += ';\n'
     jr += '''default:\\

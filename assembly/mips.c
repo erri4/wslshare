@@ -10,8 +10,8 @@
                 break;\
         }\
     }
-#include <bits/stdc++.h>
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
 const int R0 = 0;
 int R1 = 0;
 int R2 = 0;
@@ -45,10 +45,10 @@ int R29 = 0;
 int R30 = 0;
 int R31 = 0;
 char inp;
-vector<int> mem(4096, 0);
+unsigned char mem[4096] = {0};
 
 int readmem(int addr){
-    return (mem[addr+0] << 24) | (mem[addr+1] << 16) | (mem[addr+2] << 8) | mem[addr+3];
+    return ((int)mem[addr+0] << 24) | ((int)mem[addr+1] << 16) | ((int)mem[addr+2] << 8) | mem[addr+3];
 }
 
 void writemem(int addr, int data){
@@ -58,32 +58,34 @@ void writemem(int addr, int data){
     mem[addr + 3] = data & 0xFF;
 }
 
-vector<int> readarr(int start, int length){
-    vector<int> arr;
+int* readarr(int start, int length){
+    int* arr = (int*)malloc(length * sizeof(int));
+    if (arr == NULL) return NULL;
     for (int i = 0; i < length; i++){
-        arr.push_back(readmem(start + i * 4));
+        arr[i] = readmem(start + i * 4);
     }
     return arr;
 }
 
 int main(){
-ifstream file1000(".\\testasm.bf");
+FILE* file1000 = fopen(".\\testasm.bf", "rb");
 if (!file1000){
-cout << "Unable to open file";
+printf("Unable to open file\n");
 return 1;
 }
 char buffer[5] = {'\0', '\0', '\0', '\0', '\0'};
 
 int i = 0;
-while (file1000.read(buffer, 4) || file1000.gcount() > 0) {
-    writemem(1000 + i, (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
+size_t bytesRead;
+while ((bytesRead = fread(buffer, 1, 4, file1000)) > 0) {
+    writemem(1000 + i, ((unsigned char)buffer[0] << 24) | ((unsigned char)buffer[1] << 16) | ((unsigned char)buffer[2] << 8) | (unsigned char)buffer[3]);
     buffer[0] = '\0';
     buffer[1] = '\0';
     buffer[2] = '\0';
     buffer[3] = '\0';
     i += 4;
 }
-file1000.close();
+fclose(file1000);
 R1 = R0 + 0;
 //# ptr
 
@@ -208,12 +210,12 @@ R2 = readmem(R1 + 0);
 goto CASENOP;
 
 CASEINP:
-cin >> inp; R2 = (int)inp + 0;
+scanf(" %c", &inp); R2 = (int)inp + 0;
 //# input
 goto CASENOP;
 
 CASEPR:
-cout << (char)(R2 + 0);
+printf("%c", (char)(R2 + 0));
 //# print
 
 CASENOP:
