@@ -10,6 +10,13 @@ def t(n: int):
     dpt[n] = t_n
     return t_n
 
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, x, y = egcd(b % a, a)
+        return (g, y - (b // a) * x, x)
+
 def y(n: int):
     if n == 0:
         return 0
