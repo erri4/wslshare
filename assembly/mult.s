@@ -10,6 +10,12 @@ j EXIT
 
 MULT:
 # R1 * R2
+slt R7, R1, R2
+beq R7, R0, GOODSIZE
+addi R8, R2, 0
+addi R2, R1, 0
+addi R1, R8, 0
+GOODSIZE:
 sw R31, 3000(R6)
 addi R6, R6, 4
 beq R2, R0, CASE0
