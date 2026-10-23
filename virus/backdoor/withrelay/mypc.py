@@ -4,7 +4,7 @@ import json
 import threading
 import base64
 import os
-import time
+import sys
 
 
 # SERVER_IP = 'http://127.0.0.1:5000'
@@ -35,13 +35,13 @@ def select_target():
                 return selected_id
             else:
                 print("Invalid selection.")
-        except ValueError:
+        except ValueError as e:
+            if 'q' in str(e): break
             print("Please enter a number.")
 
 
 def recv(client_recv: Callable[[], requests.Response]):
     global cd, lastest, proceed
-    time.sleep(0.5)
     
     resp: requests.Response = client_recv()
     resp = resp.text
@@ -66,7 +66,7 @@ def send(client_send):
     global lastest, terminate, proceed
     if terminate: return
     cmd = ''
-    while not cmd == 'exit':
+    while not cmd == 'exit' and not cmd == 'quit':
         if lastest is not None:
             print(lastest, flush=True)
             lastest = None
@@ -76,6 +76,7 @@ def send(client_send):
             continue
 
         cmd = input(cd)
+        if cmd.startswith('quit'): break
 
         if cmd.startswith('upload '):
             path = cmd.split(maxsplit=1)[1]
@@ -104,6 +105,7 @@ def send(client_send):
 def main():
     global send_t, terminate
     target_id = select_target()
+    if not target_id: return
 
     def client_send(payload):
         requests.post(f"{SERVER_IP}/client/send/{target_id}", json=payload)
@@ -125,4 +127,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if '--reset' in sys.argv:
+        if len(sys.argv) == 2: requests.post(f'{SERVER_IP}/reset')
+        requests.post(f'{SERVER_IP}/reset/{sys.argv[-1]}')
+    else:
+        main()

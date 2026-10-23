@@ -82,12 +82,15 @@ def main():
         except requests.exceptions.ReadTimeout:
             continue
 
-        result: subprocess.CompletedProcess[bytes] = subprocess.run(cmd, shell=True, capture_output=True, cwd=cwd)
-        output = result.stdout.decode()
-        error = result.stderr.decode()
-        output = output if output else None
+        try:
+            result: subprocess.CompletedProcess[bytes] = subprocess.run(cmd, shell=True, capture_output=True, cwd=cwd)
+            output = result.stdout.decode()
+            error = result.stderr.decode()
+            output = output if output else None
 
-        send({'error': error, 'output': output, 'cwd': cwd})
+            send({'error': error, 'output': output, 'cwd': cwd})
+        except Exception as e:
+            send({'error': str(e), 'output': None, 'cwd': cwd})
 
 
 if __name__ == '__main__':
