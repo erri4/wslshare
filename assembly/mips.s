@@ -1,3 +1,5 @@
+# Load BF program at address 1000
+
 addi R1, R0, 0
 # ptr
 
