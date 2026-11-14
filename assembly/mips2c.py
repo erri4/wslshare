@@ -41,6 +41,7 @@ int R29;
 int R30;
 int R31;
 char buffer[100];
+char c;
 int idx = 0;
 int needs_input = 1;
 unsigned char mem[4096] = {0};
@@ -198,11 +199,20 @@ if (temp_arr_{ret} != NULL) {{
                         res += f'return {imm} + {arguments[0]}'
                     case 7:
                         res += f'printf("%d", readmem({arguments[0]} + {imm}))'
-
+                    case 8:
+                        res += f'snprintf(buffer, sizeof(buffer), "%s", {arguments[-1]});\n'
+                        res += f"for (int j = 0; j < {len(arguments[-1]) - 2}; j++)" + "{\n"
+                        res += f'    writemem({arguments[0]} + 4 * j, (int)buffer[j]);\n' + '}\n'
+                        res += f'writemem({arguments[0]} + 4 * {len(arguments[-1]) - 2}, 0)'
+                    case 9:
+                        res += 'for (int j = 0; 1; j += 4){\n'
+                        res += f'''    c = readmem({arguments[0]} + j);
+    if (c == 0) break;
+    printf("%c", c);''' + '\n}\n' + f'printf("%c", (char){imm})'
         res += ';\n'
     jr += '''default:\\
                 break;\\
         }\\
     }\n'''
-    res = jr + res + '\n\n//End of MIPS assembly code\nreturn 0;}'
+    res = jr + res + '\n\n// End of MIPS assembly code\nreturn 0;}'
     return res

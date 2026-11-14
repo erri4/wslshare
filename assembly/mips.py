@@ -35,7 +35,9 @@ if __name__ == '__main__':
     syscall 4: print rs
     syscall 5: readarr(imm, rs)
     syscall 6: exit with code imm + rs
-    syscall 7: print mem[rs + imm]""")
+    syscall 7: print mem[rs + imm]
+    syscall 8: write to mem[rs] an array of chars (ends with 0)
+    syscall 9: print string at rs until reaching 0 then print chr(imm)""")
     parser.add_argument("script", help="Path to the MIPS script to run")
     parser.add_argument("-pc", help="PC of first command in program",default=0,type=int)
     parser.add_argument("--compile", "-c", help="Compile the program",action="store_true")
@@ -188,6 +190,20 @@ if __name__ == '__main__':
                             sys.exit(imm + regs[regify(arguments[0])])
                         case 7:
                             print(readmem(regs[regify(arguments[0])] + imm))
+                        case 8:
+                            ptr = regs[regify(arguments[0])]
+                            string = eval(arguments[-1])
+                            for idx in range(len(string)):
+                                writemem(ptr + 4 * idx, ord(string[idx]))
+                            writemem(ptr + 4 * len(string), 0)
+                        case 9:
+                            ptr = regs[regify(arguments[0])]
+                            while True:
+                                c = readmem(ptr)
+                                if c == 0: break
+                                print(chr(c), end='')
+                                ptr += 4
+                            print(chr(imm), end='')
             IC += 1
             for i in range(len(regs)):
                 regs[i] = (regs[i] + 2**31) % 2**32 - 2**31
