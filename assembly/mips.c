@@ -45,6 +45,7 @@ int R29;
 int R30;
 int R31;
 char buffer[100];
+char c;
 int idx = 0;
 int needs_input = 1;
 unsigned char mem[4096] = {0};
@@ -108,6 +109,8 @@ fclose(file1000);
 
 
 // Start of MIPS assembly (transpiled to C) code
+
+//# Load BF program at address 1000
 
 R1 = R0 + 0;
 //# ptr
@@ -286,5 +289,5 @@ jr(R31);
 END:
 
 
-//End of MIPS assembly code
+// End of MIPS assembly code
 return 0;}
