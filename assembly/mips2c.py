@@ -186,7 +186,8 @@ while ((bytesRead = fread(buffer, 1, 4, file''' + str(addr) + ''')) > 0) {
                         args_list = ", ".join([f"R{i}" for i in range(32)])
                         res += f'("{fmt}", {args_list})'
                     case 4:
-                        res += f'printf("%d", {arguments[0]})'
+                        res += f'printf("%d", {arguments[0]});\n'
+                        res += f'printf("%c", (char)({imm}))'
                     case 5:
                         res += f"""int* temp_arr_{ret} = readarr({arguments[0]}, {imm});
 if (temp_arr_{ret} != NULL) {{

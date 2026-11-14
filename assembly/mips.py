@@ -32,7 +32,7 @@ if __name__ == '__main__':
     syscall 1: ord(input)+imm -> rs
     syscall 2: print chr(mem[rs]+imm)
     syscall 3: print regs
-    syscall 4: print rs
+    syscall 4: print rs (end=chr(imm))
     syscall 5: readarr(imm, rs)
     syscall 6: exit with code imm + rs
     syscall 7: print mem[rs + imm]
@@ -88,10 +88,10 @@ if __name__ == '__main__':
         script = script.splitlines()
         for i in range(len(script)):
             if script[i].strip().endswith(':'):
-                labels[script[i].strip()[:-1].lower()] = pc + 4 * i
+                labels[script[i].strip()[:-1]] = pc + 4 * i
         script = ['nop'] * (pc // 4) + script
         while pc < len(script)*4:
-            command = script[pc // 4].lower().strip()
+            command = script[pc // 4].strip()
             if command.startswith('#') or command.endswith(':') or command.startswith('nop') or not command:
                 if command.startswith('nop'): IC += 1
                 pc += 4
@@ -175,7 +175,7 @@ if __name__ == '__main__':
                         case 1:
                             if inp == '':
                                 inp = input()
-                            inp += '\x00'
+                                inp += '\x00'
                             regs[regify(arguments[0])] = ord(inp[0]) + imm
                             inp = inp[1:]
                         case 2:
@@ -183,7 +183,7 @@ if __name__ == '__main__':
                         case 3:
                             print(regs)
                         case 4:
-                            print(regs[regify(arguments[0])])
+                            print(regs[regify(arguments[0])], end=chr(imm))
                         case 5:
                             print(readarr(imm, regs[regify(arguments[0])]))
                         case 6:
